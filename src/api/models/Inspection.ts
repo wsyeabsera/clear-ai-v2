@@ -1,6 +1,6 @@
 // Inspection Mongoose Model
 import mongoose, { Schema, Document } from "mongoose";
-import { Inspection as IInspection } from "../../tools/types.js";
+import { Inspection as IInspection } from "../../shared/types/tool.js";
 
 export interface InspectionDocument extends Omit<IInspection, "id">, Document {
   id: string;

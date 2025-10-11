@@ -1,6 +1,6 @@
 // Shipments Get Tool - Get single shipment by ID
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ShipmentsGetTool extends BaseTool {
   name = "shipments_get";

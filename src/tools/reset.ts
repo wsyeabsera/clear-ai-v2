@@ -1,6 +1,6 @@
 // MCP Tool for database reset
 import { BaseTool } from "./base-tool.js";
-import { ToolResult } from "./types.js";
+import { ToolResult } from "../shared/types/tool.js";
 
 export class DatabaseResetTool extends BaseTool {
   name = "database_reset";

@@ -1,6 +1,6 @@
 // Inspections Detailed - Relationship Tool
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class InspectionsDetailedTool extends BaseTool {
   name = "inspections_get_detailed";

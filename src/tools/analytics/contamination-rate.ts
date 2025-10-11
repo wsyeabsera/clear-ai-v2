@@ -1,6 +1,6 @@
 // Analytics Contamination Rate Tool
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class AnalyticsContaminationRateTool extends BaseTool {
   name = "analytics_contamination_rate";

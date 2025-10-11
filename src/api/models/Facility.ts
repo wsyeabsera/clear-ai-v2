@@ -1,6 +1,6 @@
 // Facility Mongoose Model
 import mongoose, { Schema, Document } from "mongoose";
-import { Facility as IFacility } from "../../tools/types.js";
+import { Facility as IFacility } from "../../shared/types/tool.js";
 
 export interface FacilityDocument extends Omit<IFacility, "id">, Document {
   id: string;

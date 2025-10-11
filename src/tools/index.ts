@@ -142,4 +142,4 @@ export {
 };
 
 // Export types
-export * from "./types.js";
+export * from "../shared/types/tool.js";

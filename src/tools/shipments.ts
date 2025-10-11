@@ -1,5 +1,5 @@
 // Shipments Tool - Query shipments with various filters
-import { MCPTool, ToolResult, Shipment } from "./types.js";
+import { MCPTool, ToolResult, Shipment } from "../shared/types/tool.js";
 import axios from "axios";
 
 export class ShipmentsTool implements MCPTool {
@@ -76,9 +76,9 @@ export class ShipmentsTool implements MCPTool {
 
       return {
         success: true,
+        tool: this.name,
         data: response.data,
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },
@@ -86,12 +86,13 @@ export class ShipmentsTool implements MCPTool {
     } catch (error: any) {
       return {
         success: false,
+        tool: this.name,
         error: {
           code: error.response?.status?.toString() || "UNKNOWN",
           message: error.message,
+        
         },
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },

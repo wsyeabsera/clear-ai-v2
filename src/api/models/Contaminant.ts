@@ -1,6 +1,6 @@
 // Contaminant Mongoose Model
 import mongoose, { Schema, Document } from "mongoose";
-import { Contaminant as IContaminant } from "../../tools/types.js";
+import { Contaminant as IContaminant } from "../../shared/types/tool.js";
 
 export interface ContaminantDocument extends Omit<IContaminant, "id">, Document {
   id: string;

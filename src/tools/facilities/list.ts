@@ -1,6 +1,6 @@
 // Facilities List Tool - Query facilities with filters
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class FacilitiesListTool extends BaseTool {
   name = "facilities_list";

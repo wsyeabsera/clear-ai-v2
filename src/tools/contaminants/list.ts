@@ -1,6 +1,6 @@
 // Contaminants List Tool - Query contaminants with filters
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ContaminantsListTool extends BaseTool {
   name = "contaminants_list";

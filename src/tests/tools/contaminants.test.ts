@@ -32,7 +32,7 @@ describe("ContaminantsTool", () => {
 
     expect(result.success).toBe(true);
     expect(result.data).toEqual(mockContaminants);
-    expect(result.metadata.tool).toBe("contaminants-detected");
+    expect(result.tool).toBe("contaminants-detected");
     expect(result.metadata.executionTime).toBeGreaterThan(0);
   });
 

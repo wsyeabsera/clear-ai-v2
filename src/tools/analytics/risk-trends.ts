@@ -1,6 +1,6 @@
 // Analytics Risk Trends Tool
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class AnalyticsRiskTrendsTool extends BaseTool {
   name = "analytics_risk_trends";

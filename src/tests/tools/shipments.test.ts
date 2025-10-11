@@ -32,7 +32,7 @@ describe("ShipmentsTool", () => {
 
     expect(result.success).toBe(true);
     expect(result.data).toEqual(mockShipments);
-    expect(result.metadata.tool).toBe("shipments");
+    expect(result.tool).toBe("shipments");
     expect(result.metadata.executionTime).toBeGreaterThan(0);
     expect(result.metadata.timestamp).toBeDefined();
   });
@@ -131,7 +131,7 @@ describe("ShipmentsTool", () => {
     expect(result.error).toBeDefined();
     expect(result.error?.code).toBe("500");
     expect(result.error?.message).toBeDefined();
-    expect(result.metadata.tool).toBe("shipments");
+    expect(result.tool).toBe("shipments");
   });
 
   it("should handle network errors gracefully", async () => {

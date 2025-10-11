@@ -1,6 +1,6 @@
 // Base Tool Class - Common functionality for all MCP tools
 import axios, { AxiosResponse } from "axios";
-import { MCPTool, ToolResult } from "./types.js";
+import { MCPTool, ToolResult } from "../shared/types/tool.js";
 
 export abstract class BaseTool implements MCPTool {
   abstract name: string;
@@ -45,9 +45,9 @@ export abstract class BaseTool implements MCPTool {
   protected success(data: any, executionTime: number): ToolResult {
     return {
       success: true,
+      tool: this.name,
       data,
       metadata: {
-        tool: this.name,
         executionTime,
         timestamp: new Date().toISOString(),
       },
@@ -57,12 +57,13 @@ export abstract class BaseTool implements MCPTool {
   protected error(error: any, executionTime: number): ToolResult {
     return {
       success: false,
+      tool: this.name,
       error: {
         code: error.response?.status?.toString() || error.code || "UNKNOWN",
         message: error.response?.data?.error?.message || error.message,
+      
       },
       metadata: {
-        tool: this.name,
         executionTime,
         timestamp: new Date().toISOString(),
       },
