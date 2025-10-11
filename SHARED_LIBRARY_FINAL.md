@@ -136,7 +136,7 @@ PINECONE_ENVIRONMENT=...
 PINECONE_INDEX=clear-ai-v2
 
 # Tools
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 TOOL_TIMEOUT=30000
 TOOL_RETRIES=3
 

@@ -124,7 +124,7 @@ describe('Configuration Loader', () => {
   
   describe('validateConfig', () => {
     it('should pass validation with valid config', () => {
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       process.env.NEO4J_PASSWORD = 'password';
       process.env.PINECONE_API_KEY = 'key';
       process.env.PINECONE_ENVIRONMENT = 'env';
@@ -145,7 +145,7 @@ describe('Configuration Loader', () => {
     
     it('should fail validation without Neo4j password when memory enabled', () => {
       process.env.OPENAI_API_KEY = 'test-key';
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       process.env.ENABLE_MEMORY = 'true';
       process.env.NEO4J_PASSWORD = '';
       
@@ -156,7 +156,7 @@ describe('Configuration Loader', () => {
     
     it('should fail validation without Pinecone config when memory enabled', () => {
       process.env.OPENAI_API_KEY = 'test-key';
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       process.env.ENABLE_MEMORY = 'true';
       process.env.NEO4J_PASSWORD = 'password';
       process.env.PINECONE_API_KEY = '';
@@ -168,7 +168,7 @@ describe('Configuration Loader', () => {
     
     it('should not require memory config when memory disabled', () => {
       process.env.OPENAI_API_KEY = 'test-key';
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       process.env.ENABLE_MEMORY = 'false';
       process.env.NEO4J_PASSWORD = '';
       process.env.PINECONE_API_KEY = '';
@@ -183,7 +183,7 @@ describe('Configuration Loader', () => {
     it('should load and validate in production', () => {
       process.env.NODE_ENV = 'production';
       process.env.OPENAI_API_KEY = 'test-key';
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       process.env.ENABLE_MEMORY = 'false';
       
       expect(() => loadAndValidateConfig()).not.toThrow();
@@ -202,12 +202,12 @@ describe('Configuration Loader', () => {
   describe('getConfigValue', () => {
     it('should retrieve nested configuration value', () => {
       process.env.OPENAI_API_KEY = 'test-key';
-      process.env.WASTEER_API_URL = 'https://api.wasteer.dev';
+      process.env.WASTEER_API_URL = 'http://localhost:4000';
       
       const config = loadConfig();
       const value = getConfigValue(config, 'tools.api_base_url');
       
-      expect(value).toBe('https://api.wasteer.dev');
+      expect(value).toBe('http://localhost:4000');
     });
     
     it('should retrieve deep nested value', () => {

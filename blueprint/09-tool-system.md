@@ -547,7 +547,7 @@ import { ShipmentsTool } from '../../tools/shipments';
 
 describe('ShipmentsTool', () => {
   let tool: ShipmentsTool;
-  const apiUrl = 'https://api.wasteer.dev';
+  const apiUrl = 'http://localhost:4000';
   
   beforeEach(() => {
     tool = new ShipmentsTool(apiUrl);
@@ -688,7 +688,7 @@ export const mockInspections = [
 ```typescript
 // src/config/tools.config.ts
 export const toolsConfig = {
-  apiBaseUrl: process.env.WASTEER_API_URL || 'https://api.wasteer.dev',
+  apiBaseUrl: process.env.WASTEER_API_URL || 'http://localhost:4000',
   timeout: parseInt(process.env.TOOL_TIMEOUT || '30000'),
   retries: parseInt(process.env.TOOL_RETRIES || '3'),
   retryDelay: parseInt(process.env.TOOL_RETRY_DELAY || '1000')

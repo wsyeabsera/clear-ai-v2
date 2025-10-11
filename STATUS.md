@@ -271,7 +271,7 @@ contaminants-detected({
 
 1. **Set environment variables:**
 ```bash
-export WASTEER_API_URL=https://api.wasteer.dev
+export WASTEER_API_URL=http://localhost:4000
 ```
 
 2. **Start the server:**

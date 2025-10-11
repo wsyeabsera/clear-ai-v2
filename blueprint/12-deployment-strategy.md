@@ -77,7 +77,7 @@ yarn build
 ### 2. Environment
 ```bash
 export NODE_ENV=production
-export WASTEER_API_URL=https://api.wasteer.dev
+export WASTEER_API_URL=http://localhost:4000
 # ... other env vars
 ```
 

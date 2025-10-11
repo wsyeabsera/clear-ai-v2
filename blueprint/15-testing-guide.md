@@ -178,7 +178,7 @@ import nock from 'nock';
 
 beforeEach(() => {
   // Setup mocks for each test
-  nock('https://api.wasteer.dev')
+  nock('http://localhost:4000')
     .get('/shipments')
     .query({ has_contaminants: 'true', limit: '100' })
     .reply(200, mockShipments.filter(s => s.has_contaminants));

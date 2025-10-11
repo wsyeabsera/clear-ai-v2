@@ -5,7 +5,7 @@ import { mockContaminants } from "../fixtures/waste-data.js";
 
 describe("ContaminantsTool", () => {
   let tool: ContaminantsTool;
-  const apiUrl = "https://api.wasteer.dev";
+  const apiUrl = "http://localhost:4000";
 
   beforeEach(() => {
     tool = new ContaminantsTool(apiUrl);

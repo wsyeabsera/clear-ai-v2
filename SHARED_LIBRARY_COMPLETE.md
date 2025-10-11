@@ -268,7 +268,7 @@ LANGFUSE_PUBLIC_KEY=pk-...
 LANGFUSE_SECRET_KEY=sk-...
 
 # API
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 MONGODB_URI=mongodb://localhost:27017/wasteer
 ```
 

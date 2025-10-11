@@ -5,7 +5,7 @@ import { mockInspections } from "../fixtures/waste-data.js";
 
 describe("InspectionsTool", () => {
   let tool: InspectionsTool;
-  const apiUrl = "https://api.wasteer.dev";
+  const apiUrl = "http://localhost:4000";
 
   beforeEach(() => {
     tool = new InspectionsTool(apiUrl);

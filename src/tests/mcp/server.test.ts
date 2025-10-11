@@ -5,7 +5,7 @@ import { FacilitiesTool } from "../../tools/facilities.js";
 
 describe("MCPServer", () => {
   let server: MCPServer;
-  const apiUrl = "https://api.wasteer.dev";
+  const apiUrl = "http://localhost:4000";
 
   beforeEach(() => {
     server = new MCPServer("clear-ai-v2", "1.0.0");

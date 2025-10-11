@@ -258,7 +258,7 @@ The foundation is **production-ready** for tool execution:
 
 ```env
 # API Configuration
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 
 # LLM Providers
 OPENAI_API_KEY=sk-...

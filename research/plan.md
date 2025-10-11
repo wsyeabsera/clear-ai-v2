@@ -215,12 +215,12 @@ import { executorAgent } from '../../agents/executor';
 
 describe('executorAgent', () => {
   beforeAll(() => {
-    nock('https://api.wasteer.dev')
+    nock('http://localhost:4000')
       .get('/shipments')
       .query(true)
       .reply(200, [{ id: 'S1' }]);
 
-    nock('https://api.wasteer.dev')
+    nock('http://localhost:4000')
       .get('/contaminants-detected')
       .query(true)
       .reply(200, [{ shipmentId: 'S1', contaminant: 'Lead' }]);

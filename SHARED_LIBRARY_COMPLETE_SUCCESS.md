@@ -283,7 +283,7 @@ PINECONE_ENVIRONMENT=...
 PINECONE_INDEX=clear-ai-v2
 
 # API
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 ```
 
 ## Files Created/Modified

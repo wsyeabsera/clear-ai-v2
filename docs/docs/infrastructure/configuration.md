@@ -21,7 +21,7 @@ const config = loadConfig();
 console.log(config.llm.provider);     // 'openai'
 console.log(config.llm.model);        // 'gpt-3.5-turbo'
 console.log(config.memory.enabled);   // true
-console.log(config.tools.api_base_url);  // 'https://api.wasteer.dev'
+console.log(config.tools.api_base_url);  // 'http://localhost:4000'
 ```
 
 ## Configuration Structure

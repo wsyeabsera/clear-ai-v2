@@ -46,7 +46,7 @@ function loadServerConfig() {
  */
 function loadToolsConfig() {
   return {
-    api_base_url: process.env.WASTEER_API_URL || 'https://api.wasteer.dev',
+    api_base_url: process.env.WASTEER_API_URL || 'http://localhost:4000',
     timeout: parseInt(process.env.TOOL_TIMEOUT || String(DEFAULT_TIMEOUT)),
     retries: parseInt(process.env.TOOL_RETRIES || String(DEFAULT_RETRIES)),
     retry_delay: parseInt(process.env.TOOL_RETRY_DELAY || String(DEFAULT_RETRY_DELAY)),

@@ -114,7 +114,7 @@ LANGFUSE_HOST=https://cloud.langfuse.com
 
 # ===== API CONFIGURATION =====
 
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 API_PORT=4000
 
 # ===== GENERAL =====

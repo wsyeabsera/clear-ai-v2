@@ -5,7 +5,7 @@ import { mockFacilities } from "../fixtures/waste-data.js";
 
 describe("FacilitiesTool", () => {
   let tool: FacilitiesTool;
-  const apiUrl = "https://api.wasteer.dev";
+  const apiUrl = "http://localhost:4000";
 
   beforeEach(() => {
     tool = new FacilitiesTool(apiUrl);

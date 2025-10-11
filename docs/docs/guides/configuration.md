@@ -80,7 +80,7 @@ LOG_LEVEL=info  # debug | info | warn | error
 
 ```bash
 # API configuration
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 API_PORT=4000
 
 # MongoDB

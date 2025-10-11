@@ -4,7 +4,7 @@
 
 ```bash
 # API Configuration
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 TOOL_TIMEOUT=30000
 TOOL_RETRIES=3
 
@@ -47,7 +47,7 @@ export const config = {
   },
   
   tools: {
-    apiBaseUrl: process.env.WASTEER_API_URL || 'https://api.wasteer.dev',
+    apiBaseUrl: process.env.WASTEER_API_URL || 'http://localhost:4000',
     timeout: parseInt(process.env.TOOL_TIMEOUT || '30000'),
     retries: parseInt(process.env.TOOL_RETRIES || '3')
   },

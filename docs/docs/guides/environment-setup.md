@@ -132,7 +132,7 @@ LANGFUSE_PUBLIC_KEY=pk-...
 LANGFUSE_SECRET_KEY=sk-...
 
 # ===== API =====
-WASTEER_API_URL=https://api.wasteer.dev
+WASTEER_API_URL=http://localhost:4000
 API_PORT=4000
 
 # ===== GENERAL =====

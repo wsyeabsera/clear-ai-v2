@@ -5,7 +5,7 @@ import { mockShipments } from "../fixtures/waste-data.js";
 
 describe("ShipmentsTool", () => {
   let tool: ShipmentsTool;
-  const apiUrl = "https://api.wasteer.dev";
+  const apiUrl = "http://localhost:4000";
 
   beforeEach(() => {
     tool = new ShipmentsTool(apiUrl);
