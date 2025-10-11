@@ -60,12 +60,6 @@ export class IntentClassifier {
     'reject', 'nevermind', 'never mind', 'don\'t',
   ];
   
-  // Follow-up indicators
-  private static readonly FOLLOWUP_WORDS = [
-    'what about', 'how about', 'and', 'also', 'additionally',
-    'furthermore', 'them', 'those', 'these', 'it', 'that',
-  ];
-  
   // Time references
   private static readonly TIMEFRAMES = [
     'today', 'yesterday', 'this week', 'last week',
@@ -176,9 +170,29 @@ export class IntentClassifier {
   isFollowUp(message: string): boolean {
     const lower = message.toLowerCase();
     
-    return IntentClassifier.FOLLOWUP_WORDS.some(indicator => 
-      lower.includes(indicator)
-    );
+    // Check for multi-word indicators (exact match)
+    const multiWordIndicators = ['what about', 'how about'];
+    if (multiWordIndicators.some(phrase => lower.includes(phrase))) {
+      return true;
+    }
+    
+    // Check for single-word indicators (word boundary match)
+    const singleWordIndicators = ['and', 'also', 'additionally', 'furthermore'];
+    const wordBoundaryMatch = singleWordIndicators.some(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'i');
+      return regex.test(lower);
+    });
+    
+    if (wordBoundaryMatch) {
+      return true;
+    }
+    
+    // Check for pronouns (word boundary match to avoid false positives)
+    const pronouns = ['them', 'those', 'these', 'it', 'that'];
+    return pronouns.some(pronoun => {
+      const regex = new RegExp(`\\b${pronoun}\\b`, 'i');
+      return regex.test(lower);
+    });
   }
   
   /**

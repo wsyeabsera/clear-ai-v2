@@ -111,7 +111,7 @@ describe('Conversational Dialog Integration', () => {
       const utils = new ConversationUtils();
       
       // Initial query
-      const intent1 = classifier.classify('Get all facilities');
+      const intent1 = classifier.classify('Show me the facilities');
       expect(intent1.intent).toBe('query');
       
       // Agent returns data
