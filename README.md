@@ -2,6 +2,23 @@
 
 A modular, LangGraph-based AI agent runtime that uses MCP (Model Context Protocol) tools for intelligent task orchestration, execution, and analysis.
 
+## 📚 Documentation
+
+**[View the complete documentation →](https://wsyeabsera.github.io/clear-ai-v2/)**
+
+The documentation includes:
+- Getting Started guide
+- Core Concepts (plain language)
+- Architecture overview  
+- Complete API reference for all 19 modules
+- Real code examples
+- Best practices
+
+Or run locally:
+```bash
+yarn docs:start
+```
+
 ## Overview
 
 Clear AI v2 is designed to act like Cursor but for tool execution rather than code assistance. It provides:
