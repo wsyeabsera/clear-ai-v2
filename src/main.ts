@@ -12,7 +12,7 @@ async function main() {
   try {
     // Get configuration from environment
     const apiBaseUrl =
-      process.env.WASTEER_API_URL || "https://api.wasteer.dev";
+      process.env.WASTEER_API_URL || "http://localhost:4000/api";
     const serverName = "clear-ai-v2-mcp-server";
     const serverVersion = "1.0.0";
 

@@ -1,0 +1,79 @@
+// Contaminants List Tool - Query contaminants with filters
+import { BaseTool } from "../base-tool.js";
+import { ToolResult } from "../types.js";
+
+export class ContaminantsListTool extends BaseTool {
+  name = "contaminants_list";
+  description = "Query contaminants with filters for shipment, facility, risk level, and chemical levels";
+
+  schema = {
+    params: {
+      shipment_ids: {
+        type: "string",
+        description: "Comma-separated shipment IDs",
+        required: false,
+      },
+      facility_id: {
+        type: "string",
+        description: "Filter by facility ID",
+        required: false,
+      },
+      date_from: {
+        type: "string",
+        description: "Start date for detection (ISO 8601)",
+        required: false,
+      },
+      date_to: {
+        type: "string",
+        description: "End date for detection (ISO 8601)",
+        required: false,
+      },
+      type: {
+        type: "string",
+        description: "Contaminant type (Lead, Mercury, etc.)",
+        required: false,
+      },
+      risk_level: {
+        type: "string",
+        description: "Risk level (low, medium, high, critical)",
+        required: false,
+      },
+    },
+    returns: {
+      type: "array",
+      description: "List of contaminants matching the criteria",
+    },
+  };
+
+  async execute(params: Record<string, any>): Promise<ToolResult> {
+    const startTime = Date.now();
+
+    try {
+      if (params.risk_level) {
+        const riskValidation = this.validateEnum(
+          params.risk_level,
+          ["low", "medium", "high", "critical"],
+          "risk_level"
+        );
+        if (!riskValidation.valid) {
+          throw new Error(riskValidation.error);
+        }
+      }
+
+      const queryParams: Record<string, string> = {};
+      if (params.shipment_ids) queryParams.shipment_ids = params.shipment_ids;
+      if (params.facility_id) queryParams.facility_id = params.facility_id;
+      if (params.date_from) queryParams.date_from = params.date_from;
+      if (params.date_to) queryParams.date_to = params.date_to;
+      if (params.type) queryParams.type = params.type;
+      if (params.risk_level) queryParams.risk_level = params.risk_level;
+
+      const response = await this.get("/contaminants-detected", queryParams);
+
+      return this.success(response.data, Date.now() - startTime);
+    } catch (error: any) {
+      return this.error(error, Date.now() - startTime);
+    }
+  }
+}
+

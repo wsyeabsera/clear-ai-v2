@@ -55,8 +55,14 @@ yarn start
 ### Development
 
 ```bash
-# Run in development mode with ts-node
+# Run MCP server in development mode
 yarn dev
+
+# Run API server in development mode
+yarn api:dev
+
+# Seed database with test data
+yarn seed
 ```
 
 ## Project Structure
@@ -69,6 +75,12 @@ clear-ai-v2/
 ├── research/              # Research notes and planning
 │   └── plan.md
 ├── src/
+│   ├── api/              # Express API server
+│   │   ├── server.ts     # Main Express app
+│   │   ├── routes/       # API route handlers
+│   │   ├── models/       # Mongoose models
+│   │   ├── db/           # Database connection & seed
+│   │   └── middleware/   # Express middleware
 │   ├── mcp/              # MCP server implementation
 │   │   └── server.ts
 │   ├── tools/            # Tool implementations
@@ -81,12 +93,69 @@ clear-ai-v2/
 │   ├── tests/            # Test suite
 │   │   ├── fixtures/     # Mock data
 │   │   ├── tools/        # Tool tests
-│   │   └── mcp/          # Server tests
-│   └── main.ts           # Entry point
+│   │   ├── mcp/          # Server tests
+│   │   └── api/          # API tests
+│   └── main.ts           # MCP Entry point
+├── API.md                # API Documentation
 ├── jest.config.js
 ├── tsconfig.json
 └── package.json
 ```
+
+## Waste Management API
+
+A standalone Express API server with MongoDB that provides RESTful endpoints for waste management operations.
+
+### Prerequisites
+
+- **MongoDB**: Install and run MongoDB locally
+  - macOS: `brew install mongodb-community && brew services start mongodb-community`
+  - Ubuntu: `sudo apt-get install mongodb-org && sudo systemctl start mongod`
+  - Windows: Download from [MongoDB Download Center](https://www.mongodb.com/try/download/community)
+
+### Quick Start
+
+1. **Start MongoDB** (if not already running)
+2. **Seed the database:**
+   ```bash
+   yarn seed
+   ```
+3. **Start the API server:**
+   ```bash
+   yarn api:dev
+   ```
+4. **Test with curl:**
+   ```bash
+   curl http://localhost:4000/api/shipments
+   ```
+
+See **[API.md](./API.md)** for complete API documentation with curl examples.
+
+### Interactive API Documentation (Swagger)
+
+The API includes interactive Swagger documentation:
+
+1. **Start the API server:**
+   ```bash
+   yarn api:dev
+   ```
+
+2. **Open Swagger UI in your browser:**
+   ```
+   http://localhost:4000/api-docs
+   ```
+
+3. **Features:**
+   - Interactive API exploration
+   - "Try it out" functionality for testing endpoints
+   - Complete request/response schemas
+   - Built-in parameter validation
+   - Execute API calls directly from the browser
+
+4. **Swagger JSON:**
+   ```
+   http://localhost:4000/swagger.json
+   ```
 
 ## MCP Tools
 
@@ -97,10 +166,12 @@ clear-ai-v2/
 3. **Contaminants Tool** - Query detected contaminants with risk levels
 4. **Inspections Tool** - Query inspection records and results
 
-Each tool follows the MCP standard and can be:
-- Discovered dynamically
-- Executed with typed parameters
-- Validated against JSON schemas
+Each tool follows the MCP standard and:
+- Connects to the local API server (http://localhost:4000/api)
+- Uses GET requests to retrieve data
+- Can be discovered dynamically
+- Executes with typed parameters
+- Validates against JSON schemas
 
 ## Example Queries
 
@@ -137,10 +208,23 @@ yarn test
 
 ## Development Roadmap
 
+### Phase 1: Foundation (Completed ✅)
 - [x] MCP Server implementation
 - [x] Tool system with 4 waste management tools
 - [x] Complete test coverage for tools
+- [x] Express API with MongoDB
+- [x] Full CRUD operations
+- [x] API test suite
+
+### Phase 2: AI Agents (In Progress)
 - [ ] LangGraph agent implementation
+- [ ] Orchestrator Agent
+- [ ] Planner Agent
+- [ ] Executor Agent
+- [ ] Analyzer Agent
+- [ ] Summarizer Agent
+
+### Phase 3: Memory Systems (Planned)
 - [ ] Neo4j episodic memory
 - [ ] Pinecone semantic memory
 - [ ] Multi-LLM provider support

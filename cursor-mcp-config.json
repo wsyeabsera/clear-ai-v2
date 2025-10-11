@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "waste-management": {
+      "command": "/Users/yab/.nvm/versions/node/v22.19.0/bin/yarn",
+      "args": [
+        "node",
+        "/Users/yab/Projects/clear-ai-v2/dist/main.js"
+      ],
+      "cwd": "/Users/yab/Projects/clear-ai-v2",
+      "env": {
+        "WASTEER_API_URL": "http://localhost:4000/api"
+      }
+    }
+  }
+}
+
