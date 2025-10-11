@@ -18,25 +18,32 @@ Clear AI v2 includes **19 production-ready modules** organized into 5 categories
 - [Conversation Utilities](./conversational/conversation-utilities.md) - Entity extraction
 
 ### 🧠 For Managing Context & Memory  
-- Context Management - Handle long conversations
-- Memory Systems - Neo4j + Pinecone
-- Embeddings - Ollama & OpenAI
+- [Context Management](./context-memory/context-management.md) - Handle long conversations
+- [Memory Systems](./context-memory/memory-systems.md) - Neo4j + Pinecone
+- [Embeddings](./context-memory/embeddings.md) - Ollama & OpenAI
 
 ### 🔄 For Complex Workflows
-- Workflow Graphs - LangGraph-style state machines
-- Checkpointing - Save/resume workflows
+- [Workflow Graphs](./workflows/workflow-graphs.md) - LangGraph-style state machines
+- [Checkpointing](./workflows/checkpointing.md) - Save/resume workflows
 
 ### 🏗️ For Production Infrastructure
-- Token Management - Counting & budgets
-- LLM Providers - OpenAI, Groq, Ollama
-- Configuration - Environment management
-- Observability - Langfuse tracing
+- [Token Management](./infrastructure/token-management.md) - Counting & budgets
+- [LLM Providers](./infrastructure/llm-providers.md) - OpenAI, Groq, Ollama
+- [Configuration](./infrastructure/configuration.md) - Environment management
+- [Observability](./infrastructure/observability.md) - Langfuse tracing
 
 ### 🔧 Foundation & Tools
-- Types & Validation - TypeScript + Zod
-- Utilities - Templates, stats, retry, etc.
-- MCP Tools - Shipments, Facilities, etc.
-- REST API - MongoDB backend
+- [Types](./foundation/types.md) - TypeScript interfaces
+- [Validation](./foundation/validation.md) - Zod schemas
+- [Utilities](./foundation/utilities.md) - Common helpers
+- [Tools](./foundation/tools.md) - MCP tools
+- [API](./foundation/api.md) - REST API
+
+### 📖 Practical Guides
+- [Environment Setup](./guides/environment-setup.md) - Service installation
+- [Testing Guide](./guides/testing.md) - Running and writing tests
+- [Configuration Guide](./guides/configuration.md) - All config options
+- [Development Guide](./guides/development.md) - Contributing to project
 
 ## Module Status
 

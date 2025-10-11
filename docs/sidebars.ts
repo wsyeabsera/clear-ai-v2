@@ -20,61 +20,49 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '🧠 Context & Memory',
-      collapsed: true,
       items: [
-        {
-          type: 'doc',
-          id: 'summary',
-          label: '📘 Coming Soon - See Summary',
-        },
+        'context-memory/context-management',
+        'context-memory/memory-systems',
+        'context-memory/embeddings',
       ],
     },
     {
       type: 'category',
       label: '🔄 Workflows',
-      collapsed: true,
       items: [
-        {
-          type: 'doc',
-          id: 'summary',
-          label: '📘 Coming Soon - See Summary',
-        },
+        'workflows/workflow-graphs',
+        'workflows/checkpointing',
       ],
     },
     {
       type: 'category',
       label: '🏗️ Infrastructure',
-      collapsed: true,
       items: [
-        {
-          type: 'doc',
-          id: 'summary',
-          label: '📘 Coming Soon - See Summary',
-        },
+        'infrastructure/token-management',
+        'infrastructure/llm-providers',
+        'infrastructure/configuration',
+        'infrastructure/observability',
       ],
     },
     {
       type: 'category',
       label: '🔧 Foundation',
-      collapsed: true,
       items: [
-        {
-          type: 'doc',
-          id: 'summary',
-          label: '📘 Coming Soon - See Summary',
-        },
+        'foundation/types',
+        'foundation/validation',
+        'foundation/utilities',
+        'foundation/tools',
+        'foundation/api',
       ],
     },
     {
       type: 'category',
       label: '📖 Guides',
-      collapsed: true,
       items: [
-        {
-          type: 'doc',
-          id: 'summary',
-          label: '📘 Coming Soon - See Summary',
-        },
+        'guides/environment-setup',
+        'guides/testing',
+        'guides/configuration',
+        'guides/development',
       ],
     },
     'summary',
