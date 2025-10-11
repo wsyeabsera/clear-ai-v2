@@ -1,6 +1,6 @@
 // Inspections List Tool - Query inspections with filters
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class InspectionsListTool extends BaseTool {
   name = "inspections_list";

@@ -1,19 +1,22 @@
 // MongoDB connection helper
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 export async function connectDB(uri?: string): Promise<void> {
-  if (isConnected) {
+  // Check actual Mongoose connection state
+  if (mongoose.connection.readyState === 1) {
     console.log("Already connected to MongoDB");
     return;
+  }
+  
+  // If there's a connection but to different URI, disconnect first
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
   }
 
   const mongoUri = uri || process.env.MONGODB_URI || "mongodb://localhost:27017/wasteer";
 
   try {
     await mongoose.connect(mongoUri);
-    isConnected = true;
     console.log(`✓ Connected to MongoDB: ${mongoUri}`);
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
@@ -22,13 +25,12 @@ export async function connectDB(uri?: string): Promise<void> {
 }
 
 export async function disconnectDB(): Promise<void> {
-  if (!isConnected) {
-    return;
+  if (mongoose.connection.readyState === 0) {
+    return; // Already disconnected
   }
 
   try {
     await mongoose.disconnect();
-    isConnected = false;
     console.log("✓ Disconnected from MongoDB");
   } catch (error) {
     console.error("Failed to disconnect from MongoDB:", error);
@@ -37,6 +39,6 @@ export async function disconnectDB(): Promise<void> {
 }
 
 export function getConnectionStatus(): boolean {
-  return isConnected;
+  return mongoose.connection.readyState === 1;
 }
 

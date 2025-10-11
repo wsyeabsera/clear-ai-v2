@@ -1,6 +1,6 @@
 // Contaminants Create Tool - Create new contaminant record
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ContaminantsCreateTool extends BaseTool {
   name = "contaminants_create";

@@ -1,5 +1,5 @@
 // Contaminants Tool - Query detected contaminants
-import { MCPTool, ToolResult, Contaminant } from "./types.js";
+import { MCPTool, ToolResult, Contaminant } from "../shared/types/tool.js";
 import axios from "axios";
 
 export class ContaminantsTool implements MCPTool {
@@ -72,9 +72,9 @@ export class ContaminantsTool implements MCPTool {
 
       return {
         success: true,
+        tool: this.name,
         data: response.data,
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },
@@ -82,12 +82,13 @@ export class ContaminantsTool implements MCPTool {
     } catch (error: any) {
       return {
         success: false,
+        tool: this.name,
         error: {
           code: error.response?.status?.toString() || "UNKNOWN",
           message: error.message,
+        
         },
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },

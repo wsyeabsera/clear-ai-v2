@@ -5,7 +5,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { MCPTool, ToolSchema } from "../tools/types.js";
+import { MCPTool, ToolSchema } from "../shared/types/tool.js";
 
 export class MCPServer {
   private server: Server;

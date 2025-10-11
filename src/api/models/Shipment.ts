@@ -1,6 +1,6 @@
 // Shipment Mongoose Model
 import mongoose, { Schema, Document } from "mongoose";
-import { Shipment as IShipment } from "../../tools/types.js";
+import { Shipment as IShipment } from "../../shared/types/tool.js";
 
 export interface ShipmentDocument extends Omit<IShipment, "id">, Document {
   id: string;

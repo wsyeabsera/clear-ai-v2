@@ -1,6 +1,6 @@
 // Shipments Detailed - Flexible Relationship Tool
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ShipmentsDetailedTool extends BaseTool {
   name = "shipments_get_detailed";

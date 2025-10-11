@@ -15,10 +15,13 @@
     "api:dev": "tsc && node dist/api/server.js",
     "api:start": "node dist/api/server.js",
     "seed": "tsc && node dist/api/db/seed.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "jest --testPathIgnorePatterns=integration",
+    "test:watch": "jest --watch --testPathIgnorePatterns=integration",
+    "test:coverage": "jest --coverage --testPathIgnorePatterns=integration",
+    "test:integration": "jest integration --testTimeout=60000",
+    "test:all": "jest --testTimeout=60000",
     "test:esm": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:llm": "tsc && node dist/scripts/test-llm-providers.js",
     "lint": "tsc --noEmit"
   },
   "keywords": [
@@ -32,7 +35,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.65.0",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",
     "@modelcontextprotocol/sdk": "^1.20.0",

@@ -1,6 +1,6 @@
 // Contaminants Delete Tool - Delete contaminant
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ContaminantsDeleteTool extends BaseTool {
   name = "contaminants_delete";

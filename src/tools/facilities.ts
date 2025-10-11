@@ -1,5 +1,5 @@
 // Facilities Tool - Query waste management facilities
-import { MCPTool, ToolResult, Facility } from "./types.js";
+import { MCPTool, ToolResult, Facility } from "../shared/types/tool.js";
 import axios from "axios";
 
 export class FacilitiesTool implements MCPTool {
@@ -58,9 +58,9 @@ export class FacilitiesTool implements MCPTool {
 
       return {
         success: true,
+        tool: this.name,
         data: response.data,
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },
@@ -68,12 +68,13 @@ export class FacilitiesTool implements MCPTool {
     } catch (error: any) {
       return {
         success: false,
+        tool: this.name,
         error: {
           code: error.response?.status?.toString() || "UNKNOWN",
           message: error.message,
+        
         },
         metadata: {
-          tool: this.name,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },

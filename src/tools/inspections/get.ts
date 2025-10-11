@@ -1,6 +1,6 @@
 // Inspections Get Tool - Get single inspection by ID
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class InspectionsGetTool extends BaseTool {
   name = "inspections_get";

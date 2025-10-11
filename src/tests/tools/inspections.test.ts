@@ -29,7 +29,7 @@ describe("InspectionsTool", () => {
 
     expect(result.success).toBe(true);
     expect(result.data).toEqual(mockInspections);
-    expect(result.metadata.tool).toBe("inspections");
+    expect(result.tool).toBe("inspections");
     expect(result.metadata.executionTime).toBeGreaterThan(0);
   });
 

@@ -4,7 +4,7 @@ import {
   Facility,
   Contaminant,
   Inspection,
-} from "../../tools/types.js";
+} from "../../shared/types/tool.js";
 
 export const mockShipments: Shipment[] = [
   {

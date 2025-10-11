@@ -1,6 +1,6 @@
 // Contaminants Update Tool - Update existing contaminant
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class ContaminantsUpdateTool extends BaseTool {
   name = "contaminants_update";

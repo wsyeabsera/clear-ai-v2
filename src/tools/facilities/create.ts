@@ -1,6 +1,6 @@
 // Facilities Create Tool - Create new facility
 import { BaseTool } from "../base-tool.js";
-import { ToolResult } from "../types.js";
+import { ToolResult } from "../../shared/types/tool.js";
 
 export class FacilitiesCreateTool extends BaseTool {
   name = "facilities_create";
