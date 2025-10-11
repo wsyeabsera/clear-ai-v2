@@ -44,6 +44,10 @@ export interface Shipment {
   has_contaminants: boolean;
   origin?: string;
   destination?: string;
+  waste_type?: string;
+  waste_code?: string;
+  carrier?: string;
+  composition_notes?: string;
 }
 
 export interface Facility {
@@ -57,6 +61,11 @@ export interface Facility {
     lat: number;
     lon: number;
   };
+  accepted_waste_types?: string[];
+  rejected_waste_types?: string[];
+  contact_email?: string;
+  contact_phone?: string;
+  operating_hours?: string;
 }
 
 export interface Contaminant {
@@ -68,6 +77,12 @@ export interface Contaminant {
   risk_level: 'low' | 'medium' | 'high' | 'critical';
   detected_at: string;
   notes?: string;
+  analysis_notes?: string;
+  waste_item_detected?: string;
+  explosive_level?: 'low' | 'medium' | 'high';
+  so2_level?: 'low' | 'medium' | 'high';
+  hcl_level?: 'low' | 'medium' | 'high';
+  estimated_size?: number;
 }
 
 export interface Inspection {
@@ -80,5 +95,10 @@ export interface Inspection {
   notes?: string;
   contaminants_detected?: string[];
   risk_assessment?: string;
+  inspection_type?: 'arrival' | 'processing' | 'departure' | 'random';
+  duration_minutes?: number;
+  passed?: boolean;
+  follow_up_required?: boolean;
+  photos?: string[];
 }
 

@@ -1,0 +1,95 @@
+// Base Tool Class - Common functionality for all MCP tools
+import axios, { AxiosResponse } from "axios";
+import { MCPTool, ToolResult } from "./types.js";
+
+export abstract class BaseTool implements MCPTool {
+  abstract name: string;
+  abstract description: string;
+  abstract schema: MCPTool["schema"];
+
+  constructor(protected apiBaseUrl: string) {}
+
+  abstract execute(params: Record<string, any>): Promise<ToolResult>;
+
+  // HTTP Methods
+  protected async get<T = any>(
+    endpoint: string,
+    params?: Record<string, any>
+  ): Promise<AxiosResponse<T>> {
+    const queryParams = params ? new URLSearchParams(params).toString() : "";
+    const url = `${this.apiBaseUrl}${endpoint}${queryParams ? `?${queryParams}` : ""}`;
+    return axios.get<T>(url);
+  }
+
+  protected async post<T = any>(
+    endpoint: string,
+    data: any
+  ): Promise<AxiosResponse<T>> {
+    return axios.post<T>(`${this.apiBaseUrl}${endpoint}`, data);
+  }
+
+  protected async put<T = any>(
+    endpoint: string,
+    data: any
+  ): Promise<AxiosResponse<T>> {
+    return axios.put<T>(`${this.apiBaseUrl}${endpoint}`, data);
+  }
+
+  protected async delete<T = any>(
+    endpoint: string
+  ): Promise<AxiosResponse<T>> {
+    return axios.delete<T>(`${this.apiBaseUrl}${endpoint}`);
+  }
+
+  // Response Formatting
+  protected success(data: any, executionTime: number): ToolResult {
+    return {
+      success: true,
+      data,
+      metadata: {
+        tool: this.name,
+        executionTime,
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+  protected error(error: any, executionTime: number): ToolResult {
+    return {
+      success: false,
+      error: {
+        code: error.response?.status?.toString() || error.code || "UNKNOWN",
+        message: error.response?.data?.error?.message || error.message,
+      },
+      metadata: {
+        tool: this.name,
+        executionTime,
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+  // Validation Helpers
+  protected validateRequired(
+    params: Record<string, any>,
+    requiredFields: string[]
+  ): { valid: boolean; missing?: string[] } {
+    const missing = requiredFields.filter((field) => !params[field]);
+    return missing.length > 0 ? { valid: false, missing } : { valid: true };
+  }
+
+  protected validateEnum(
+    value: any,
+    allowedValues: any[],
+    fieldName: string
+  ): { valid: boolean; error?: string } {
+    if (value && !allowedValues.includes(value)) {
+      return {
+        valid: false,
+        error: `Invalid ${fieldName}. Must be one of: ${allowedValues.join(", ")}`,
+      };
+    }
+    return { valid: true };
+  }
+}
+
