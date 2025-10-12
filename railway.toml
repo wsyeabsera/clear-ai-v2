@@ -1,0 +1,9 @@
+# Railway Configuration for Clear AI v2
+# This file is NOT used for multi-service setup - Railway needs manual config per service
+# See docs/railway-multi-service-setup.md for instructions
+
+# This would work IF Railway supported service detection from a single repo
+# But Railway requires you to create separate services and configure each one
+
+# For reference only - actual config is done in Railway UI
+

@@ -1,0 +1,22 @@
+# Nixpacks Configuration for Railway
+# Railway's Nixpacks builder reads this file
+
+[phases.setup]
+nixPkgs = ["nodejs-22_x", "yarn"]
+
+[phases.install]
+cmds = ["yarn install"]
+
+[phases.build]
+cmds = ["yarn build"]
+
+[start]
+# Default start command (can be overridden per service in Railway UI)
+cmd = "node dist/graphql/start-graphql-server.js"
+
+# Note: For multi-service deployment from one repo:
+# - Create separate Railway services
+# - Each service should override the start command in Railway UI:
+#   - wasteer-api: node dist/api/server.js
+#   - graphql-server: node dist/graphql/start-graphql-server.js
+
