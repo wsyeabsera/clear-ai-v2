@@ -57,6 +57,21 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: '🤖 Agent System',
+      items: [
+        'agents/overview',
+        'agents/planner',
+        'agents/executor',
+        'agents/analyzer',
+        'agents/summarizer',
+        'agents/orchestrator',
+        'agents/graphql-api',
+        'agents/integration',
+        'agents/testing',
+      ],
+    },
+    {
+      type: 'category',
       label: '📖 Guides',
       items: [
         'guides/environment-setup',

@@ -72,7 +72,11 @@ export class InspectionsListTool extends BaseTool {
 
       const response = await this.get("/inspections", queryParams);
 
-      return this.success(response.data, Date.now() - startTime);
+      // Unwrap API response to get just the data array
+      const apiData = response.data as any;
+      const inspections = apiData.success ? apiData.data : apiData;
+
+      return this.success(inspections, Date.now() - startTime);
     } catch (error: any) {
       return this.error(error, Date.now() - startTime);
     }
