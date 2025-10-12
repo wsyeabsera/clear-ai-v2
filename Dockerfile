@@ -5,14 +5,11 @@ WORKDIR /app
 # Enable Corepack for Yarn 4
 RUN corepack enable
 
-# Copy package files
-COPY package.json yarn.lock ./
+# Copy everything (needed for Yarn 4 workspaces)
+COPY . .
 
 # Install dependencies with Yarn 4
 RUN yarn install
-
-# Copy source code
-COPY . .
 
 # Build TypeScript
 RUN yarn build
