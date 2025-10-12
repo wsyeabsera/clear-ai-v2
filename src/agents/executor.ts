@@ -31,8 +31,11 @@ export class ExecutorAgent {
     };
   }
 
-  async execute(plan: Plan): Promise<ToolResult[]> {
-    console.log(`[ExecutorAgent] Executing plan with ${plan.steps.length} steps`);
+  async execute(
+    plan: Plan,
+    progressCallback?: (stepIndex: number, total: number, stepName: string) => void
+  ): Promise<ToolResult[]> {
+    console.log(`⚡ [Executor] Executing plan with ${plan.steps.length} steps`);
 
     const results: ToolResult[] = [];
     const completed = new Set<number>();
@@ -49,7 +52,18 @@ export class ExecutorAgent {
         throw new Error('Circular dependency or invalid plan');
       }
 
-      console.log(`[ExecutorAgent] Executing ${readySteps.length} steps in parallel`);
+      console.log(`⚡ [Executor] Executing ${readySteps.length} steps in parallel`);
+
+      // Emit progress for each ready step
+      for (const stepIndex of readySteps) {
+        if (stepIndex !== undefined) {
+          const step = plan.steps[stepIndex];
+          if (step) {
+            console.log(`🔧 [Executor] Step ${stepIndex + 1}/${plan.steps.length}: ${step.tool}`);
+            progressCallback?.(stepIndex + 1, plan.steps.length, step.tool);
+          }
+        }
+      }
 
       // Execute ready steps in parallel (up to maxParallelExecutions)
       const batchResults = await this.executeBatch(
@@ -65,8 +79,13 @@ export class ExecutorAgent {
           results[stepIndex] = batchResults[i]!;
           completed.add(stepIndex);
 
-          // Check for failure if failFast is enabled
           const result = batchResults[i];
+          if (result) {
+            const status = result.success ? '✅' : '❌';
+            console.log(`${status} [Executor] Step ${stepIndex + 1} complete: ${result.success ? 'success' : 'failed'}`);
+          }
+
+          // Check for failure if failFast is enabled
           if (result && this.config.failFast && !result.success) {
             throw new Error(
               `Step ${stepIndex} failed: ${result.error?.message}`
@@ -76,7 +95,7 @@ export class ExecutorAgent {
       }
     }
 
-    console.log(`[ExecutorAgent] Plan execution complete. ${results.length} results`);
+    console.log(`✅ [Executor] Plan execution complete. ${results.length} results`);
     return results;
   }
 

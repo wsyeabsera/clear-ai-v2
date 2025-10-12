@@ -11,6 +11,14 @@ import { MemoryManager } from '../shared/memory/manager.js';
 import { FinalResponse } from '../shared/types/agent.js';
 import { randomUUID } from 'crypto';
 
+export interface ProgressUpdate {
+  requestId: string;
+  phase: string;
+  progress: number;
+  message: string;
+  timestamp: string;
+}
+
 export interface OrchestratorConfig {
   enableMemory: boolean;
   maxRetries: number;
@@ -38,37 +46,64 @@ export class OrchestratorAgent {
     };
   }
 
-  async handleQuery(query: string): Promise<FinalResponse> {
+  async handleQuery(
+    query: string, 
+    progressCallback?: (update: ProgressUpdate) => void
+  ): Promise<FinalResponse> {
     const requestId = randomUUID();
     const startTime = Date.now();
 
-    console.log(`[OrchestratorAgent][${requestId}] Processing query: ${query}`);
+    console.log(`🎯 [Orchestrator][${requestId}] Processing query: ${query}`);
+
+    const emitProgress = (phase: string, progress: number, message: string) => {
+      const update = {
+        requestId,
+        phase,
+        progress,
+        message,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(`📊 [Progress] ${phase} - ${progress}% - ${message}`);
+      progressCallback?.(update);
+    };
 
     try {
       // 1. Load relevant context from memory (if enabled)
+      emitProgress('context-loading', 10, 'Loading relevant context...');
       let context = {};
       if (this.config.enableMemory && this.config.enableContextLoading) {
         context = await this.loadContext(query);
-        console.log(`[OrchestratorAgent][${requestId}] Loaded context:`, context);
+        console.log(`🔍 [Orchestrator][${requestId}] Loaded context`);
       }
 
       // 2. Generate execution plan
-      console.log(`[OrchestratorAgent][${requestId}] Planning...`);
+      emitProgress('planning', 20, 'Generating execution plan...');
+      console.log(`🗺️  [Orchestrator][${requestId}] Planning...`);
       const plan = await this.planner.plan(query, context);
-      console.log(`[OrchestratorAgent][${requestId}] Plan generated:`, plan);
+      console.log(`✅ [Orchestrator][${requestId}] Plan generated: ${plan.steps.length} steps`);
 
       // 3. Execute plan
-      console.log(`[OrchestratorAgent][${requestId}] Executing plan...`);
-      const results = await this.executor.execute(plan);
-      console.log(`[OrchestratorAgent][${requestId}] Execution complete. Results: ${results.length}`);
+      emitProgress('executing', 40, `Executing plan with ${plan.steps.length} steps...`);
+      console.log(`⚡ [Orchestrator][${requestId}] Executing plan...`);
+      
+      // Create executor progress callback
+      const executorProgress = (stepIndex: number, total: number, stepName: string) => {
+        const stepProgress = 40 + Math.floor((stepIndex / total) * 30);
+        emitProgress('executing', stepProgress, `Executing step ${stepIndex}/${total}: ${stepName}`);
+      };
+      
+      const results = await this.executor.execute(plan, executorProgress);
+      console.log(`✅ [Orchestrator][${requestId}] Execution complete. Results: ${results.length}`);
 
       // 4. Analyze results
-      console.log(`[OrchestratorAgent][${requestId}] Analyzing results...`);
+      emitProgress('analyzing', 70, 'Analyzing results...');
+      console.log(`📊 [Orchestrator][${requestId}] Analyzing results...`);
       const analysis = await this.analyzer.analyze(results);
-      console.log(`[OrchestratorAgent][${requestId}] Analysis complete`);
+      console.log(`✅ [Orchestrator][${requestId}] Analysis complete`);
 
       // 5. Generate summary
-      console.log(`[OrchestratorAgent][${requestId}] Generating summary...`);
+      emitProgress('summarizing', 85, 'Generating summary...');
+      console.log(`📝 [Orchestrator][${requestId}] Generating summary...`);
       const toolsUsed = results.map(r => r.tool);
       const response = await this.summarizer.summarize(
         query,
@@ -77,6 +112,7 @@ export class OrchestratorAgent {
       );
 
       // 6. Store in memory (if enabled)
+      emitProgress('storing', 95, 'Storing in memory...');
       if (this.config.enableMemory) {
         await this.storeInMemory({
           requestId,
@@ -95,7 +131,8 @@ export class OrchestratorAgent {
         timestamp: new Date().toISOString(),
       };
 
-      console.log(`[OrchestratorAgent][${requestId}] Complete in ${response.metadata.total_duration_ms}ms`);
+      emitProgress('complete', 100, 'Query processing complete!');
+      console.log(`✅ [Orchestrator][${requestId}] Complete in ${response.metadata.total_duration_ms}ms`);
 
       return response;
 

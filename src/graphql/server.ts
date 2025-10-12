@@ -8,6 +8,8 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import express from 'express';
 import { createServer } from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/use/ws';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
@@ -41,24 +43,25 @@ export class GraphQLAgentServer {
       resolvers,
     });
 
-    // Create WebSocket server for subscriptions (disabled for now)
-    // const wsServer = new WebSocketServer({
-    //   server: this.httpServer,
-    //   path: '/graphql',
-    // });
+    // Create WebSocket server for subscriptions
+    const wsServer = new WebSocketServer({
+      server: this.httpServer,
+      path: '/graphql',
+    });
 
-    // Set up WebSocket server (disabled for now)
-    // const serverCleanup = useServer(
-    //   {
-    //     schema,
-    //     context: () => ({
-    //       orchestrator: this.config.orchestrator,
-    //       memory: this.config.memory,
-    //     }),
-    //   },
-    //   wsServer
-    // );
-    const serverCleanup = { dispose: async () => {} };
+    // Set up WebSocket server
+    const serverCleanup = useServer(
+      {
+        schema,
+        context: () => ({
+          orchestrator: this.config.orchestrator,
+          memory: this.config.memory,
+        }),
+      },
+      wsServer
+    );
+
+    console.log('✅ WebSocket server configured for subscriptions');
 
     // Create Apollo Server with Playground enabled
     const plugins: any[] = [

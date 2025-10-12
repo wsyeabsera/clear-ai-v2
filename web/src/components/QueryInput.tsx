@@ -31,23 +31,29 @@ export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
     
     if (!query.trim() || loading) return;
 
+    console.log('🚀 [QueryInput] Submitting query:', query.trim());
     onSubmit();
     setRequestId(null); // Clear old requestId
 
     try {
+      console.log('📡 [QueryInput] Executing GraphQL mutation...');
       const result = await executeQuery({
         variables: { query: query.trim() },
       });
 
       if (result.data?.executeQuery) {
+        const { requestId: newRequestId, toolsUsed } = result.data.executeQuery;
+        console.log(`✅ [QueryInput] Query executed successfully! Request ID: ${newRequestId}`);
+        console.log(`🔧 [QueryInput] Tools used: ${toolsUsed.join(', ')}`);
+        
         // Set requestId for subscription
-        setRequestId(result.data.executeQuery.requestId);
+        setRequestId(newRequestId);
         
         onComplete(result.data.executeQuery);
         setQuery(''); // Clear input after successful query
       }
     } catch (err) {
-      console.error('Query execution error:', err);
+      console.error('❌ [QueryInput] Query execution error:', err);
       // Error will be shown via error state
     }
   };

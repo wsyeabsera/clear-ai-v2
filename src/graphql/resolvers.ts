@@ -165,19 +165,14 @@ export const resolvers = {
       metrics.totalRequests++;
 
       try {
-        // Execute query through orchestrator
-        const response = await context.orchestrator.handleQuery(query);
+        // Create progress callback that publishes to pubsub
+        const progressCallback = (update: any) => {
+          console.log(`🔔 [GraphQL] Publishing progress: ${update.phase} - ${update.progress}% (requestId: ${update.requestId})`);
+          pubsub.publish('QUERY_PROGRESS', { queryProgress: update });
+        };
 
-        // Publish progress update with actual requestId
-        await pubsub.publish('QUERY_PROGRESS', {
-          queryProgress: {
-            requestId: response.metadata.request_id,
-            phase: 'processing',
-            progress: 50,
-            message: 'Query processing in progress...',
-            timestamp: new Date().toISOString(),
-          },
-        });
+        // Execute query through orchestrator with progress tracking
+        const response = await context.orchestrator.handleQuery(query, progressCallback);
 
         const duration = Date.now() - startTime;
         metrics.totalDuration += duration;
@@ -197,17 +192,6 @@ export const resolvers = {
           userId,
         };
         requestHistory.set(response.metadata.request_id, record);
-
-        // Publish completion
-        await pubsub.publish('QUERY_PROGRESS', {
-          queryProgress: {
-            requestId: response.metadata.request_id,
-            phase: 'completed',
-            progress: 100,
-            message: 'Query processing complete',
-            timestamp: new Date().toISOString(),
-          },
-        });
 
         // Convert analysis to GraphQL format
         const result = {
@@ -285,8 +269,35 @@ export const resolvers = {
 
   Subscription: {
     queryProgress: {
-      subscribe: () => {
-        return createAsyncIterator(pubsub, 'QUERY_PROGRESS');
+      subscribe: (_: any, { requestId }: { requestId: string }) => {
+        console.log(`🔔 [Subscription] Client subscribing to progress for request: ${requestId}`);
+        
+        // Create async iterator that filters by requestId
+        const iterator = createAsyncIterator(pubsub, 'QUERY_PROGRESS');
+        
+        return {
+          [Symbol.asyncIterator]() {
+            const originalIterator = iterator[Symbol.asyncIterator]();
+            return {
+              async next(): Promise<IteratorResult<any>> {
+                while (true) {
+                  const result = await originalIterator.next();
+                  if (result.done) return result;
+                  
+                  // Filter: only return updates matching this requestId
+                  const value = result.value as any;
+                  if (value?.queryProgress?.requestId === requestId) {
+                    console.log(`📤 [Subscription] Sending update for ${requestId}: ${value.queryProgress.phase} - ${value.queryProgress.progress}%`);
+                    return result;
+                  }
+                  // Skip updates for other requests
+                }
+              },
+              return: originalIterator.return?.bind(originalIterator),
+              throw: originalIterator.throw?.bind(originalIterator),
+            };
+          },
+        };
       },
     },
 

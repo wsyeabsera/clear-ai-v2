@@ -13,7 +13,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import { GET_REQUEST_HISTORY } from '../graphql/queries';
 import type { RequestRecord } from '../types';
 
-interface HistorySidebarProps {
+export interface HistorySidebarProps {
   selectedRequestId: string | null;
   onSelectRequest: (requestId: string) => void;
 }
