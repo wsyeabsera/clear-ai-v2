@@ -6,11 +6,11 @@ import {
   Button,
   Box,
   CircularProgress,
-  LinearProgress,
   Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { EXECUTE_QUERY } from '../graphql/queries';
+import ProgressIndicator from './ProgressIndicator';
 import type { ExecutionResult } from '../types';
 
 interface QueryInputProps {
@@ -21,6 +21,7 @@ interface QueryInputProps {
 
 export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
   const [query, setQuery] = useState('');
+  const [requestId, setRequestId] = useState<string | null>(null);
   const [executeQuery, { loading, error }] = useMutation<{
     executeQuery: ExecutionResult;
   }>(EXECUTE_QUERY);
@@ -31,6 +32,7 @@ export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
     if (!query.trim() || loading) return;
 
     onSubmit();
+    setRequestId(null); // Clear old requestId
 
     try {
       const result = await executeQuery({
@@ -38,6 +40,9 @@ export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
       });
 
       if (result.data?.executeQuery) {
+        // Set requestId for subscription
+        setRequestId(result.data.executeQuery.requestId);
+        
         onComplete(result.data.executeQuery);
         setQuery(''); // Clear input after successful query
       }
@@ -45,6 +50,11 @@ export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
       console.error('Query execution error:', err);
       // Error will be shown via error state
     }
+  };
+
+  const handleProgressComplete = () => {
+    // Progress subscription complete
+    setRequestId(null);
   };
 
   return (
@@ -80,19 +90,32 @@ export default function QueryInput({ onSubmit, onComplete }: QueryInputProps) {
         </Box>
       </form>
 
-      {loading && (
+      {/* Show real-time progress if we have a requestId */}
+      {loading && requestId && (
         <Box sx={{ mt: 2 }}>
-          <LinearProgress />
+          <ProgressIndicator requestId={requestId} onComplete={handleProgressComplete} />
+        </Box>
+      )}
+
+      {/* Show basic loading if no requestId yet */}
+      {loading && !requestId && (
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <CircularProgress size={24} />
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Agent is processing your query...
+            Starting agent...
           </Typography>
         </Box>
       )}
 
       {error && (
-        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-          Error: {error.message}
-        </Typography>
+        <Paper elevation={1} sx={{ mt: 2, p: 2, bgcolor: '#fff3f3' }}>
+          <Typography variant="subtitle2" color="error" gutterBottom>
+            Query Failed
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {error.message}
+          </Typography>
+        </Paper>
       )}
 
       <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>

@@ -120,3 +120,15 @@ export const GET_REQUEST = gql`
   }
 `;
 
+export const QUERY_PROGRESS_SUBSCRIPTION = gql`
+  subscription QueryProgress($requestId: ID!) {
+    queryProgress(requestId: $requestId) {
+      requestId
+      phase
+      progress
+      message
+      timestamp
+    }
+  }
+`;
+

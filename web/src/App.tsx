@@ -6,6 +6,7 @@ import { client } from './apollo-client';
 import QueryInput from './components/QueryInput';
 import ResultsDisplay from './components/ResultsDisplay';
 import HistorySidebar from './components/HistorySidebar';
+import ErrorBoundary from './components/ErrorBoundary';
 import type { ExecutionResult } from './types';
 
 const theme = createTheme({
@@ -43,24 +44,25 @@ function App() {
   };
 
   return (
-    <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Box sx={{ display: 'flex' }}>
-          {/* Header */}
-          <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          >
-            <Toolbar>
-              <Typography variant="h6" noWrap component="div">
-                Clear AI v2
-              </Typography>
-              <Typography variant="subtitle2" sx={{ ml: 2, opacity: 0.8 }}>
-                AI Agent System
-              </Typography>
-            </Toolbar>
-          </AppBar>
+    <ErrorBoundary>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Box sx={{ display: 'flex' }}>
+            {/* Header */}
+            <AppBar
+              position="fixed"
+              sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            >
+              <Toolbar>
+                <Typography variant="h6" noWrap component="div">
+                  Clear AI v2
+                </Typography>
+                <Typography variant="subtitle2" sx={{ ml: 2, opacity: 0.8 }}>
+                  AI Agent System
+                </Typography>
+              </Toolbar>
+            </AppBar>
 
           {/* History Sidebar */}
           <Drawer
@@ -115,6 +117,7 @@ function App() {
         </Box>
       </ThemeProvider>
     </ApolloProvider>
+    </ErrorBoundary>
   );
 }
 
