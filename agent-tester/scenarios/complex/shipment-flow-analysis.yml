@@ -1,0 +1,38 @@
+id: complex-008
+name: "Analyze shipment flow between facilities"
+category: complex
+description: |
+  Track shipment movement patterns between facilities
+  to identify bottlenecks and optimize routing.
+
+tags:
+  - complex
+  - shipments
+  - facilities
+  - flow-analysis
+
+priority: medium
+
+query: "Analyze the flow of shipments between different facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - facilities_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - shipment
+    - facility
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

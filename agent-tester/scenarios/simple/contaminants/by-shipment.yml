@@ -1,0 +1,34 @@
+id: simple-contaminants-003
+name: "List contaminants by shipment"
+category: simple
+description: |
+  Test contaminant listing filtered by shipment IDs.
+  Verifies shipment_ids filter.
+
+tags:
+  - contaminants_list
+  - filter
+  - shipment
+
+priority: high
+
+query: "Show me contaminants found in shipment SHP-001"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - contaminant
+    - SHP-001
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+

@@ -1,0 +1,37 @@
+id: complex-010
+name: "Analyze waste type distribution"
+category: complex
+description: |
+  Analyze distribution of different waste types
+  across facilities and shipments.
+
+tags:
+  - complex
+  - waste-types
+  - distribution
+  - analytics
+
+priority: medium
+
+query: "Show me the distribution of waste types across all shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - waste
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

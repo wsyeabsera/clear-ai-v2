@@ -1,0 +1,31 @@
+id: edge-008
+name: "Handle Unicode and emoji in queries"
+category: edge-case
+description: |
+  Tests handling of Unicode characters and emoji.
+  Should process correctly without encoding issues.
+
+tags:
+  - edge-case
+  - unicode
+  - internationalization
+
+priority: medium
+
+query: "Show me facilities in München 🏭 and Berlin 🌆"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+  
+  - type: performance
+    maxLatencyMs: 15000
+

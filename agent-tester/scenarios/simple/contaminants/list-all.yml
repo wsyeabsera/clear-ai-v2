@@ -1,0 +1,34 @@
+id: simple-contaminants-001
+name: "List all contaminants"
+category: simple
+description: |
+  Test basic contaminant listing without filters.
+  Verifies the system can invoke the contaminants tool.
+
+tags:
+  - contaminants_list
+  - basic
+  - smoke
+
+priority: critical
+
+query: "Show me all detected contaminants"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - contaminant
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

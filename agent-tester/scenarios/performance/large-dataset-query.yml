@@ -1,0 +1,33 @@
+id: perf-002
+name: "Query returning large dataset"
+category: performance
+description: |
+  Query expected to return large number of results.
+  Tests handling of large response payloads.
+
+tags:
+  - performance
+  - large-data
+  - scalability
+
+priority: high
+
+query: "Show me all shipments from all facilities with all details"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 30000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 30000
+

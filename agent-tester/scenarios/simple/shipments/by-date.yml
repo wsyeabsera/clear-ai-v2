@@ -1,0 +1,32 @@
+id: simple-shipments-002
+name: "List shipments by date range"
+category: simple
+description: |
+  Test shipment listing with time-based filter.
+  Verifies understanding of relative time expressions.
+
+tags:
+  - shipments
+  - time-filter
+  - basic
+
+priority: critical
+
+query: "Get shipments from last week"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - shipment
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  - type: performance
+    maxLatencyMs: 15000
+

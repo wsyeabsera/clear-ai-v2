@@ -1,9 +1,9 @@
 module.exports = {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src/tests'],
+  roots: ['<rootDir>/src/tests', '<rootDir>/agent-tester/__tests__'],
   moduleFileExtensions: ['ts', 'js', 'json'],
-  testMatch: ['**/*.test.ts'],
+  testMatch: ['**/*.test.ts', '**/agent-tester/__tests__/**/*.test.ts'],
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',

@@ -1,0 +1,39 @@
+id: edge-001
+name: "Query with non-existent facility ID"
+category: edge-case
+description: |
+  Tests how the system handles queries for facilities that don't exist.
+  Should gracefully handle and provide helpful response.
+
+tags:
+  - edge-case
+  - error-handling
+  - facility
+
+priority: high
+
+query: "Show me shipments for facility INVALID-999"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - facility
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

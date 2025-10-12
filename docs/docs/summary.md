@@ -6,7 +6,7 @@ sidebar_position: 10
 
 ## What We've Built
 
-Clear AI v2 includes **19 production-ready modules** organized into 5 categories, all with 100% test coverage (724 unit + 45 integration tests).
+Clear AI v2 includes **19 production-ready modules** organized into 5 categories, plus a complete **5-agent system** and **GraphQL API**, all with comprehensive test coverage (960+ tests total).
 
 ## Quick Navigation
 
@@ -47,14 +47,17 @@ Clear AI v2 includes **19 production-ready modules** organized into 5 categories
 
 ## Module Status
 
-| Category | Modules | Tests | Status |
-|----------|---------|-------|--------|
-| Conversational | 5 | 92 | ✅ Complete |
-| Context & Memory | 3 | 112 | ✅ Complete |
-| Workflows | 2 | 35 | ✅ Complete |
-| Infrastructure | 4 | 34+ | ✅ Complete |
-| Foundation | 5 | 451+ | ✅ Complete |
-| **Total** | **19** | **724** | **✅ 100%** |
+| Category | Modules | Unit Tests | Integration Tests | Status |
+|----------|---------|------------|-------------------|--------|
+| Conversational | 5 | 92 | 20+ | ✅ Complete |
+| Context & Memory | 3 | 112 | 15+ | ✅ Complete |
+| Workflows | 2 | 35 | 10+ | ✅ Complete |
+| Infrastructure | 4 | 34+ | 25+ | ✅ Complete |
+| Foundation | 5 | 451+ | 30+ | ✅ Complete |
+| **Shared Library** | **19** | **724** | **100+** | **✅ Complete** |
+| **Agent System** | **5** | **78** | **45+** | **✅ Complete** |
+| **GraphQL API** | **1** | **-** | **62** | **✅ Complete** |
+| **Grand Total** | **25** | **802** | **160+** | **✅ 960+ Tests** |
 
 ## Key Features
 

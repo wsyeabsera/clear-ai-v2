@@ -1,0 +1,34 @@
+id: memory-005
+name: "Maintain context in long conversations"
+category: memory
+description: |
+  Tests system's ability to maintain relevant context
+  over extended conversation threads.
+
+tags:
+  - memory
+  - long-context
+  - conversation
+
+priority: low
+
+query: "What were the key findings from the contamination analysis?"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

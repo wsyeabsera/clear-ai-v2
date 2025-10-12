@@ -1,0 +1,44 @@
+id: complex-005
+name: "Compare contamination rates across facilities"
+category: complex
+description: |
+  Complex analysis comparing contamination rates
+  across different facilities and facility types.
+
+tags:
+  - complex
+  - cross-entity
+  - facilities
+  - contamination
+  - comparison
+
+priority: high
+
+query: "Compare contamination rates between sorting and processing facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - contaminants_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - facility
+    - contamination
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

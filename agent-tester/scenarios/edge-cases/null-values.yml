@@ -1,0 +1,35 @@
+id: edge-010
+name: "Handle missing/null values gracefully"
+category: edge-case
+description: |
+  Tests handling of entities with missing or null values.
+  Should not crash and provide meaningful response.
+
+tags:
+  - edge-case
+  - null-handling
+  - data-quality
+
+priority: high
+
+query: "Show me all shipments including those with missing carrier information"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

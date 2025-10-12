@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Tester Report - 2025-10-12T10:35:56.307Z</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin-top: 30px; margin-bottom: 15px; font-size: 1.8em; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h3 { color: #7f8c8d; margin-top: 20px; margin-bottom: 10px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .summary-card.success { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+        .summary-card.failure { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+        .summary-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .summary-card h3 { color: white; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase; }
+        .summary-card .value { font-size: 2.5em; font-weight: bold; }
+        .summary-card .label { font-size: 0.85em; opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .passed { color: #27ae60; font-weight: bold; }
+        .failed { color: #e74c3c; font-weight: bold; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge.passed { background: #d4edda; color: #155724; }
+        .badge.failed { background: #f8d7da; color: #721c24; }
+        .badge.warning { background: #fff3cd; color: #856404; }
+        .tools { font-family: 'Courier New', monospace; font-size: 0.9em; color: #555; }
+        .timestamp { color: #7f8c8d; font-size: 0.9em; }
+        .chart { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .progress-bar { width: 100%; height: 30px; background: #ecf0f1; border-radius: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%); transition: width 0.3s; }
+        .error-details { background: #fff5f5; border-left: 4px solid #e74c3c; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .warning-details { background: #fffbf0; border-left: 4px solid #f39c12; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Agent Tester Report</h1>
+        <p class="timestamp">Generated: 2025-10-12T10:35:56.307Z</p>
+
+        <h2>📊 Summary</h2>
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Tests</h3>
+                <div class="value">55</div>
+                <div class="label">scenarios executed</div>
+            </div>
+            <div class="summary-card success">
+                <h3>Passed</h3>
+                <div class="value">54</div>
+                <div class="label">98.18181818181819% success</div>
+            </div>
+            <div class="summary-card failure">
+                <h3>Failed</h3>
+                <div class="value">1</div>
+                <div class="label">need attention</div>
+            </div>
+            <div class="summary-card warning">
+                <h3>Duration</h3>
+                <div class="value">1m 15s</div>
+                <div class="label">avg 1.36s/test</div>
+            </div>
+        </div>
+
+        <div class="chart">
+            <h3>Success Rate</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 98.18181818181819%;"></div>
+            </div>
+            <p style="text-align: center; margin-top: 10px;">98.18181818181819% Pass Rate</p>
+        </div>
+
+        <h2>📋 Test Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Scenario ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Tools Used</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>complex-012</code></td>
+                    <td>Analyze carrier performance and contamination correlation</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8781ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-001</code></td>
+                    <td>Analyze contaminated shipments and their facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5408ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-006</code></td>
+                    <td>Analyze contamination trends over time</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4791ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-017</code></td>
+                    <td>Cost-benefit analysis of inspection processes</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6611ms</td>
+                    <td class="tools">
+                        facilities_list, inspections_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-005</code></td>
+                    <td>Compare contamination rates across facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7456ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list, contaminants_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-002</code></td>
+                    <td>Check facility capacity and incoming shipments</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4008ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-014</code></td>
+                    <td>Optimize facility load distribution</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>2288ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-016</code></td>
+                    <td>Geographic distribution analysis</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5666ms</td>
+                    <td class="tools">
+                        facilities_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-007</code></td>
+                    <td>Identify high-risk facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9229ms</td>
+                    <td class="tools">
+                        facilities_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-009</code></td>
+                    <td>Evaluate inspection effectiveness</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6804ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-019</code></td>
+                    <td>Analyze inspector performance</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9161ms</td>
+                    <td class="tools">
+                        inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-011</code></td>
+                    <td>Compare performance across multiple facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4694ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-013</code></td>
+                    <td>Analyze rejected shipments and root causes</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4626ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-003</code></td>
+                    <td>Comprehensive contamination risk assessment</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7732ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-018</code></td>
+                    <td>Identify seasonal shipment patterns</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4053ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-008</code></td>
+                    <td>Analyze shipment flow between facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5118ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-004</code></td>
+                    <td>Track shipment lifecycle with inspections</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5643ms</td>
+                    <td class="tools">
+                        shipments_list, inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-015</code></td>
+                    <td>Detect temporal patterns in contamination</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>3603ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-020</code></td>
+                    <td>Correlate waste types with contamination</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6252ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-010</code></td>
+                    <td>Analyze waste type distribution</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5876ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-002</code></td>
+                    <td>Handle ambiguous query</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6030ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-009</code></td>
+                    <td>Handle mixed case in filters</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4644ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-003</code></td>
+                    <td>Query returning no results</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4092ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-001</code></td>
+                    <td>Query with non-existent facility ID</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4726ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-004</code></td>
+                    <td>Handle malformed date input</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8057ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-010</code></td>
+                    <td>Handle missing/null values gracefully</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6689ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-007</code></td>
+                    <td>Handle numeric overflow in filters</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7932ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-005</code></td>
+                    <td>Handle special characters in query</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4821ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-008</code></td>
+                    <td>Handle Unicode and emoji in queries</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5259ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-006</code></td>
+                    <td>Handle very long query text</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>2926ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-001</code></td>
+                    <td>Use context from previous query</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4681ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-002</code></td>
+                    <td>Reference entities from context</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5242ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-003</code></td>
+                    <td>Apply implicit filters from context</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6139ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-005</code></td>
+                    <td>Maintain context in long conversations</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5813ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-004</code></td>
+                    <td>Multi-turn conversation flow</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8012ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-003</code></td>
+                    <td>Complex aggregation query</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>11568ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-001</code></td>
+                    <td>10 concurrent simple queries</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>10813ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-002</code></td>
+                    <td>Query returning large dataset</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9261ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-004</code></td>
+                    <td>Heavy multi-tool query</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7170ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list, inspections_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-005</code></td>
+                    <td>Rapid succession queries</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8657ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-analytics-001</code></td>
+                    <td>Get contamination rate analytics</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8920ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-analytics-002</code></td>
+                    <td>Get facility performance analytics</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6671ms</td>
+                    <td class="tools">
+                        facilities_list, inspections_list, inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-002</code></td>
+                    <td>List contaminants by risk level</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5207ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-003</code></td>
+                    <td>List contaminants by shipment</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4354ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-001</code></td>
+                    <td>List all contaminants</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6987ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-002</code></td>
+                    <td>List facilities by location</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4454ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-003</code></td>
+                    <td>List facilities by type</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6173ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-001</code></td>
+                    <td>List all facilities</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5599ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-inspections-002</code></td>
+                    <td>List inspections by facility</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5658ms</td>
+                    <td class="tools">
+                        inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-inspections-001</code></td>
+                    <td>List all inspections</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>15753ms</td>
+                    <td class="tools">
+                        inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-002</code></td>
+                    <td>List shipments by date range</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>3765ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-004</code></td>
+                    <td>List shipments by facility</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4077ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-003</code></td>
+                    <td>List shipments by status</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4873ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-005</code></td>
+                    <td>List contaminated shipments</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5779ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-001</code></td>
+                    <td>List all shipments</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9204ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>❌ Failed Scenarios</h2>
+        <div class="error-details">
+            <h3>simple-inspections-001: List all inspections</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Show me all inspections</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 15753ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+
+
+        <footer>
+            <p>Generated by Agent Tester v1.0.0 | Clear AI v2</p>
+            <p>Report generated at 2025-10-12T10:35:56.307Z</p>
+        </footer>
+    </div>
+</body>
+</html>
+

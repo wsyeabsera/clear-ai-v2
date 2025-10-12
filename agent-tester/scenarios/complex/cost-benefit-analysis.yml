@@ -1,0 +1,36 @@
+id: complex-017
+name: "Cost-benefit analysis of inspection processes"
+category: complex
+description: |
+  Analyze inspection effectiveness vs costs.
+  Complex business analysis scenario.
+
+tags:
+  - complex
+  - cost-analysis
+  - inspections
+  - roi
+
+priority: low
+
+query: "Are facilities with more frequent inspections detecting more contaminants?"
+
+expectedBehavior:
+  toolsUsed:
+    - inspections_list
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - inspection
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - inspections_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+

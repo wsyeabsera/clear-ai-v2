@@ -1,0 +1,40 @@
+id: complex-020
+name: "Correlate waste types with contamination"
+category: complex
+description: |
+  Analyze which waste types are most likely to contain
+  specific types of contaminants.
+
+tags:
+  - complex
+  - waste-types
+  - contamination
+  - correlation
+
+priority: high
+
+query: "Which types of waste are most likely to be contaminated?"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - waste
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

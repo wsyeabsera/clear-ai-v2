@@ -1,0 +1,44 @@
+id: complex-001
+name: "Analyze contaminated shipments and their facilities"
+category: complex
+description: |
+  Complex multi-tool query that requires finding contaminated shipments
+  and then analyzing which facilities they went to.
+  Tests tool dependency and cross-entity analysis.
+
+tags:
+  - complex
+  - multi-tool
+  - contamination
+  - shipments
+  - facilities
+
+priority: high
+
+query: "Show me contaminated shipments from the last month and which facilities received them"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - facilities_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - contaminant
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

@@ -80,6 +80,15 @@ const sidebars: SidebarsConfig = {
         'guides/development',
       ],
     },
+    {
+      type: 'category',
+      label: '📋 Testing & Validation',
+      items: [
+        'testing/overview',
+        'testing/agent-tester',
+        'testing/coverage',
+      ],
+    },
     'summary',
   ],
 };
