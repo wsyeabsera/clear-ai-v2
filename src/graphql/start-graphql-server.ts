@@ -19,11 +19,16 @@ import { registerAllTools } from '../tools/index.js';
 import { validateProductionEnv } from '../shared/utils/validate-env.js';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Only load .env in development (Railway injects env vars directly in production)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 // Validate environment in production
 if (process.env.NODE_ENV === 'production') {
+  console.log('🔐 Validating production environment variables...');
   validateProductionEnv();
+  console.log('✓ Environment validation passed\n');
 }
 
 async function main() {

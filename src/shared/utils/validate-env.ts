@@ -11,6 +11,14 @@ export function validateProductionEnv(): void {
     'MONGODB_CLOUD_URI',
   ];
 
+  // Debug: Log which env vars are present (without values)
+  console.log('   Environment variables status:');
+  required.forEach(key => {
+    const hasValue = !!process.env[key];
+    const indicator = hasValue ? '✓' : '✗';
+    console.log(`   ${indicator} ${key}: ${hasValue ? 'SET' : 'MISSING'}`);
+  });
+
   const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0 && process.env.NODE_ENV === 'production') {
