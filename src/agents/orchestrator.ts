@@ -175,6 +175,7 @@ export class OrchestratorAgent {
       });
 
       // Store semantic embedding of summary
+      console.log('[OrchestratorAgent] Storing semantic memory...');
       await this.memory.storeSemantic(
         data.response.message,
         {
@@ -185,9 +186,14 @@ export class OrchestratorAgent {
         }
       );
 
-      console.log(`[OrchestratorAgent] Stored request ${data.requestId} in memory`);
-    } catch (error) {
-      console.error('[OrchestratorAgent] Failed to store in memory:', error);
+      console.log(`[OrchestratorAgent] ✅ Stored request ${data.requestId} in memory (episodic + semantic)`);
+    } catch (error: any) {
+      console.error('[OrchestratorAgent] ❌ Failed to store in memory:', error);
+      console.error('  Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
       // Don't fail the request if memory storage fails
     }
   }

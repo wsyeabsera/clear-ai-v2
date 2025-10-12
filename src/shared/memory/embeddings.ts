@@ -116,7 +116,13 @@ export function createEmbeddingService(config: EmbeddingConfig): EmbeddingServic
  * Load embedding configuration from environment
  */
 export function loadEmbeddingConfig(): EmbeddingConfig {
-  const provider = (process.env.MEMORY_EMBEDDING_PROVIDER || 'ollama') as EmbeddingProvider;
+  let provider = (process.env.MEMORY_EMBEDDING_PROVIDER || 'ollama') as EmbeddingProvider;
+  
+  // Auto-fallback to OpenAI in production if Ollama not specified
+  if (provider === 'ollama' && process.env.NODE_ENV === 'production' && !process.env.OLLAMA_URL) {
+    console.warn('⚠️  Ollama not configured for production, using OpenAI embeddings');
+    provider = 'openai';
+  }
   
   if (provider === 'ollama') {
     return {
