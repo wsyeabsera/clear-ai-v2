@@ -26,6 +26,7 @@
     "test:watch": "jest --watch --testPathIgnorePatterns=integration --testPathIgnorePatterns=agent-tester",
     "test:coverage": "jest --coverage --testPathIgnorePatterns=integration --testPathIgnorePatterns=agent-tester",
     "test:integration": "jest integration --testTimeout=60000",
+    "test:memory": "jest src/tests/integration/memory-pinecone.test.ts src/tests/integration/memory-manager.test.ts --testTimeout=60000 --runInBand",
     "test:all": "jest --testTimeout=60000",
     "test:agent": "jest agent-tester/__tests__ --testTimeout=60000 --runInBand",
     "test:agent:simple": "jest agent-tester/__tests__/simple.test.ts --testTimeout=60000",
