@@ -1,0 +1,244 @@
+/**
+ * GraphQL Resolvers
+ */
+
+import { PubSub } from 'graphql-subscriptions';
+import { OrchestratorAgent } from '../agents/orchestrator.js';
+import { MemoryManager } from '../shared/memory/manager.js';
+import GraphQLJSON from 'graphql-type-json';
+
+const pubsub = new PubSub();
+
+interface Context {
+  orchestrator: OrchestratorAgent;
+  memory: MemoryManager;
+}
+
+// Store for request history (in production, use database)
+const requestHistory = new Map<string, any>();
+
+// System metrics
+const metrics = {
+  totalRequests: 0,
+  successfulRequests: 0,
+  failedRequests: 0,
+  totalDuration: 0,
+  startTime: Date.now(),
+};
+
+export const resolvers = {
+  JSON: GraphQLJSON,
+
+  Query: {
+    getRequestHistory: async (
+      _: any,
+      { limit = 10, userId }: { limit?: number; userId?: string },
+      context: Context
+    ) => {
+      const history = Array.from(requestHistory.values());
+      
+      let filtered = history;
+      if (userId) {
+        filtered = history.filter(r => r.userId === userId);
+      }
+      
+      return filtered
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit);
+    },
+
+    getMemoryContext: async (
+      _: any,
+      { query }: { query: string },
+      context: Context
+    ) => {
+      try {
+        const [semantic, episodic] = await Promise.all([
+          context.memory.querySemantic({ query, top_k: 5 }),
+          context.memory.queryEpisodic({ limit: 5 }),
+        ]);
+
+        // Simple entity extraction
+        const entities: string[] = [];
+        if (query.includes('shipment')) entities.push('shipment');
+        if (query.includes('facility')) entities.push('facility');
+        if (query.includes('contamination')) entities.push('contamination');
+
+        return {
+          semantic: semantic || [],
+          episodic: episodic || [],
+          entities,
+        };
+      } catch (error) {
+        console.error('Error loading memory context:', error);
+        return {
+          semantic: [],
+          episodic: [],
+          entities: [],
+        };
+      }
+    },
+
+    getMetrics: () => {
+      const uptime = (Date.now() - metrics.startTime) / 1000;
+      const avgDuration = metrics.totalRequests > 0
+        ? metrics.totalDuration / metrics.totalRequests
+        : 0;
+
+      return {
+        ...metrics,
+        avgDuration,
+        uptime,
+      };
+    },
+
+    getRequest: (_: any, { requestId }: { requestId: string }) => {
+      return requestHistory.get(requestId) || null;
+    },
+  },
+
+  Mutation: {
+    executeQuery: async (
+      _: any,
+      { query, userId }: { query: string; userId?: string },
+      context: Context
+    ) => {
+      const startTime = Date.now();
+      metrics.totalRequests++;
+
+      try {
+        // Publish start status
+        await pubsub.publish('QUERY_PROGRESS', {
+          queryProgress: {
+            requestId: 'temp',
+            phase: 'starting',
+            progress: 0,
+            message: 'Initializing query processing...',
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        // Execute query through orchestrator
+        const response = await context.orchestrator.handleQuery(query);
+
+        const duration = Date.now() - startTime;
+        metrics.totalDuration += duration;
+
+        if (!response.metadata.error) {
+          metrics.successfulRequests++;
+        } else {
+          metrics.failedRequests++;
+        }
+
+        // Store in history
+        const record = {
+          requestId: response.metadata.request_id,
+          query,
+          response,
+          timestamp: response.metadata.timestamp,
+          userId,
+        };
+        requestHistory.set(response.metadata.request_id, record);
+
+        // Publish completion
+        await pubsub.publish('QUERY_PROGRESS', {
+          queryProgress: {
+            requestId: response.metadata.request_id,
+            phase: 'completed',
+            progress: 100,
+            message: 'Query processing complete',
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        // Convert analysis to GraphQL format
+        const result = {
+          requestId: response.metadata.request_id,
+          message: response.message,
+          toolsUsed: response.tools_used,
+          data: response.data || null,
+          analysis: response.analysis ? {
+            summary: response.analysis.summary,
+            insights: response.analysis.insights.map(i => ({
+              type: i.type,
+              description: i.description,
+              confidence: i.confidence,
+              supportingData: i.supporting_data,
+            })),
+            entities: response.analysis.entities.map(e => ({
+              id: e.id,
+              type: e.type,
+              name: e.name,
+              attributes: e.attributes,
+              relationships: e.relationships || [],
+            })),
+            anomalies: response.analysis.anomalies.map(a => ({
+              type: a.type,
+              description: a.description,
+              severity: a.severity,
+              affectedEntities: a.affected_entities,
+              data: a.data,
+            })),
+            metadata: {
+              toolResultsCount: response.analysis.metadata.tool_results_count,
+              successfulResults: response.analysis.metadata.successful_results,
+              failedResults: response.analysis.metadata.failed_results,
+              analysisTimeMs: response.analysis.metadata.analysis_time_ms,
+            },
+          } : null,
+          metadata: {
+            requestId: response.metadata.request_id,
+            totalDurationMs: response.metadata.total_duration_ms,
+            timestamp: response.metadata.timestamp,
+            error: response.metadata.error || false,
+          },
+        };
+
+        return result;
+      } catch (error: any) {
+        const duration = Date.now() - startTime;
+        metrics.totalDuration += duration;
+        metrics.failedRequests++;
+
+        console.error('Error executing query:', error);
+
+        return {
+          requestId: '',
+          message: `Error: ${error.message}`,
+          toolsUsed: [],
+          data: null,
+          analysis: null,
+          metadata: {
+            requestId: '',
+            totalDurationMs: duration,
+            timestamp: new Date().toISOString(),
+            error: true,
+          },
+        };
+      }
+    },
+
+    cancelQuery: async (_: any, { requestId }: { requestId: string }) => {
+      // In a real implementation, this would cancel the ongoing request
+      console.log(`Cancelling request: ${requestId}`);
+      return true;
+    },
+  },
+
+  Subscription: {
+    queryProgress: {
+      subscribe: (_: any, { requestId }: { requestId: string }) => {
+        return pubsub.asyncIterator(['QUERY_PROGRESS']);
+      },
+    },
+
+    agentStatus: {
+      subscribe: () => {
+        return pubsub.asyncIterator(['AGENT_STATUS']);
+      },
+    },
+  },
+};
+
+export { pubsub };
+
