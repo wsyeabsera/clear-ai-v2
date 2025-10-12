@@ -1,0 +1,380 @@
+
+╔════════════════════════════════════════════════════════╗
+║        Agent Tester - Clear AI v2 Test Suite          ║
+╚════════════════════════════════════════════════════════╝
+
+GraphQL Endpoint: https://clear-ai-v2-production.up.railway.app/graphql
+
+System Health Check
+────────────────────────────────────────────────────────────
+✓ GraphQL server is healthy
+
+Loading Scenarios
+────────────────────────────────────────────────────────────
+Loaded all scenarios from /Users/yab/Projects/clear-ai-v2/agent-tester/scenarios
+✓ Metrics storage connected to MongoDB
+✓ Metrics tracking enabled
+
+
+Running Tests
+────────────────────────────────────────────────────────────
+
+Running 55 scenarios...
+
+
+Running scenario: complex-012 - Analyze carrier performance and contamination correlation
+Query: Do certain carriers have higher contamination rates in their shipments?
+Result: ✓ PASSED
+Duration: 5294ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: complex-001 - Analyze contaminated shipments and their facilities
+Query: Show me contaminated shipments from the last month and which facilities received them
+Result: ✗ FAILED
+Duration: 5637ms
+Tools used: shipments_list, facilities_list
+
+Running scenario: complex-006 - Analyze contamination trends over time
+Query: Analyze contamination trends over the last 30 days
+Result: ✓ PASSED
+Duration: 4095ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: complex-017 - Cost-benefit analysis of inspection processes
+Query: Are facilities with more frequent inspections detecting more contaminants?
+Result: ✓ PASSED
+Duration: 7375ms
+Tools used: facilities_list, inspections_list, contaminants_list
+
+Running scenario: complex-005 - Compare contamination rates across facilities
+Query: Compare contamination rates between sorting and processing facilities
+Result: ✓ PASSED
+Duration: 5421ms
+Tools used: facilities_list, facilities_list, contaminants_list, contaminants_list
+
+Running scenario: complex-002 - Check facility capacity and incoming shipments
+Query: Which facilities are near capacity and how many shipments are they receiving?
+Result: ✗ FAILED
+Duration: 1744ms
+Tools used: facilities_list, shipments_list
+
+Running scenario: complex-014 - Optimize facility load distribution
+Query: Which facilities have excess capacity and could handle more shipments?
+Result: ✗ FAILED
+Duration: 1492ms
+Tools used: facilities_list
+
+Running scenario: complex-016 - Geographic distribution analysis
+Query: Analyze the geographic distribution of contaminated shipments across Germany
+Result: ✓ PASSED
+Duration: 3834ms
+Tools used: facilities_list, contaminants_list
+
+Running scenario: complex-007 - Identify high-risk facilities
+Query: Which facilities have the highest contamination rates and why?
+Result: ✓ PASSED
+Duration: 4682ms
+Tools used: facilities_list, contaminants_list
+
+Running scenario: complex-009 - Evaluate inspection effectiveness
+Query: Which facilities have the most effective inspection processes?
+Result: ✓ PASSED
+Duration: 6174ms
+Tools used: facilities_list
+
+Running scenario: complex-019 - Analyze inspector performance
+Query: Which inspectors are most effective at detecting contamination?
+Result: ✓ PASSED
+Duration: 5005ms
+Tools used: inspections_list
+
+Running scenario: complex-011 - Compare performance across multiple facilities
+Query: Compare the performance of sorting vs processing vs disposal facilities
+Result: ✓ PASSED
+Duration: 4245ms
+Tools used: facilities_list, facilities_list, facilities_list
+
+Running scenario: complex-013 - Analyze rejected shipments and root causes
+Query: Analyze all rejected shipments and identify common contamination patterns
+Result: ✓ PASSED
+Duration: 4730ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: complex-003 - Comprehensive contamination risk assessment
+Query: Analyze the contamination risk patterns across all facilities and shipments
+Result: ✓ PASSED
+Duration: 7033ms
+Tools used: facilities_list, shipments_list, contaminants_list
+
+Running scenario: complex-018 - Identify seasonal shipment patterns
+Query: Are there seasonal patterns in shipment volumes or contamination rates?
+Result: ✓ PASSED
+Duration: 4919ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: complex-008 - Analyze shipment flow between facilities
+Query: Analyze the flow of shipments between different facilities
+Result: ✓ PASSED
+Duration: 5501ms
+Tools used: shipments_list
+
+Running scenario: complex-004 - Track shipment lifecycle with inspections
+Query: Track shipment SHP-001 from origin to destination including all inspections
+Result: ✓ PASSED
+Duration: 5486ms
+Tools used: shipments_list, inspections_list
+
+Running scenario: complex-015 - Detect temporal patterns in contamination
+Query: Are there any time-based patterns in when contamination is detected?
+Result: ✓ PASSED
+Duration: 3258ms
+Tools used: contaminants_list
+
+Running scenario: complex-020 - Correlate waste types with contamination
+Query: Which types of waste are most likely to be contaminated?
+Result: ✓ PASSED
+Duration: 7447ms
+Tools used: contaminants_list
+
+Running scenario: complex-010 - Analyze waste type distribution
+Query: Show me the distribution of waste types across all shipments
+Result: ✓ PASSED
+Duration: 4872ms
+Tools used: shipments_list
+
+Running scenario: edge-002 - Handle ambiguous query
+Query: Show me the things
+Result: ✓ PASSED
+Duration: 5840ms
+Tools used: shipments_list
+
+Running scenario: edge-009 - Handle mixed case in filters
+Query: Show me facilities in BERLIN and shipments with status DELIVERED
+Result: ✓ PASSED
+Duration: 5863ms
+Tools used: facilities_list, shipments_list
+
+Running scenario: edge-003 - Query returning no results
+Query: Show me shipments from the year 2000
+Result: ✓ PASSED
+Duration: 2852ms
+Tools used: shipments_list
+
+Running scenario: edge-001 - Query with non-existent facility ID
+Query: Show me shipments for facility INVALID-999
+Result: ✓ PASSED
+Duration: 3295ms
+Tools used: facilities_list
+
+Running scenario: edge-004 - Handle malformed date input
+Query: Show me shipments from 2025-13-45
+Result: ✓ PASSED
+Duration: 6739ms
+Tools used: shipments_list
+
+Running scenario: edge-010 - Handle missing/null values gracefully
+Query: Show me all shipments including those with missing carrier information
+Result: ✓ PASSED
+Duration: 5415ms
+Tools used: shipments_list
+
+Running scenario: edge-007 - Handle numeric overflow in filters
+Query: Show me shipments weighing more than 999999999999 kg
+Result: ✓ PASSED
+Duration: 7731ms
+Tools used: shipments_list
+
+Running scenario: edge-005 - Handle special characters in query
+Query: Show me facilities with name 'Berlin' OR 1=1--
+Result: ✓ PASSED
+Duration: 4229ms
+Tools used: facilities_list
+
+Running scenario: edge-008 - Handle Unicode and emoji in queries
+Query: Show me facilities in München 🏭 and Berlin 🌆
+Result: ✓ PASSED
+Duration: 3191ms
+Tools used: facilities_list, facilities_list
+
+Running scenario: edge-006 - Handle very long query text
+Query: Show me all shipments that were delivered to facilities in Berlin or Hamburg or Munich or Frankfurt or Stuttgart or Cologne or Dresden or Leipzig or Dortmund or Hannover and had contamination issues or inspection failures or were rejected or are currently in transit or pending
+Result: ✓ PASSED
+Duration: 2797ms
+Tools used: shipments_list
+
+Running scenario: memory-001 - Use context from previous query
+Query: Analyze contamination patterns in recent shipments
+Result: ✓ PASSED
+Duration: 3977ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: memory-002 - Reference entities from context
+Query: Show me shipments for Berlin facilities
+Result: ✓ PASSED
+Duration: 5148ms
+Tools used: facilities_list, shipments_list
+
+Running scenario: memory-003 - Apply implicit filters from context
+Query: Show me contaminants from high-risk shipments
+Result: ✓ PASSED
+Duration: 2856ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: memory-005 - Maintain context in long conversations
+Query: What were the key findings from the contamination analysis?
+Result: ✓ PASSED
+Duration: 8399ms
+Tools used: contaminants_list
+
+Running scenario: memory-004 - Multi-turn conversation flow
+Query: Tell me about the most recent shipments
+Result: ✓ PASSED
+Duration: 4090ms
+Tools used: shipments_list
+
+Running scenario: perf-003 - Complex aggregation query
+Query: Calculate average shipment weight by facility type and contamination status
+Result: ✓ PASSED
+Duration: 13943ms
+Tools used: facilities_list, shipments_list, contaminants_list
+
+Running scenario: perf-001 - 10 concurrent simple queries
+Query: Show me all shipments
+Result: ✓ PASSED
+Duration: 10108ms
+Tools used: shipments_list
+
+Running scenario: perf-002 - Query returning large dataset
+Query: Show me all shipments from all facilities with all details
+Result: ✓ PASSED
+Duration: 8785ms
+Tools used: shipments_list
+
+Running scenario: perf-004 - Heavy multi-tool query
+Query: Get all contaminated shipments, their facilities, all inspections, and all related contaminants
+Result: ✓ PASSED
+Duration: 5266ms
+Tools used: shipments_list, facilities_list, inspections_list, contaminants_list
+
+Running scenario: perf-005 - Rapid succession queries
+Query: List all facilities
+Result: ✓ PASSED
+Duration: 7417ms
+Tools used: facilities_list
+
+Running scenario: simple-analytics-001 - Get contamination rate analytics
+Query: Get the overall contamination statistics and rate
+Result: ✓ PASSED
+Duration: 8439ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: simple-analytics-002 - Get facility performance analytics
+Query: Get facility performance analytics with acceptance and rejection rates
+Result: ✓ PASSED
+Duration: 5415ms
+Tools used: facilities_list, inspections_list, inspections_list
+
+Running scenario: simple-contaminants-002 - List contaminants by risk level
+Query: Show me all high risk contaminants
+Result: ✓ PASSED
+Duration: 6620ms
+Tools used: contaminants_list
+
+Running scenario: simple-contaminants-003 - List contaminants by shipment
+Query: Show me contaminants found in shipment SHP-001
+Result: ✓ PASSED
+Duration: 4225ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: simple-contaminants-001 - List all contaminants
+Query: Show me all detected contaminants
+Result: ✓ PASSED
+Duration: 7095ms
+Tools used: contaminants_list
+
+Running scenario: simple-facilities-002 - List facilities by location
+Query: What facilities are in Berlin?
+Result: ✓ PASSED
+Duration: 4475ms
+Tools used: facilities_list
+
+Running scenario: simple-facilities-003 - List facilities by type
+Query: Show me all processing facilities
+Result: ✓ PASSED
+Duration: 7277ms
+Tools used: facilities_list
+
+Running scenario: simple-facilities-001 - List all facilities
+Query: Show me all facilities
+Result: ✓ PASSED
+Duration: 5935ms
+Tools used: facilities_list
+
+Running scenario: simple-inspections-002 - List inspections by facility
+Query: Show me inspections for facility FAC-001
+Result: ✓ PASSED
+Duration: 3514ms
+Tools used: inspections_list
+
+Running scenario: simple-inspections-001 - List all inspections
+Query: Show me all inspections
+Result: ✓ PASSED
+Duration: 10485ms
+Tools used: inspections_list
+
+Running scenario: simple-shipments-002 - List shipments by date range
+Query: Get shipments from last week
+Result: ✓ PASSED
+Duration: 3402ms
+Tools used: shipments_list
+
+Running scenario: simple-shipments-004 - List shipments by facility
+Query: Show me shipments for facility FAC-001
+Result: ✓ PASSED
+Duration: 3926ms
+Tools used: facilities_list, shipments_list
+
+Running scenario: simple-shipments-003 - List shipments by status
+Query: Show me all delivered shipments
+Result: ✓ PASSED
+Duration: 6850ms
+Tools used: shipments_list
+
+Running scenario: simple-shipments-005 - List contaminated shipments
+Query: Show me all contaminated shipments
+Result: ✓ PASSED
+Duration: 4312ms
+Tools used: shipments_list, contaminants_list
+
+Running scenario: simple-shipments-001 - List all shipments
+Query: Show me all shipments
+Result: ✓ PASSED
+Duration: 6632ms
+Tools used: shipments_list
+
+============================================================
+Test Suite Summary
+============================================================
+
+Total: 55
+Passed: 52
+Failed: 3
+Success Rate: 94.5%
+
+Total Duration: 5m 5s
+Average Duration: 5.54s
+
+Failed Scenarios:
+  - complex-001: Analyze contaminated shipments and their facilities
+    Response missing expected content: contaminant
+  - complex-002: Check facility capacity and incoming shipments
+    Response missing expected content: facility
+  - complex-014: Optimize facility load distribution
+    Response missing expected content: facility
+
+============================================================
+
+
+✓ Results exported to /Users/yab/Projects/clear-ai-v2/deployed-test-results.json
+
+✓ HTML report generated: /Users/yab/Projects/clear-ai-v2/deployed-test-results.html

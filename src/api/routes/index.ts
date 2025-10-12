@@ -6,7 +6,6 @@ import contaminantsRouter from "./contaminants.js";
 import inspectionsRouter from "./inspections.js";
 import analyticsRouter from "./analytics.js";
 import resetRouter from "./reset.js";
-import seedRouter from "./seed.js";
 
 const router = Router();
 
@@ -17,7 +16,6 @@ router.use("/contaminants-detected", contaminantsRouter);
 router.use("/inspections", inspectionsRouter);
 router.use("/analytics", analyticsRouter);
 router.use("/reset", resetRouter);
-router.use("/seed", seedRouter);
 
 export default router;
 
