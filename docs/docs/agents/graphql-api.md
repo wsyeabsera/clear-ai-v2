@@ -14,8 +14,8 @@ The GraphQL API provides a flexible interface to the Agent System:
 GraphQL Client → GraphQL Server → Orchestrator → Agents → Response
 ```
 
-**Endpoint**: `http://localhost:5000/graphql`  
-**WebSocket**: `ws://localhost:5000/graphql` (subscriptions)
+**Endpoint**: `http://localhost:4001/graphql`  
+**WebSocket**: `ws://localhost:4001/graphql` (subscriptions)
 
 ## Complete Schema
 
@@ -376,7 +376,7 @@ subscription {
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:5000/graphql',
+  uri: 'http://localhost:4001/graphql',
   cache: new InMemoryCache()
 });
 
@@ -409,7 +409,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 transport = RequestsHTTPTransport(
-    url='http://localhost:5000/graphql'
+    url='http://localhost:4001/graphql'
 )
 
 client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -431,7 +431,7 @@ print(result['executeQuery']['message'])
 ### cURL
 
 ```bash
-curl -X POST http://localhost:5000/graphql \
+curl -X POST http://localhost:4001/graphql \
   -H "Content-Type: application/json" \
   -d '{
     "query": "mutation { executeQuery(query: \"Get shipments\") { requestId message toolsUsed } }"

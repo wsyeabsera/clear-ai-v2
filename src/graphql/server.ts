@@ -81,18 +81,37 @@ export class GraphQLAgentServer {
     // Start Apollo Server
     await this.apolloServer.start();
 
-    // Middleware
+    // Apply CORS and body parser
     this.app.use('/graphql', cors<cors.CorsRequest>());
     this.app.use('/graphql', bodyParser.json());
-    
-    // Simple GraphQL endpoint
-    this.app.post('/graphql', async (_req, res) => {
-      // Handle GraphQL requests manually
-      res.json({ message: 'GraphQL endpoint - not fully implemented yet' });
+
+    // GraphQL endpoint using executeOperation
+    this.app.post('/graphql', async (req, res) => {
+      try {
+        const { query, variables, operationName } = req.body;
+
+        const result = await this.apolloServer.executeOperation(
+          {
+            query,
+            variables,
+            operationName,
+          },
+          {
+            contextValue: {
+              orchestrator: this.config.orchestrator,
+              memory: this.config.memory,
+            },
+          }
+        );
+
+        res.status(200).json(result.body.kind === 'single' ? result.body.singleResult : result.body);
+      } catch (error: any) {
+        res.status(500).json({ errors: [{ message: error.message }] });
+      }
     });
 
     // Health check endpoint
-    this.app.get('/health', (_req, res) => {
+    this.app.get('/health', (req, res) => {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 

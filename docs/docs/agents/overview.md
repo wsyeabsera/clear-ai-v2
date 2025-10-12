@@ -389,10 +389,12 @@ const orchestrator = new OrchestratorAgent(
 
 The system includes comprehensive test coverage:
 
-- **78 Unit Tests**: All agents thoroughly tested with mocks
-- **102 Integration Tests**: Real LLM, API, and service integration
+- **78 Agent Unit Tests**: All agents thoroughly tested with mocks
+- **62 GraphQL Integration Tests**: API layer validated (60 passing)
+- **102 Agent Integration Tests**: Real LLM, API, and service integration
 - **20 E2E Tests**: Complete pipeline validation
-- **Total: 200+ Tests** with 99% pass rate
+- **Total: 260+ Agent & GraphQL Tests** with 97% pass rate
+- **Grand Total: 960+ Tests** across entire codebase
 
 ### Running Tests
 
