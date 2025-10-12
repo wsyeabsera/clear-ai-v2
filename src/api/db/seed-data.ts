@@ -1,8 +1,57 @@
-// Seed data - can be imported by seed script and reset endpoint
+// Expanded Seed Data with Programmatic Generation
+// 20 facilities, 100 shipments, 40 contaminants, 80 inspections
+
 import { ShipmentModel } from "../models/Shipment.js";
 import { FacilityModel } from "../models/Facility.js";
 import { ContaminantModel } from "../models/Contaminant.js";
 import { InspectionModel } from "../models/Inspection.js";
+
+// ============================================================================
+// HELPER FUNCTIONS FOR DATA GENERATION
+// ============================================================================
+
+/**
+ * Generate a date N days ago from today
+ */
+function generateDate(daysAgo: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  const isoString = date.toISOString();
+  const datePart = isoString.split('T')[0];
+  if (!datePart) {
+    throw new Error('Failed to generate date');
+  }
+  return datePart;
+}
+
+/**
+ * Get a random element from an array
+ */
+function randomChoice<T>(array: T[]): T {
+  const element = array[Math.floor(Math.random() * array.length)];
+  if (element === undefined) {
+    throw new Error('Array is empty or element not found');
+  }
+  return element;
+}
+
+/**
+ * Get a random integer between min and max (inclusive)
+ */
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Generate random date within last N days (unused but kept for future use)
+ */
+// function randomDateWithinDays(maxDaysAgo: number): string {
+//   return generateDate(randomInt(0, maxDaysAgo));
+// }
+
+// ============================================================================
+// FACILITIES (20 German cities)
+// ============================================================================
 
 export const facilities = [
   {
@@ -55,6 +104,11 @@ export const facilities = [
     capacity_tons: 600,
     current_load_tons: 380,
     coordinates: { lat: 50.1109, lon: 8.6821 },
+    accepted_waste_types: ["plastic", "paper", "glass", "metal"],
+    rejected_waste_types: ["hazardous"],
+    contact_email: "hub@frankfurt-sort.de",
+    contact_phone: "+49-69-456789",
+    operating_hours: "Mon-Fri 6:00-18:00",
   },
   {
     id: "F5",
@@ -64,6 +118,11 @@ export const facilities = [
     capacity_tons: 900,
     current_load_tons: 650,
     coordinates: { lat: 53.5511, lon: 9.9937 },
+    accepted_waste_types: ["plastic", "metal", "electronic"],
+    rejected_waste_types: ["radioactive"],
+    contact_email: "process@hamburg-waste.de",
+    contact_phone: "+49-40-567890",
+    operating_hours: "24/7",
   },
   {
     id: "F6",
@@ -73,6 +132,11 @@ export const facilities = [
     capacity_tons: 700,
     current_load_tons: 420,
     coordinates: { lat: 48.7758, lon: 9.1829 },
+    accepted_waste_types: ["general", "construction"],
+    rejected_waste_types: ["chemical"],
+    contact_email: "disposal@stuttgart-waste.de",
+    contact_phone: "+49-711-678901",
+    operating_hours: "Mon-Sat 7:00-19:00",
   },
   {
     id: "F7",
@@ -82,6 +146,11 @@ export const facilities = [
     capacity_tons: 550,
     current_load_tons: 310,
     coordinates: { lat: 50.9375, lon: 6.9603 },
+    accepted_waste_types: ["plastic", "paper", "glass"],
+    rejected_waste_types: ["hazardous"],
+    contact_email: "sort@cologne-waste.de",
+    contact_phone: "+49-221-789012",
+    operating_hours: "Mon-Fri 7:00-17:00",
   },
   {
     id: "F8",
@@ -91,6 +160,11 @@ export const facilities = [
     capacity_tons: 750,
     current_load_tons: 490,
     coordinates: { lat: 51.0504, lon: 13.7373 },
+    accepted_waste_types: ["plastic", "metal", "organic"],
+    rejected_waste_types: ["radioactive"],
+    contact_email: "process@dresden-waste.de",
+    contact_phone: "+49-351-890123",
+    operating_hours: "24/7",
   },
   {
     id: "F9",
@@ -98,404 +172,395 @@ export const facilities = [
     location: "Leipzig",
     type: "disposal",
     capacity_tons: 650,
-    current_load_tons: 380,
+    current_load_tons: 390,
     coordinates: { lat: 51.3397, lon: 12.3731 },
+    accepted_waste_types: ["general", "industrial"],
+    rejected_waste_types: ["chemical", "biological"],
+    contact_email: "disposal@leipzig-waste.de",
+    contact_phone: "+49-341-901234",
+    operating_hours: "Mon-Sat 6:00-20:00",
   },
   {
     id: "F10",
-    name: "Dortmund Sorting Facility",
+    name: "Dortmund Sorting Center",
     location: "Dortmund",
     type: "sorting",
     capacity_tons: 580,
     current_load_tons: 340,
     coordinates: { lat: 51.5136, lon: 7.4653 },
+    accepted_waste_types: ["plastic", "paper", "metal"],
+    rejected_waste_types: ["hazardous"],
+    contact_email: "sort@dortmund-waste.de",
+    contact_phone: "+49-231-012345",
+    operating_hours: "Mon-Fri 7:00-18:00",
+  },
+  // NEW FACILITIES (11-20)
+  {
+    id: "F11",
+    name: "Düsseldorf Processing Hub",
+    location: "Düsseldorf",
+    type: "processing",
+    capacity_tons: 850,
+    current_load_tons: 620,
+    coordinates: { lat: 51.2277, lon: 6.7735 },
+    accepted_waste_types: ["plastic", "metal", "electronic", "industrial"],
+    rejected_waste_types: ["radioactive", "explosive"],
+    contact_email: "hub@duesseldorf-waste.de",
+    contact_phone: "+49-211-123456",
+    operating_hours: "24/7",
+  },
+  {
+    id: "F12",
+    name: "Essen Disposal Facility",
+    location: "Essen",
+    type: "disposal",
+    capacity_tons: 720,
+    current_load_tons: 480,
+    coordinates: { lat: 51.4556, lon: 7.0116 },
+    accepted_waste_types: ["general", "construction", "industrial"],
+    rejected_waste_types: ["chemical", "hazardous"],
+    contact_email: "disposal@essen-waste.de",
+    contact_phone: "+49-201-234567",
+    operating_hours: "Mon-Sat 6:00-20:00",
+  },
+  {
+    id: "F13",
+    name: "Bremen Sorting Station",
+    location: "Bremen",
+    type: "sorting",
+    capacity_tons: 530,
+    current_load_tons: 295,
+    coordinates: { lat: 53.0793, lon: 8.8017 },
+    accepted_waste_types: ["plastic", "paper", "glass", "metal"],
+    rejected_waste_types: ["hazardous", "medical"],
+    contact_email: "sort@bremen-waste.de",
+    contact_phone: "+49-421-345678",
+    operating_hours: "Mon-Fri 7:00-17:00",
+  },
+  {
+    id: "F14",
+    name: "Nuremberg Processing Center",
+    location: "Nuremberg",
+    type: "processing",
+    capacity_tons: 780,
+    current_load_tons: 550,
+    coordinates: { lat: 49.4521, lon: 11.0767 },
+    accepted_waste_types: ["plastic", "metal", "electronic"],
+    rejected_waste_types: ["radioactive"],
+    contact_email: "process@nuremberg-waste.de",
+    contact_phone: "+49-911-456789",
+    operating_hours: "24/7",
+  },
+  {
+    id: "F15",
+    name: "Duisburg Disposal Plant",
+    location: "Duisburg",
+    type: "disposal",
+    capacity_tons: 680,
+    current_load_tons: 410,
+    coordinates: { lat: 51.4344, lon: 6.7623 },
+    accepted_waste_types: ["general", "industrial", "construction"],
+    rejected_waste_types: ["chemical", "biological"],
+    contact_email: "plant@duisburg-waste.de",
+    contact_phone: "+49-203-567890",
+    operating_hours: "Mon-Sat 6:00-19:00",
+  },
+  {
+    id: "F16",
+    name: "Bochum Sorting Facility",
+    location: "Bochum",
+    type: "sorting",
+    capacity_tons: 520,
+    current_load_tons: 280,
+    coordinates: { lat: 51.4818, lon: 7.2162 },
+    accepted_waste_types: ["plastic", "paper", "metal"],
+    rejected_waste_types: ["hazardous"],
+    contact_email: "facility@bochum-waste.de",
+    contact_phone: "+49-234-678901",
+    operating_hours: "Mon-Fri 7:00-18:00",
+  },
+  {
+    id: "F17",
+    name: "Wuppertal Processing Station",
+    location: "Wuppertal",
+    type: "processing",
+    capacity_tons: 640,
+    current_load_tons: 445,
+    coordinates: { lat: 51.2562, lon: 7.1508 },
+    accepted_waste_types: ["plastic", "metal", "organic"],
+    rejected_waste_types: ["radioactive"],
+    contact_email: "station@wuppertal-waste.de",
+    contact_phone: "+49-202-789012",
+    operating_hours: "Mon-Fri 6:00-20:00",
+  },
+  {
+    id: "F18",
+    name: "Bielefeld Disposal Center",
+    location: "Bielefeld",
+    type: "disposal",
+    capacity_tons: 590,
+    current_load_tons: 355,
+    coordinates: { lat: 52.0302, lon: 8.5325 },
+    accepted_waste_types: ["general", "construction"],
+    rejected_waste_types: ["chemical"],
+    contact_email: "center@bielefeld-waste.de",
+    contact_phone: "+49-521-890123",
+    operating_hours: "Mon-Sat 7:00-19:00",
+  },
+  {
+    id: "F19",
+    name: "Bonn Sorting Hub",
+    location: "Bonn",
+    type: "sorting",
+    capacity_tons: 510,
+    current_load_tons: 275,
+    coordinates: { lat: 50.7374, lon: 7.0982 },
+    accepted_waste_types: ["plastic", "paper", "glass", "metal"],
+    rejected_waste_types: ["hazardous", "medical"],
+    contact_email: "hub@bonn-waste.de",
+    contact_phone: "+49-228-901234",
+    operating_hours: "Mon-Fri 7:00-17:00",
+  },
+  {
+    id: "F20",
+    name: "Mannheim Processing Facility",
+    location: "Mannheim",
+    type: "processing",
+    capacity_tons: 820,
+    current_load_tons: 595,
+    coordinates: { lat: 49.4875, lon: 8.4660 },
+    accepted_waste_types: ["plastic", "metal", "electronic", "industrial"],
+    rejected_waste_types: ["radioactive", "explosive"],
+    contact_email: "facility@mannheim-waste.de",
+    contact_phone: "+49-621-012345",
+    operating_hours: "24/7",
   },
 ];
 
-export const shipments = [
-  {
-    id: "S1",
-    facility_id: "F1",
-    date: "2025-10-05",
-    status: "delivered",
-    weight_kg: 1500,
-    has_contaminants: false,
-    origin: "Hamburg",
-    destination: "Hannover",
-    waste_type: "plastic",
-    waste_code: "PL-150",
-    carrier: "EcoTrans GmbH",
-    composition_notes: "Mixed plastic waste from household collection",
-  },
-  {
-    id: "S2",
-    facility_id: "F2",
-    date: "2025-10-06",
-    status: "rejected",
-    weight_kg: 800,
-    has_contaminants: true,
-    origin: "Berlin",
-    destination: "Munich",
-    waste_type: "industrial",
-    waste_code: "IND-080",
-    carrier: "WasteLogistics AG",
-    composition_notes: "Industrial waste with heavy metal contamination detected",
-  },
-  {
-    id: "S3",
-    facility_id: "F1",
-    date: "2025-10-07",
-    status: "in_transit",
-    weight_kg: 2000,
-    has_contaminants: false,
-    origin: "Frankfurt",
-    destination: "Hannover",
-    waste_type: "paper",
-    waste_code: "PAP-200",
-    carrier: "GreenTransport SE",
-    composition_notes: "Commercial paper and cardboard waste",
-  },
-  {
-    id: "S4",
-    facility_id: "F3",
-    date: "2025-10-04",
-    status: "delivered",
-    weight_kg: 1200,
-    has_contaminants: true,
-    origin: "Stuttgart",
-    destination: "Munich",
-  },
-  {
-    id: "S5",
-    facility_id: "F4",
-    date: "2025-10-08",
-    status: "pending",
-    weight_kg: 1800,
-    has_contaminants: false,
-    origin: "Cologne",
-    destination: "Frankfurt",
-  },
-  {
-    id: "S6",
-    facility_id: "F5",
-    date: "2025-10-09",
-    status: "in_transit",
-    weight_kg: 2200,
-    has_contaminants: false,
-    origin: "Bremen",
-    destination: "Hamburg",
-  },
-  {
-    id: "S7",
-    facility_id: "F6",
-    date: "2025-10-10",
-    status: "delivered",
-    weight_kg: 950,
-    has_contaminants: true,
-    origin: "Mannheim",
-    destination: "Stuttgart",
-  },
-  {
-    id: "S8",
-    facility_id: "F7",
-    date: "2025-10-03",
-    status: "delivered",
-    weight_kg: 1650,
-    has_contaminants: false,
-    origin: "Bonn",
-    destination: "Cologne",
-  },
-  {
-    id: "S9",
-    facility_id: "F8",
-    date: "2025-10-11",
-    status: "in_transit",
-    weight_kg: 1350,
-    has_contaminants: false,
-    origin: "Chemnitz",
-    destination: "Dresden",
-  },
-  {
-    id: "S10",
-    facility_id: "F9",
-    date: "2025-10-02",
-    status: "delivered",
-    weight_kg: 1100,
-    has_contaminants: false,
-    origin: "Halle",
-    destination: "Leipzig",
-  },
-  {
-    id: "S11",
-    facility_id: "F10",
-    date: "2025-10-01",
-    status: "rejected",
-    weight_kg: 750,
-    has_contaminants: true,
-    origin: "Essen",
-    destination: "Dortmund",
-  },
-  {
-    id: "S12",
-    facility_id: "F2",
-    date: "2025-09-30",
-    status: "delivered",
-    weight_kg: 1900,
-    has_contaminants: false,
-    origin: "Potsdam",
-    destination: "Berlin",
-  },
+// ============================================================================
+// SHIPMENTS (100 programmatically generated)
+// ============================================================================
+
+const WASTE_TYPES = ['plastic', 'metal', 'paper', 'industrial', 'electronic', 'organic'];
+// const STATUSES = ['delivered', 'in_transit', 'rejected', 'pending']; // Defined inline
+const CARRIERS = [
+  'EcoTrans GmbH',
+  'WasteLogistics AG',
+  'GreenTransport SE',
+  'CleanHaul GmbH',
+  'EnviroMove AG',
+  'SafeWaste Transport',
+  'EcoLogistics DE',
+  'GreenShip Solutions',
 ];
 
-export const contaminants = [
-  {
-    id: "C1",
-    shipment_id: "S2",
-    facility_id: "F2",
-    type: "Lead",
-    concentration_ppm: 150,
-    risk_level: "high",
-    detected_at: "2025-10-06T10:30:00Z",
-    notes: "Exceeds safety threshold",
-    analysis_notes: "Detected via XRF analysis, consistent with industrial paint waste",
-    waste_item_detected: "Lead-based paint chips",
-    explosive_level: "low",
-    so2_level: "low",
-    hcl_level: "medium",
-    estimated_size: 25.5,
-  },
-  {
-    id: "C2",
-    shipment_id: "S4",
-    facility_id: "F3",
-    type: "Mercury",
-    concentration_ppm: 75,
-    risk_level: "medium",
-    detected_at: "2025-10-04T14:20:00Z",
-    notes: "Within acceptable limits but requires monitoring",
-    analysis_notes: "Detected in fluorescent lamp waste",
-    waste_item_detected: "Broken fluorescent tubes",
-    explosive_level: "low",
-    so2_level: "low",
-    hcl_level: "low",
-    estimated_size: 12.3,
-  },
-  {
-    id: "C3",
-    shipment_id: "S2",
-    facility_id: "F2",
-    type: "Plastic",
-    concentration_ppm: 200,
-    risk_level: "low",
-    detected_at: "2025-10-06T10:35:00Z",
-    notes: "Standard contamination",
-    analysis_notes: "Non-recyclable plastic mixed with recyclables",
-    waste_item_detected: "PVC and composite plastics",
-    explosive_level: "low",
-    so2_level: "medium",
-    hcl_level: "high",
-    estimated_size: 45.8,
-  },
-  {
-    id: "C4",
-    shipment_id: "S7",
-    facility_id: "F6",
-    type: "Arsenic",
-    concentration_ppm: 120,
-    risk_level: "critical",
-    detected_at: "2025-10-10T09:15:00Z",
-    notes: "Critical contamination - immediate disposal required",
-    analysis_notes: "Arsenic detected in treated wood waste from construction site",
-    waste_item_detected: "CCA-treated lumber",
-    explosive_level: "low",
-    so2_level: "low",
-    hcl_level: "low",
-    estimated_size: 78.2,
-  },
-  {
-    id: "C5",
-    shipment_id: "S11",
-    facility_id: "F10",
-    type: "Cadmium",
-    concentration_ppm: 95,
-    risk_level: "high",
-    detected_at: "2025-10-01T11:45:00Z",
-    notes: "High toxicity detected",
-  },
-  {
-    id: "C6",
-    shipment_id: "S7",
-    facility_id: "F6",
-    type: "Lead",
-    concentration_ppm: 88,
-    risk_level: "medium",
-    detected_at: "2025-10-10T09:20:00Z",
-    notes: "Secondary contamination source",
-  },
-  {
-    id: "C7",
-    shipment_id: "S11",
-    facility_id: "F10",
-    type: "Mercury",
-    concentration_ppm: 102,
-    risk_level: "high",
-    detected_at: "2025-10-01T11:50:00Z",
-    notes: "Multiple contamination sources detected",
-  },
-  {
-    id: "C8",
-    shipment_id: "S4",
-    facility_id: "F3",
-    type: "Chromium",
-    concentration_ppm: 45,
-    risk_level: "low",
-    detected_at: "2025-10-04T14:25:00Z",
-    notes: "Trace amounts detected",
-  },
+const GERMAN_CITIES = [
+  'Hamburg', 'Berlin', 'Munich', 'Frankfurt', 'Stuttgart', 'Cologne',
+  'Hannover', 'Dresden', 'Leipzig', 'Dortmund', 'Düsseldorf', 'Essen',
+  'Bremen', 'Nuremberg', 'Duisburg', 'Bochum', 'Wuppertal', 'Bielefeld',
+  'Bonn', 'Mannheim'
 ];
 
-export const inspections = [
-  {
-    id: "I1",
-    shipment_id: "S1",
-    facility_id: "F1",
-    date: "2025-10-05",
-    status: "accepted",
-    inspector: "John Doe",
-    notes: "Clean shipment, no issues detected",
-    inspection_type: "arrival",
-    duration_minutes: 45,
-    passed: true,
-    follow_up_required: false,
-    photos: ["https://storage.example.com/inspections/I1-1.jpg"],
-  },
-  {
-    id: "I2",
-    shipment_id: "S2",
-    facility_id: "F2",
-    date: "2025-10-06",
-    status: "rejected",
-    inspector: "Jane Smith",
-    notes: "High lead concentration detected",
-    contaminants_detected: ["Lead", "Plastic"],
-    risk_assessment: "High risk - immediate action required",
-    inspection_type: "processing",
-    duration_minutes: 120,
-    passed: false,
-    follow_up_required: true,
-    photos: [
-      "https://storage.example.com/inspections/I2-1.jpg",
-      "https://storage.example.com/inspections/I2-2.jpg",
-      "https://storage.example.com/inspections/I2-3.jpg",
-    ],
-  },
-  {
-    id: "I3",
-    shipment_id: "S3",
-    facility_id: "F1",
-    date: "2025-10-07",
-    status: "pending",
-    inspector: "Mike Johnson",
-    notes: "Inspection in progress",
-    inspection_type: "arrival",
-    duration_minutes: 30,
-    passed: undefined,
-    follow_up_required: false,
-    photos: [],
-  },
-  {
-    id: "I4",
-    shipment_id: "S4",
-    facility_id: "F3",
-    date: "2025-10-04",
-    status: "accepted",
-    inspector: "Sarah Williams",
-    notes: "Mercury levels within acceptable range",
-    contaminants_detected: ["Mercury", "Chromium"],
-    risk_assessment: "Low risk - continue monitoring",
-  },
-  {
-    id: "I5",
-    shipment_id: "S5",
-    facility_id: "F4",
-    date: "2025-10-08",
-    status: "pending",
-    inspector: "David Brown",
-    notes: "Awaiting lab results",
-  },
-  {
-    id: "I6",
-    shipment_id: "S6",
-    facility_id: "F5",
-    date: "2025-10-09",
-    status: "accepted",
-    inspector: "Emily Davis",
-    notes: "Standard waste, approved for processing",
-  },
-  {
-    id: "I7",
-    shipment_id: "S7",
-    facility_id: "F6",
-    date: "2025-10-10",
-    status: "rejected",
-    inspector: "Robert Miller",
-    notes: "Critical arsenic contamination detected",
-    contaminants_detected: ["Arsenic", "Lead"],
-    risk_assessment: "Critical risk - requires specialized disposal",
-  },
-  {
-    id: "I8",
-    shipment_id: "S8",
-    facility_id: "F7",
-    date: "2025-10-03",
-    status: "accepted",
-    inspector: "Lisa Anderson",
-    notes: "Clean municipal waste",
-  },
-  {
-    id: "I9",
-    shipment_id: "S9",
-    facility_id: "F8",
-    date: "2025-10-11",
-    status: "pending",
-    inspector: "Thomas Wilson",
-    notes: "Processing inspection",
-  },
-  {
-    id: "I10",
-    shipment_id: "S10",
-    facility_id: "F9",
-    date: "2025-10-02",
-    status: "accepted",
-    inspector: "Jennifer Taylor",
-    notes: "Approved for disposal",
-  },
-  {
-    id: "I11",
-    shipment_id: "S11",
-    facility_id: "F10",
-    date: "2025-10-01",
-    status: "rejected",
-    inspector: "Michael Moore",
-    notes: "Multiple heavy metal contaminations",
-    contaminants_detected: ["Cadmium", "Mercury"],
-    risk_assessment: "High risk - requires decontamination",
-  },
-  {
-    id: "I12",
-    shipment_id: "S12",
-    facility_id: "F2",
-    date: "2025-09-30",
-    status: "accepted",
-    inspector: "Patricia Jackson",
-    notes: "Standard processing approved",
-  },
+function generateShipments(count: number) {
+  const shipments = [];
+  
+  for (let i = 1; i <= count; i++) {
+    // Date distribution: 30% last week, 40% last month, 30% older
+    let daysAgo;
+    const rand = Math.random();
+    if (rand < 0.3) {
+      daysAgo = randomInt(0, 7);
+    } else if (rand < 0.7) {
+      daysAgo = randomInt(8, 30);
+    } else {
+      daysAgo = randomInt(31, 90);
+    }
+
+    const hasContaminants = Math.random() < 0.3; // 30% with contaminants
+    
+    // Status based on contamination
+    let status;
+    if (hasContaminants && Math.random() < 0.33) {
+      status = 'rejected'; // 10% of all shipments rejected
+    } else {
+      const statusRand = Math.random();
+      if (statusRand < 0.6) status = 'delivered';
+      else if (statusRand < 0.75) status = 'in_transit';
+      else status = 'pending';
+    }
+
+    const waste_type = randomChoice(WASTE_TYPES);
+    const origin = randomChoice(GERMAN_CITIES);
+    let destination = randomChoice(GERMAN_CITIES);
+    while (destination === origin) {
+      destination = randomChoice(GERMAN_CITIES);
+    }
+
+    shipments.push({
+      id: `S${i}`,
+      facility_id: `F${randomInt(1, 20)}`,
+      date: generateDate(daysAgo),
+      status,
+      weight_kg: randomInt(500, 2500),
+      has_contaminants: hasContaminants,
+      origin,
+      destination,
+      waste_type,
+      waste_code: `${waste_type.substring(0, 3).toUpperCase()}-${randomInt(100, 999)}`,
+      carrier: randomChoice(CARRIERS),
+      composition_notes: hasContaminants
+        ? `${waste_type} waste with contamination detected`
+        : `Clean ${waste_type} waste from ${origin} collection`,
+    });
+  }
+
+  return shipments;
+}
+
+export const shipments = generateShipments(100);
+
+// ============================================================================
+// CONTAMINANTS (40 linked to contaminated shipments)
+// ============================================================================
+
+const CONTAMINANT_TYPES = [
+  'Lead', 'Mercury', 'PCBs', 'Asbestos', 'Cadmium', 'Chromium',
+  'Arsenic', 'Benzene', 'Dioxins', 'Heavy Metals'
 ];
+// const RISK_LEVELS = ['low', 'medium', 'high', 'critical']; // Defined inline
+const CHEMICAL_LEVELS = ['low', 'medium', 'high'];
+
+function generateContaminants() {
+  const contaminants: any[] = [];
+  const contaminatedShipments = shipments.filter(s => s.has_contaminants);
+  
+  contaminatedShipments.forEach((shipment) => {
+    // Some shipments may have multiple contaminants
+    const numContaminants = Math.random() < 0.3 ? 2 : 1;
+    
+    for (let i = 0; i < numContaminants; i++) {
+      const type = randomChoice(CONTAMINANT_TYPES);
+      const riskRand = Math.random();
+      let risk_level;
+      if (riskRand < 0.2) risk_level = 'critical';
+      else if (riskRand < 0.5) risk_level = 'high';
+      else if (riskRand < 0.8) risk_level = 'medium';
+      else risk_level = 'low';
+
+      contaminants.push({
+        id: `C${contaminants.length + 1}`,
+        shipment_id: shipment.id,
+        facility_id: shipment.facility_id,
+        type,
+        concentration_ppm: randomInt(10, 500),
+        risk_level,
+        detected_at: shipment.date,
+        hcl_level: randomChoice(CHEMICAL_LEVELS),
+        so2_level: randomChoice(CHEMICAL_LEVELS),
+        explosive_level: randomChoice(CHEMICAL_LEVELS),
+        waste_item_detected: `${type} contamination in ${shipment.waste_type} waste`,
+        estimated_size: randomInt(5, 50),
+        notes: `Detected during ${shipment.status === 'rejected' ? 'inspection, shipment rejected' : 'processing'}`,
+        analysis_notes: `${type} concentration above acceptable limits`,
+      });
+
+      // Stop if we've reached 40 contaminants
+      if (contaminants.length >= 40) break;
+    }
+    
+    if (contaminants.length >= 40) return;
+  });
+
+  return contaminants;
+}
+
+export const contaminants = generateContaminants();
+
+// ============================================================================
+// INSPECTIONS (80 across all facilities)
+// ============================================================================
+
+// const INSPECTION_TYPES = ['arrival', 'processing', 'departure', 'random']; // Defined inline
+const INSPECTORS = [
+  'Hans Mueller', 'Anna Schmidt', 'Peter Wagner', 'Maria Fischer',
+  'Klaus Weber', 'Sophie Becker', 'Thomas Schulz', 'Lisa Meyer'
+];
+
+function generateInspections() {
+  const inspections: any[] = [];
+  const recentShipments = shipments.filter(s => {
+    const shipmentDate = new Date(s.date);
+    const daysAgo = Math.floor((Date.now() - shipmentDate.getTime()) / (1000 * 60 * 60 * 24));
+    return daysAgo <= 60; // Last 60 days
+  });
+
+  // Generate 4 inspections per facility
+  facilities.forEach((facility) => {
+    for (let i = 0; i < 4; i++) {
+      const inspectionDate = generateDate(randomInt(1, 60));
+      
+      // Find a shipment for this facility around this date
+      const relevantShipments = recentShipments.filter(s => s.facility_id === facility.id);
+      const shipment = relevantShipments.length > 0
+        ? randomChoice(relevantShipments)
+        : (recentShipments.length > 0 ? recentShipments[randomInt(0, recentShipments.length - 1)] : null);
+      
+      // Skip if no shipments available
+      if (!shipment) continue;
+
+      const typeRand = Math.random();
+      let inspection_type;
+      if (typeRand < 0.5) inspection_type = 'arrival';
+      else if (typeRand < 0.8) inspection_type = 'processing';
+      else if (typeRand < 0.95) inspection_type = 'departure';
+      else inspection_type = 'random';
+
+      const passed = Math.random() < 0.85; // 85% pass rate
+      const status = passed ? 'accepted' : 'rejected';
+      
+      const contaminantsDetected = shipment.has_contaminants
+        ? contaminants
+            .filter(c => c.shipment_id === shipment.id)
+            .map(c => c.type)
+        : [];
+
+      inspections.push({
+        id: `I${inspections.length + 1}`,
+        shipment_id: shipment.id,
+        facility_id: facility.id,
+        date: inspectionDate,
+        status,
+        inspector: randomChoice(INSPECTORS),
+        passed,
+        contaminants_detected: contaminantsDetected,
+        duration_minutes: randomInt(15, 90),
+        inspection_type,
+        notes: passed
+          ? `${inspection_type} inspection completed successfully`
+          : `Contamination detected during ${inspection_type} inspection`,
+        follow_up_required: !passed,
+        risk_assessment: passed ? 'Low risk' : 'Follow-up inspection required',
+        photos: [],
+      });
+
+      // Stop if we've reached 80
+      if (inspections.length >= 80) return;
+    }
+  });
+
+  return inspections.slice(0, 80); // Ensure exactly 80
+}
+
+export const inspections = generateInspections();
+
+// ============================================================================
+// SEED FUNCTION
+// ============================================================================
 
 /**
- * Clear all collections in the database
+ * Clear all collections
  */
-export async function clearCollections() {
+async function clearCollections() {
   await ShipmentModel.deleteMany({});
   await FacilityModel.deleteMany({});
   await ContaminantModel.deleteMany({});
