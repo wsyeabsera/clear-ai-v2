@@ -2,13 +2,9 @@ name: Agent System Tests
 
 on:
   pull_request:
-    branches: [main, develop, chore/graphqql-integration-tests]
+    branches: [main]
   push:
     branches: [main]
-  workflow_dispatch:
-
-env:
-  STAGING_URL: ${{ secrets.STAGING_GRAPHQL_ENDPOINT }}
 
 jobs:
   agent-tests:
@@ -18,148 +14,89 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for baseline comparisons
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
 
-      - name: Install root dependencies
-        run: yarn install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
 
-      - name: Install agent-tester dependencies
-        run: cd agent-tester && yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --immutable
 
-      - name: Build root project
+      - name: Build project
         run: yarn build
 
-      - name: Build agent-tester
-        run: cd agent-tester && yarn build
-
-      - name: Run agent tests against staging
-        id: agent-tests
-        continue-on-error: true
+      - name: Run agent tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GRAPHQL_HTTP_ENDPOINT: ${{ secrets.STAGING_GRAPHQL_ENDPOINT }}
         run: |
           cd agent-tester
-          node dist/index.js run --all \
-            --endpoint "${{ secrets.STAGING_GRAPHQL_ENDPOINT }}" \
-            --parallel 5 \
-            --export ../results/ci-run-${{ github.run_id }}.json \
-            --html ../results/ci-run-${{ github.run_id }}.html \
-            --compare-baseline latest \
-            --fail-on-regression
-        env:
-          GRAPHQL_ENDPOINT: ${{ secrets.STAGING_GRAPHQL_ENDPOINT }}
+          yarn build
+          node dist/index.js run --all --verbose --export ../test-results.json
 
       - name: Upload test results
-        if: always()
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: agent-test-results-${{ github.run_id }}
-          path: |
-            results/*.json
-            results/*.html
+          name: agent-test-results
+          path: test-results.json
           retention-days: 30
 
-      - name: Comment PR with results
-        if: github.event_name == 'pull_request' && always()
+      - name: Check test results
+        if: always()
+        run: |
+          if [ -f test-results.json ]; then
+            echo "Test results summary:"
+            cat test-results.json | jq '.summary'
+            
+            FAILED=$(cat test-results.json | jq '.summary.failed')
+            if [ "$FAILED" -gt 0 ]; then
+              echo "❌ $FAILED tests failed"
+              exit 1
+            fi
+          fi
+
+      - name: Comment PR
         uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
         with:
           script: |
             const fs = require('fs');
-            const path = require('path');
-            
-            try {
-              const resultsPath = path.join(process.cwd(), 'results', `ci-run-${{ github.run_id }}.json`);
-              
-              if (!fs.existsSync(resultsPath)) {
-                console.log('Results file not found, test run may have failed early');
-                return;
-              }
-              
-              const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-              
-              let body = `## 🤖 Agent System Test Results\n\n`;
-              body += `**Summary**: ${results.summary.passed}/${results.summary.total} passed (${results.summary.successRate.toFixed(1)}%)\n\n`;
-              body += `- ✅ Passed: ${results.summary.passed}\n`;
-              body += `- ❌ Failed: ${results.summary.failed}\n`;
-              body += `- ⏭️ Skipped: ${results.summary.skipped}\n`;
-              body += `- ⏱️ Duration: ${(results.summary.totalDuration / 1000).toFixed(2)}s\n\n`;
-              
-              // Regression information
-              if (results.regressions) {
-                if (results.regressions.hasRegressions) {
-                  body += `### ⚠️ **REGRESSIONS DETECTED**\n\n`;
-                  body += `- 🔴 Critical: ${results.regressions.summary.critical}\n`;
-                  body += `- 🟠 High: ${results.regressions.summary.high}\n`;
-                  body += `- 🟡 Medium: ${results.regressions.summary.medium}\n`;
-                  body += `- 🔵 Low: ${results.regressions.summary.low}\n\n`;
-                  
-                  // Add details for critical and high regressions
-                  const critical = results.regressions.details.filter(r => r.severity === 'critical');
-                  const high = results.regressions.details.filter(r => r.severity === 'high');
-                  
-                  if (critical.length > 0) {
-                    body += `#### 🔴 Critical Regressions\n`;
-                    critical.forEach(r => {
-                      body += `- **${r.scenarioId}**: ${r.message}\n`;
-                    });
-                    body += `\n`;
-                  }
-                  
-                  if (high.length > 0) {
-                    body += `#### 🟠 High Priority Regressions\n`;
-                    high.forEach(r => {
-                      body += `- **${r.scenarioId}**: ${r.message}\n`;
-                    });
-                    body += `\n`;
-                  }
-                } else {
-                  body += `### ✅ No regressions detected\n\n`;
-                }
-              }
-              
-              body += `\n[View detailed results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
-              
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            } catch (error) {
-              console.error('Error posting comment:', error);
+            if (!fs.existsSync('test-results.json')) {
+              return;
             }
+            
+            const results = JSON.parse(fs.readFileSync('test-results.json', 'utf8'));
+            const summary = results.summary;
+            
+            const passRate = ((summary.passed / summary.total) * 100).toFixed(1);
+            const status = summary.failed === 0 ? '✅' : '❌';
+            
+            const body = `## ${status} Agent System Test Results
+            
+**Summary**: ${summary.passed}/${summary.total} passed (${passRate}%)
 
-      - name: Update baseline (main branch only)
-        if: github.ref == 'refs/heads/main' && success()
-        run: |
-          cd agent-tester
-          node dist/index.js run --all \
-            --endpoint "${{ secrets.STAGING_GRAPHQL_ENDPOINT }}" \
-            --parallel 5 \
-            --save-baseline "main-${{ github.sha }}"
-          
-          # Commit baseline if there are changes
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add baselines/
-          
-          if git diff --staged --quiet; then
-            echo "No baseline changes to commit"
-          else
-            git commit -m "Update test baseline from ${{ github.sha }}"
-            git push
-          fi
-        env:
-          GRAPHQL_ENDPOINT: ${{ secrets.STAGING_GRAPHQL_ENDPOINT }}
+- ✅ Passed: ${summary.passed}
+- ❌ Failed: ${summary.failed}
+- ⏭️ Skipped: ${summary.skipped}
+- ⏱️ Duration: ${(summary.totalDurationMs / 1000).toFixed(2)}s
 
-      - name: Fail if tests failed
-        if: steps.agent-tests.outcome == 'failure'
-        run: |
-          echo "Agent tests failed or regressions detected"
-          exit 1
+${summary.failed > 0 ? `
+### ❌ Failed Tests
 
+${results.scenarios.filter(s => !s.success).map(s => `- **${s.scenario.id}**: ${s.scenario.name}`).join('\n')}
+` : ''}
+
+[View full test results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

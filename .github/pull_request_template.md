@@ -1,50 +1,48 @@
 ## Description
 
-<!-- Provide a brief description of your changes -->
+<!-- Provide a brief description of the changes in this PR -->
 
 ## Type of Change
 
-<!-- Mark the relevant option with an 'x' -->
+<!-- Check the relevant option -->
 
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📝 Documentation update
-- [ ] 🎨 Code refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] ✅ Test updates
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Refactoring (no functional changes)
+- [ ] Performance improvement
+- [ ] Test updates
 
-## Testing
+## Testing Checklist
 
-<!-- Describe the tests you ran and their results -->
+- [ ] Unit tests pass locally (`yarn test`)
+- [ ] Integration tests pass locally (`yarn test:integration`)
+- [ ] Agent tests pass (`yarn test:agent`)
+- [ ] Manual testing completed
+- [ ] No new linter errors (`yarn lint`)
 
-- [ ] Local tests pass (`yarn test`)
-- [ ] Agent tests pass (`yarn agent-tester:all` or against local GraphQL server)
-- [ ] No regressions detected (if applicable)
-- [ ] Added/updated tests for new functionality
+## Agent Test Results
 
-## Checklist
+<!-- Agent tests will automatically run and post results here -->
 
-<!-- Mark completed items with an 'x' -->
+- [ ] All agent tests passed
+- [ ] Any failing tests have been reviewed and are expected
+- [ ] Performance metrics are acceptable
 
-- [ ] Code builds without errors (`yarn build`)
-- [ ] TypeScript types are correct (`yarn lint`)
-- [ ] Code follows project style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex logic
-- [ ] Documentation updated (if needed)
-- [ ] No console.log or debug code left in
-- [ ] Environment variables documented (if new ones added)
+## Breaking Changes
 
-## Screenshots (if applicable)
+<!-- If this PR introduces breaking changes, describe them here -->
 
-<!-- Add screenshots to help explain your changes -->
+- [ ] No breaking changes
+- [ ] Breaking changes documented below:
 
 ## Additional Notes
 
-<!-- Any additional information that reviewers should know -->
+<!-- Add any additional context, screenshots, or information here -->
 
 ## Related Issues
 
-<!-- Link related issues: Fixes #123, Related to #456 -->
+<!-- Link any related issues using #issue_number -->
 
+Closes #
