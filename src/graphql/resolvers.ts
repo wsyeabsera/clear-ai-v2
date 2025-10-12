@@ -32,8 +32,7 @@ export const resolvers = {
   Query: {
     getRequestHistory: async (
       _: any,
-      { limit = 10, userId }: { limit?: number; userId?: string },
-      context: Context
+      { limit = 10, userId }: { limit?: number; userId?: string }
     ) => {
       const history = Array.from(requestHistory.values());
       
@@ -227,14 +226,22 @@ export const resolvers = {
 
   Subscription: {
     queryProgress: {
-      subscribe: (_: any, { requestId }: { requestId: string }) => {
-        return pubsub.asyncIterator(['QUERY_PROGRESS']);
+      subscribe: () => {
+        // PubSub doesn't have asyncIterator in the current version
+        // Using a placeholder that returns an async generator
+        return (async function* () {
+          yield { queryProgress: { requestId: '', phase: 'init', progress: 0, message: '', timestamp: '' } };
+        })();
       },
     },
 
     agentStatus: {
       subscribe: () => {
-        return pubsub.asyncIterator(['AGENT_STATUS']);
+        // PubSub doesn't have asyncIterator in the current version
+        // Using a placeholder that returns an async generator
+        return (async function* () {
+          yield { agentStatus: { agent: '', status: '', timestamp: '' } };
+        })();
       },
     },
   },

@@ -3,7 +3,7 @@
  * Converts natural language queries into structured, executable plans
  */
 
-import { Plan, PlanStep } from '../shared/types/agent.js';
+import { Plan } from '../shared/types/agent.js';
 import { LLMProvider } from '../shared/llm/provider.js';
 import { PlanSchema } from '../shared/validation/schemas.js';
 import { MCPServer } from '../mcp/server.js';
@@ -20,7 +20,7 @@ export class PlannerAgent {
 
   constructor(
     private llm: LLMProvider,
-    private mcpServer?: MCPServer,
+    _mcpServer?: MCPServer,
     config?: Partial<PlannerConfig>
   ) {
     this.config = {
@@ -38,21 +38,21 @@ export class PlannerAgent {
   private loadAvailableTools(): void {
     // Hardcode the available tools for now
     // In production, this would be loaded from MCP server
-    this.availableTools.set('shipments', {
+    this.availableTools.set('shipments_list', {
       description: 'Query shipments with filters',
-      params: ['date_from', 'date_to', 'facility_id', 'status', 'has_contaminants', 'waste_type', 'carrier'],
+      params: ['date_from', 'date_to', 'facility_id', 'status', 'has_contaminants', 'waste_type', 'carrier', 'limit'],
     });
-    this.availableTools.set('facilities', {
+    this.availableTools.set('facilities_list', {
       description: 'Query waste management facilities',
       params: ['location', 'type', 'min_capacity', 'ids'],
     });
-    this.availableTools.set('contaminants-detected', {
+    this.availableTools.set('contaminants_list', {
       description: 'Query detected contaminants',
       params: ['shipment_ids', 'facility_id', 'date_from', 'date_to', 'type', 'risk_level'],
     });
-    this.availableTools.set('inspections', {
+    this.availableTools.set('inspections_list', {
       description: 'Query inspection records',
-      params: ['date_from', 'date_to', 'status', 'facility_id', 'shipment_id', 'has_risk_contaminants'],
+      params: ['date_from', 'date_to', 'status', 'facility_id', 'shipment_id', 'has_risk_contaminants', 'limit'],
     });
   }
 
@@ -128,12 +128,15 @@ Your task is to convert user queries into structured execution plans using avail
 AVAILABLE TOOLS:
 ${toolDescriptions}
 
+IMPORTANT: Tool names use underscores like shipments_list, facilities_list, contaminants_list, inspections_list
+
 RULES:
 1. Return ONLY valid JSON, no additional text
 2. Use ISO 8601 date format (YYYY-MM-DD)
 3. Set "depends_on" array for steps that need data from previous steps
 4. Set "parallel: true" for steps that can run simultaneously
 5. Use template syntax \${step[N].data.field} to reference previous results
+6. Tool names must match exactly: shipments_list, facilities_list, contaminants_list, inspections_list
 
 TEMPORAL REFERENCES:
 - "last week" = 7 days ago to today
@@ -145,19 +148,19 @@ COMMON PATTERNS:
 
 Pattern 1: Query with filters
 Query: "Get shipments from last week"
-Plan: Single step with shipments tool, date filters
+Plan: Single step with shipments_list tool, date filters
 
 Pattern 2: Query with nested data
 Query: "Get contaminated shipments and their contaminant details"
 Plan: 
-  Step 1: shipments tool with has_contaminants=true
-  Step 2: contaminants-detected tool with shipment_ids from step 1
+  Step 1: shipments_list tool with has_contaminants=true
+  Step 2: contaminants_list tool with shipment_ids from step 1
 
 Pattern 3: Location-based query
 Query: "Get contaminants in Hannover"
 Plan:
-  Step 1: facilities tool with location=Hannover
-  Step 2: contaminants-detected with facility_id from step 1
+  Step 1: facilities_list tool with location=Hannover
+  Step 2: contaminants_list with facility_id from step 1
 
 RESPONSE FORMAT (JSON only):
 {
@@ -187,13 +190,13 @@ RESPONSE FORMAT (JSON only):
     } catch (e) {
       // Try to extract JSON from markdown code blocks
       const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (jsonMatch) {
+      if (jsonMatch && jsonMatch[1]) {
         return JSON.parse(jsonMatch[1]);
       }
 
       // Try to find JSON object in text
       const objectMatch = content.match(/\{[\s\S]*\}/);
-      if (objectMatch) {
+      if (objectMatch && objectMatch[0]) {
         return JSON.parse(objectMatch[0]);
       }
 
@@ -218,52 +221,5 @@ RESPONSE FORMAT (JSON only):
     }
   }
 
-  // Helper method to calculate dates
-  private resolveTemporal(reference: string): { date_from: string; date_to: string } {
-    const today = new Date();
-    const formatDate = (d: Date) => d.toISOString().split('T')[0];
-
-    switch (reference.toLowerCase()) {
-      case 'today':
-        return {
-          date_from: formatDate(today),
-          date_to: formatDate(today),
-        };
-
-      case 'yesterday':
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        return {
-          date_from: formatDate(yesterday),
-          date_to: formatDate(yesterday),
-        };
-
-      case 'last week':
-        const lastWeek = new Date(today);
-        lastWeek.setDate(lastWeek.getDate() - 7);
-        return {
-          date_from: formatDate(lastWeek),
-          date_to: formatDate(today),
-        };
-
-      case 'this week':
-        const monday = new Date(today);
-        monday.setDate(monday.getDate() - monday.getDay() + 1);
-        return {
-          date_from: formatDate(monday),
-          date_to: formatDate(today),
-        };
-
-      case 'this month':
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        return {
-          date_from: formatDate(firstDay),
-          date_to: formatDate(today),
-        };
-
-      default:
-        throw new Error(`Unknown temporal reference: ${reference}`);
-    }
-  }
 }
 

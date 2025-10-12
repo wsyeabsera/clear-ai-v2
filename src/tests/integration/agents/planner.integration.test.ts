@@ -32,7 +32,7 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      expect(plan.steps[0].tool).toBe('shipments');
+      expect(plan.steps[0].tool).toBe('shipments_list');
       expect(plan.steps[0].params).toHaveProperty('date_from');
       expect(plan.steps[0].params).toHaveProperty('date_to');
 
@@ -45,7 +45,7 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      expect(plan.steps[0].tool).toBe('facilities');
+      expect(plan.steps[0].tool).toBe('facilities_list');
       expect(plan.steps[0].params).toHaveProperty('location');
       expect(plan.steps[0].params.location).toContain('Hannover');
 
@@ -60,7 +60,7 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps.length).toBeGreaterThan(0);
       
       const hasContaminantTool = plan.steps.some(step => 
-        step.tool === 'contaminants-detected'
+        step.tool === 'contaminants_list'
       );
       expect(hasContaminantTool).toBe(true);
 
@@ -78,12 +78,12 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps.length).toBeGreaterThanOrEqual(2);
       
       // First step should query shipments
-      expect(plan.steps[0].tool).toBe('shipments');
+      expect(plan.steps[0].tool).toBe('shipments_list');
       expect(plan.steps[0].params.has_contaminants).toBe(true);
 
       // Second step should query contaminants with dependency
       const contaminantStep = plan.steps.find(step => 
-        step.tool === 'contaminants-detected'
+        step.tool === 'contaminants_list'
       );
       expect(contaminantStep).toBeDefined();
       expect(contaminantStep?.depends_on).toBeDefined();
@@ -105,13 +105,13 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps.length).toBeGreaterThanOrEqual(2);
       
       // Should query facilities first
-      const facilityStep = plan.steps.find(step => step.tool === 'facilities');
+      const facilityStep = plan.steps.find(step => step.tool === 'facilities_list');
       expect(facilityStep).toBeDefined();
       expect(facilityStep?.params.location).toContain('Hannover');
 
       // Should query contaminants with dependency
       const contaminantStep = plan.steps.find(step => 
-        step.tool === 'contaminants-detected'
+        step.tool === 'contaminants_list'
       );
       expect(contaminantStep).toBeDefined();
       expect(contaminantStep?.depends_on).toBeDefined();
@@ -129,7 +129,7 @@ describe('PlannerAgent Integration', () => {
       
       // Should query inspections (might be combined with contaminants in one query)
       const hasInspectionOrContaminant = plan.steps.some(step => 
-        step.tool === 'inspections' || step.tool === 'contaminants-detected'
+        step.tool === 'inspections_list' || step.tool === 'contaminants_list'
       );
       expect(hasInspectionOrContaminant).toBe(true);
 
@@ -150,7 +150,7 @@ describe('PlannerAgent Integration', () => {
     it('should correctly parse "last week" reference', async () => {
       const plan = await planner.plan('Get shipments from last week');
 
-      const shipmentStep = plan.steps.find(step => step.tool === 'shipments');
+      const shipmentStep = plan.steps.find(step => step.tool === 'shipments_list');
       expect(shipmentStep?.params.date_from).toBeDefined();
       expect(shipmentStep?.params.date_to).toBeDefined();
 
@@ -169,7 +169,7 @@ describe('PlannerAgent Integration', () => {
     it('should correctly parse "this week" reference', async () => {
       const plan = await planner.plan('Show inspections from this week');
 
-      const inspectionStep = plan.steps.find(step => step.tool === 'inspections');
+      const inspectionStep = plan.steps.find(step => step.tool === 'inspections_list');
       expect(inspectionStep).toBeDefined();
       
       // Should have some date parameters (might be resolved dates or templates)
@@ -185,7 +185,7 @@ describe('PlannerAgent Integration', () => {
       
       // Should query contaminants
       const hasContaminantTool = plan.steps.some(step => 
-        step.tool === 'contaminants-detected'
+        step.tool === 'contaminants_list'
       );
       expect(hasContaminantTool).toBe(true);
       
@@ -207,7 +207,7 @@ describe('PlannerAgent Integration', () => {
     }, 30000);
 
     it('should include timestamp in metadata', async () => {
-      const plan = await planner.plan('test query');
+      const plan = await planner.plan('Get shipments');
 
       expect(plan.metadata).toBeDefined();
       expect(plan.metadata?.timestamp).toBeDefined();
@@ -240,7 +240,7 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      expect(plan.steps[0].tool).toBe('shipments');
+      expect(plan.steps[0].tool).toBe('shipments_list');
       
       // Validate against schema
       expect(() => PlanSchema.parse(plan)).not.toThrow();
@@ -253,7 +253,7 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps.length).toBeGreaterThan(0);
       
       // Should query shipments
-      const shipmentStep = plan.steps.find(s => s.tool === 'shipments');
+      const shipmentStep = plan.steps.find(s => s.tool === 'shipments_list');
       expect(shipmentStep).toBeDefined();
       expect(shipmentStep?.params.has_contaminants).toBe(true);
       
@@ -267,7 +267,7 @@ describe('PlannerAgent Integration', () => {
       const plan = await planner.plan('Get all facilities and their shipments');
 
       // All tools should be from available set
-      const validTools = ['shipments', 'facilities', 'contaminants-detected', 'inspections'];
+      const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
       
       for (const step of plan.steps) {
         expect(validTools).toContain(step.tool);
@@ -288,6 +288,133 @@ describe('PlannerAgent Integration', () => {
           }
         }
       }
+    }, 30000);
+  });
+
+  describe('Complex Multi-Facility Queries', () => {
+    it('should handle queries across multiple facilities with temporal context', async () => {
+      const plan = await planner.plan(
+        'Show me all shipments from Berlin and Munich facilities from the last month'
+      );
+
+      expect(plan.steps).toBeDefined();
+      expect(plan.steps.length).toBeGreaterThan(0);
+      
+      // Should have facility and/or shipment queries
+      const hasFacilityOrShipment = plan.steps.some(s => 
+        s.tool === 'facilities_list' || s.tool === 'shipments_list'
+      );
+      expect(hasFacilityOrShipment).toBe(true);
+      
+      // Should have location or date filters
+      const hasRelevantFilters = plan.steps.some(s => 
+        s.params.location || s.params.date_from || s.params.date_to
+      );
+      expect(hasRelevantFilters).toBe(true);
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should generate plan requiring data aggregation across multiple tools', async () => {
+      const plan = await planner.plan(
+        'Which carriers have the highest contamination rates?'
+      );
+
+      expect(plan.steps).toBeDefined();
+      expect(plan.steps.length).toBeGreaterThan(0);
+      
+      // Should query shipments (to get carrier and contamination data)
+      const hasShipments = plan.steps.some(s => s.tool === 'shipments_list');
+      expect(hasShipments).toBe(true);
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should handle ambiguous queries with reasonable assumptions', async () => {
+      const plan = await planner.plan('Show me recent shipments');
+
+      expect(plan.steps).toBeDefined();
+      expect(plan.steps.length).toBeGreaterThan(0);
+      
+      // Should pick a reasonable tool (any of the available ones)
+      const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
+      expect(validTools).toContain(plan.steps[0].tool);
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should extract parameters from natural language (dates, locations, IDs)', async () => {
+      const plan = await planner.plan(
+        'Get shipments from October 1st to October 10th going to Hannover'
+      );
+
+      expect(plan.steps).toBeDefined();
+      const shipmentStep = plan.steps.find(s => s.tool === 'shipments_list');
+      expect(shipmentStep).toBeDefined();
+      
+      // Should have extracted date parameters
+      const hasDateParams = shipmentStep?.params.date_from || shipmentStep?.params.date_to;
+      expect(hasDateParams).toBeDefined();
+      
+      // Location might be in various params or might not be extracted (LLM non-determinism)
+      // Just check that we have a valid plan with date params
+      console.log('Extracted plan:', JSON.stringify(plan, null, 2));
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should check tool availability before planning', async () => {
+      const plan = await planner.plan('Get facilities');
+
+      expect(plan.steps).toBeDefined();
+      expect(plan.steps[0].tool).toBe('facilities_list');
+      
+      // All tools in plan should be available
+      for (const step of plan.steps) {
+        const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
+        expect(validTools).toContain(step.tool);
+      }
+    }, 30000);
+
+    it('should create dependency chain for sequential queries', async () => {
+      const plan = await planner.plan(
+        'Get facilities in Berlin, then get their shipments, then check for contaminants'
+      );
+
+      expect(plan.steps.length).toBeGreaterThanOrEqual(2);
+      
+      // Should have sequential dependencies
+      let hasDependencies = false;
+      for (const step of plan.steps) {
+        if (step.depends_on && step.depends_on.length > 0) {
+          hasDependencies = true;
+          break;
+        }
+      }
+      expect(hasDependencies).toBe(true);
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should generate metadata with timestamps and estimated duration', async () => {
+      const plan = await planner.plan('Get shipments');
+
+      expect(plan.metadata).toBeDefined();
+      expect(plan.metadata?.timestamp).toBeDefined();
+      expect(plan.metadata?.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+      
+      // Query should be stored
+      expect(plan.metadata?.query).toBe('Get shipments');
+    }, 30000);
+
+    it('should handle capacity-related facility queries', async () => {
+      const plan = await planner.plan('Which facilities are near capacity?');
+
+      expect(plan.steps).toBeDefined();
+      const facilityStep = plan.steps.find(s => s.tool === 'facilities_list');
+      expect(facilityStep).toBeDefined();
+      
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
   });
 });

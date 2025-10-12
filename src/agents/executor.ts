@@ -61,14 +61,17 @@ export class ExecutorAgent {
       // Store results and mark as completed
       for (let i = 0; i < readySteps.length; i++) {
         const stepIndex = readySteps[i];
-        results[stepIndex] = batchResults[i];
-        completed.add(stepIndex);
+        if (stepIndex !== undefined) {
+          results[stepIndex] = batchResults[i]!;
+          completed.add(stepIndex);
 
-        // Check for failure if failFast is enabled
-        if (this.config.failFast && !batchResults[i].success) {
-          throw new Error(
-            `Step ${stepIndex} failed: ${batchResults[i].error?.message}`
-          );
+          // Check for failure if failFast is enabled
+          const result = batchResults[i];
+          if (result && this.config.failFast && !result.success) {
+            throw new Error(
+              `Step ${stepIndex} failed: ${result.error?.message}`
+            );
+          }
         }
       }
     }
@@ -81,8 +84,11 @@ export class ExecutorAgent {
     const graph = new Map<number, number[]>();
 
     for (let i = 0; i < steps.length; i++) {
-      const deps = steps[i].depends_on || [];
-      graph.set(i, deps);
+      const step = steps[i];
+      if (step) {
+        const deps = step.depends_on || [];
+        graph.set(i, deps);
+      }
     }
 
     // Validate: no circular dependencies
@@ -152,9 +158,13 @@ export class ExecutorAgent {
     steps: PlanStep[],
     previousResults: ToolResult[]
   ): Promise<ToolResult[]> {
-    const promises = stepIndices.map(index =>
-      this.executeStep(steps[index], index, previousResults)
-    );
+    const promises = stepIndices.map(index => {
+      const step = steps[index];
+      if (!step) {
+        throw new Error(`Step at index ${index} not found`);
+      }
+      return this.executeStep(step, index, previousResults);
+    });
 
     return Promise.all(promises);
   }
@@ -201,7 +211,6 @@ export class ExecutorAgent {
           message: error.message,
         },
         metadata: {
-          tool: step.tool,
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },
@@ -234,7 +243,7 @@ export class ExecutorAgent {
     // Parse template: ${step[N].data.field} or ${step[N].data.*.field} or ${step[N].data[0].field}
     const match = template.match(/\$\{step\[(\d+)\]\.data(.+?)\}/);
 
-    if (!match) {
+    if (!match || !match[1] || !match[2]) {
       return template; // Not a valid template
     }
 
@@ -246,7 +255,7 @@ export class ExecutorAgent {
     }
 
     const result = previousResults[stepIndex];
-    if (!result.success || !result.data) {
+    if (!result || !result.success || !result.data) {
       throw new Error(`Step ${stepIndex} did not produce valid data`);
     }
 
@@ -282,6 +291,7 @@ export class ExecutorAgent {
 
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
+      if (!token) continue;
 
       if (token.type === 'wildcard') {
         // Wildcard: collect from all array elements
@@ -299,6 +309,7 @@ export class ExecutorAgent {
         return current.map(item => {
           let result = item;
           for (const t of remainingTokens) {
+            if (!t) continue;
             if (t.type === 'field') {
               result = result?.[t.value as string];
             } else if (t.type === 'index') {

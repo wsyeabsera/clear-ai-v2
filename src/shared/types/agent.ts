@@ -8,20 +8,20 @@
  */
 export interface Plan {
   steps: PlanStep[];
-  metadata?: PlanMetadata;
+  metadata?: PlanMetadata | undefined;
 }
 
 export interface PlanStep {
   tool: string;
   params: Record<string, any>;
-  depends_on?: number[]; // Indices of steps this depends on
-  parallel?: boolean; // Can be run in parallel
+  depends_on?: number[] | undefined; // Indices of steps this depends on
+  parallel?: boolean | undefined; // Can be run in parallel
 }
 
 export interface PlanMetadata {
   query: string;
   timestamp: string;
-  estimated_duration_ms?: number;
+  estimated_duration_ms?: number | undefined;
 }
 
 /**

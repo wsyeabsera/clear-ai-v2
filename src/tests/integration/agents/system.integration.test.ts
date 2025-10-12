@@ -61,7 +61,7 @@ describe('System Integration - Complete Agent Pipeline', () => {
 
     // Initialize MCP Server with real tools
     mcpServer = new MCPServer('system-integration-test', '1.0.0');
-    const apiUrl = process.env.WASTEER_API_URL || 'http://localhost:3000/api';
+    const apiUrl = process.env.WASTEER_API_URL || 'http://localhost:4000/api';
     registerAllTools(mcpServer, apiUrl);
 
     // Create agents
@@ -96,7 +96,7 @@ describe('System Integration - Complete Agent Pipeline', () => {
       expect(response.message.length).toBeGreaterThan(0);
 
       // Should have used shipments tool
-      expect(response.tools_used).toContain('shipments');
+      expect(response.tools_used).toContain('shipments_list');
 
       // Should have metadata
       expect(response.metadata.request_id).toBeDefined();
@@ -122,7 +122,7 @@ describe('System Integration - Complete Agent Pipeline', () => {
 
       // Should have used facilities and/or contaminants tools
       const hasRelevantTools = response.tools_used.some(tool => 
-        tool === 'facilities' || tool === 'contaminants-detected'
+        tool === 'facilities_list' || tool === 'contaminants_list'
       );
       expect(hasRelevantTools).toBe(true);
 
@@ -213,6 +213,218 @@ describe('System Integration - Complete Agent Pipeline', () => {
       expect(response.message).toBeDefined();
       expect(response.metadata.request_id).toBeDefined();
     }, 60000);
+  });
+
+  describe('Blueprint Example Queries', () => {
+    it('Blueprint 1: Show me all shipments from last week with contaminants', async () => {
+      const response = await orchestrator.handleQuery(
+        'Show me all shipments from last week with contaminants'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      expect(response.tools_used).toContain('shipments_list');
+      
+      console.log('\n📦 Blueprint 1 - Contaminated shipments:', {
+        message: response.message.substring(0, 150),
+        tools: response.tools_used
+      });
+    }, 60000);
+
+    it('Blueprint 2: Which facilities received the most rejected shipments?', async () => {
+      const response = await orchestrator.handleQuery(
+        'Which facilities received the most rejected shipments?'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should query facilities and/or shipments
+      const hasRelevantTools = response.tools_used.some(t => 
+        t.includes('facilities_list') || t.includes('shipments_list')
+      );
+      expect(hasRelevantTools).toBe(true);
+      
+      console.log('\n🏭 Blueprint 2 - Rejected shipments by facility:', {
+        message: response.message.substring(0, 150),
+        insights: response.analysis?.insights.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 3: What are the most common contaminants detected this month?', async () => {
+      const response = await orchestrator.handleQuery(
+        'What are the most common contaminants detected this month?'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      const hasContaminants = response.tools_used.some(t => t.includes('contaminants_list'));
+      expect(hasContaminants).toBe(true);
+      
+      console.log('\n🧪 Blueprint 3 - Common contaminants:', {
+        message: response.message.substring(0, 150),
+        entities: response.analysis?.entities.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 4: Show me high-risk contaminants detected in Berlin facilities', async () => {
+      const response = await orchestrator.handleQuery(
+        'Show me high-risk contaminants detected in Berlin facilities'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      console.log('\n⚠️  Blueprint 4 - High-risk contaminants in Berlin:', {
+        message: response.message.substring(0, 150),
+        anomalies: response.analysis?.anomalies.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 5: What is the acceptance rate for each facility?', async () => {
+      const response = await orchestrator.handleQuery(
+        'What is the acceptance rate for each facility?'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should analyze facilities or inspections
+      const hasRelevantTools = response.tools_used.some(t => 
+        t.includes('facilities_list') || t.includes('inspections_list')
+      );
+      expect(hasRelevantTools).toBe(true);
+      
+      console.log('\n📊 Blueprint 5 - Acceptance rates:', {
+        message: response.message.substring(0, 150),
+        insights: response.analysis?.insights.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 6: Show me shipments with HCl levels above medium', async () => {
+      const response = await orchestrator.handleQuery(
+        'Show me shipments with HCl levels above medium'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      console.log('\n🔬 Blueprint 6 - HCl levels:', {
+        message: response.message.substring(0, 150),
+        tools: response.tools_used
+      });
+    }, 60000);
+
+    it('Blueprint 7: Which carriers have the highest contamination rates?', async () => {
+      const response = await orchestrator.handleQuery(
+        'Which carriers have the highest contamination rates?'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should query shipments to get carrier data
+      const hasShipments = response.tools_used.some(t => t.includes('shipments_list'));
+      expect(hasShipments).toBe(true);
+      
+      console.log('\n🚚 Blueprint 7 - Carrier contamination rates:', {
+        message: response.message.substring(0, 150),
+        insights: response.analysis?.insights.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 8: Show me inspection failures by waste type', async () => {
+      const response = await orchestrator.handleQuery(
+        'Show me inspection failures by waste type'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should query inspections
+      const hasInspections = response.tools_used.some(t => t.includes('inspections_list'));
+      expect(hasInspections).toBe(true);
+      
+      console.log('\n🔍 Blueprint 8 - Inspection failures:', {
+        message: response.message.substring(0, 150),
+        entities: response.analysis?.entities.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 9: What facilities are near capacity?', async () => {
+      const response = await orchestrator.handleQuery(
+        'What facilities are near capacity?'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should query facilities
+      const hasFacilities = response.tools_used.some(t => t.includes('facilities_list'));
+      expect(hasFacilities).toBe(true);
+      
+      console.log('\n📈 Blueprint 9 - Near capacity facilities:', {
+        message: response.message.substring(0, 150),
+        anomalies: response.analysis?.anomalies.length || 0
+      });
+    }, 60000);
+
+    it('Blueprint 10: Show me contaminant trends over the past 30 days', async () => {
+      const response = await orchestrator.handleQuery(
+        'Show me contaminant trends over the past 30 days'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      
+      // Should query contaminants with date range
+      const hasContaminants = response.tools_used.some(t => t.includes('contaminants_list'));
+      expect(hasContaminants).toBe(true);
+      
+      console.log('\n📉 Blueprint 10 - Contaminant trends:', {
+        message: response.message.substring(0, 150),
+        insights: response.analysis?.insights.length || 0
+      });
+    }, 60000);
+  });
+
+  describe('Error Recovery Scenarios', () => {
+    it('should handle non-existent facility queries', async () => {
+      const response = await orchestrator.handleQuery(
+        'Get shipments from NonExistentFacility123'
+      );
+
+      expect(response).toBeDefined();
+      expect(response.message).toBeDefined();
+      expect(response.metadata.request_id).toBeDefined();
+      
+      // Should provide meaningful response even if no data found
+      console.log('\n❌ Error recovery - Non-existent facility:', {
+        message: response.message.substring(0, 100),
+        error: response.metadata.error
+      });
+    }, 60000);
+
+    it('should handle follow-up questions based on previous query context', async () => {
+      // First query
+      const response1 = await orchestrator.handleQuery('Get facilities in Berlin');
+      
+      expect(response1).toBeDefined();
+      expect(response1.message).toBeDefined();
+      
+      // Follow-up query (would use context in production with real memory)
+      const response2 = await orchestrator.handleQuery('Show me their shipments');
+      
+      expect(response2).toBeDefined();
+      expect(response2.message).toBeDefined();
+      
+      console.log('\n💬 Memory-based follow-up:', {
+        query1: response1.message.substring(0, 100),
+        query2: response2.message.substring(0, 100),
+        bothSucceeded: !response1.metadata.error && !response2.metadata.error
+      });
+    }, 120000);
   });
 });
 

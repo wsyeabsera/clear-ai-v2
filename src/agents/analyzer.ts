@@ -240,7 +240,7 @@ Return JSON array of insights:
     }, {} as Record<string, number>);
 
     const mostCommon = Object.entries(typeCounts)
-      .sort(([, a], [, b]) => b - a)[0];
+      .sort(([, a], [, b]) => (b as number) - (a as number))[0];
 
     if (mostCommon) {
       insights.push({
@@ -310,7 +310,6 @@ Return JSON array of insights:
   private async extractEntities(results: ToolResult[]): Promise<Entity[]> {
     console.log('[AnalyzerAgent] Extracting entities...');
 
-    const entities: Entity[] = [];
     const entityMap = new Map<string, Entity>();
 
     for (const result of results) {
