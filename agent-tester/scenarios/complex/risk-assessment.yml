@@ -1,0 +1,44 @@
+id: complex-003
+name: "Comprehensive contamination risk assessment"
+category: complex
+description: |
+  Complex analysis requiring multiple tools to assess
+  contamination risks across shipments, facilities, and inspections.
+
+tags:
+  - complex
+  - multi-tool
+  - risk
+  - contamination
+  - analysis
+
+priority: critical
+
+query: "Analyze the contamination risk patterns across all facilities and shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+    - shipments_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - risk
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+  
+  - type: analysis_quality
+    minInsights: 2
+    minEntities: 1
+    requireAnalysis: true
+

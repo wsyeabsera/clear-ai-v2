@@ -90,7 +90,7 @@ export class GraphQLAgentServer {
       try {
         const { query, variables, operationName } = req.body;
 
-        const result = await this.apolloServer.executeOperation(
+        const result = await this.apolloServer!.executeOperation(
           {
             query,
             variables,
@@ -111,7 +111,7 @@ export class GraphQLAgentServer {
     });
 
     // Health check endpoint
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (_req, res) => {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 

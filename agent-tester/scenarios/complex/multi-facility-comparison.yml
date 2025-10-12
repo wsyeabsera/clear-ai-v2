@@ -1,0 +1,40 @@
+id: complex-011
+name: "Compare performance across multiple facilities"
+category: complex
+description: |
+  Compare operational metrics across different facility types
+  to identify best practices.
+
+tags:
+  - complex
+  - comparison
+  - facilities
+  - performance
+
+priority: high
+
+query: "Compare the performance of sorting vs processing vs disposal facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - facility
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

@@ -1,0 +1,32 @@
+id: simple-facilities-002
+name: "List facilities by location"
+category: simple
+description: |
+  Test facility listing filtered by location.
+  Verifies location filter handling.
+
+tags:
+  - facilities_list
+  - filter
+  - location
+
+priority: high
+
+query: "What facilities are in Berlin?"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - Berlin
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+  - type: performance
+    maxLatencyMs: 15000
+

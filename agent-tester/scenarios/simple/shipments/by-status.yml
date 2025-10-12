@@ -1,0 +1,33 @@
+id: simple-shipments-003
+name: "List shipments by status"
+category: simple
+description: |
+  Test shipment listing filtered by status.
+  Verifies status filter parameter handling.
+
+tags:
+  - shipments
+  - filter
+  - status
+
+priority: high
+
+query: "Show me all delivered shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - shipment
+    - delivered
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  - type: performance
+    maxLatencyMs: 15000
+

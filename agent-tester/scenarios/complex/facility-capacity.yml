@@ -1,0 +1,44 @@
+id: complex-002
+name: "Check facility capacity and incoming shipments"
+category: complex
+description: |
+  Multi-tool query to find facilities near capacity
+  and what shipments they're receiving.
+  Tests parallel tool execution.
+
+tags:
+  - complex
+  - multi-tool
+  - facility
+  - capacity
+  - shipments
+
+priority: high
+
+query: "Which facilities are near capacity and how many shipments are they receiving?"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - facility
+    - capacity
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+  
+  - type: analysis_quality
+    minInsights: 0
+    requireAnalysis: false
+

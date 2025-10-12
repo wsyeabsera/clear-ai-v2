@@ -1,0 +1,36 @@
+id: complex-019
+name: "Analyze inspector performance"
+category: complex
+description: |
+  Compare different inspectors' effectiveness
+  at detecting contamination.
+
+tags:
+  - complex
+  - inspectors
+  - performance
+  - comparison
+
+priority: low
+
+query: "Which inspectors are most effective at detecting contamination?"
+
+expectedBehavior:
+  toolsUsed:
+    - inspections_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - inspector
+    - inspection
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - inspections_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

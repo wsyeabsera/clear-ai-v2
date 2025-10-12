@@ -1,0 +1,32 @@
+id: edge-003
+name: "Query returning no results"
+category: edge-case
+description: |
+  Tests how the system handles queries that return empty result sets.
+  Should acknowledge the empty result clearly.
+
+tags:
+  - edge-case
+  - empty-results
+  - shipments
+
+priority: medium
+
+query: "Show me shipments from the year 2000"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  
+  - type: performance
+    maxLatencyMs: 15000
+

@@ -4,6 +4,8 @@ build/
 .env
 .env.local
 .env.*.local
+.railway-env
+.env.railway
 *.log
 coverage/
 .DS_Store

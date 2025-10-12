@@ -1,0 +1,35 @@
+id: simple-analytics-001
+name: "Get contamination rate analytics"
+category: simple
+description: |
+  Test analytics query for contamination statistics.
+  Verifies the system can invoke analytics tools.
+
+tags:
+  - analytics
+  - contamination
+  - statistics
+
+priority: high
+
+query: "Get the overall contamination statistics and rate"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - contamination
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

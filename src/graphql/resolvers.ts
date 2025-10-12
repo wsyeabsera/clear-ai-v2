@@ -16,7 +16,7 @@ function createAsyncIterator<T>(pubsub: PubSub, triggers: string | string[]) {
   return {
     [Symbol.asyncIterator]() {
       const queue: T[] = [];
-      const subscriptionIds: number[] = [];
+      const subscriptionIds: Promise<number>[] = [];
       let resolve: ((value: IteratorResult<T>) => void) | null = null;
       let done = false;
 
@@ -49,12 +49,18 @@ function createAsyncIterator<T>(pubsub: PubSub, triggers: string | string[]) {
         },
         async return(): Promise<IteratorResult<T>> {
           done = true;
-          subscriptionIds.forEach((id) => pubsub.unsubscribe(id));
+          await Promise.all(subscriptionIds.map(async (idPromise) => {
+            const id = await idPromise;
+            pubsub.unsubscribe(id);
+          }));
           return { value: undefined, done: true };
         },
         async throw(error: any): Promise<IteratorResult<T>> {
           done = true;
-          subscriptionIds.forEach((id) => pubsub.unsubscribe(id));
+          await Promise.all(subscriptionIds.map(async (idPromise) => {
+            const id = await idPromise;
+            pubsub.unsubscribe(id);
+          }));
           throw error;
         },
       };
@@ -215,7 +221,7 @@ export const resolvers = {
               type: i.type,
               description: i.description,
               confidence: i.confidence,
-              supportingData: i.supporting_data,
+              supportingData: Array.isArray(i.supporting_data) ? i.supporting_data : [i.supporting_data],
             })),
             entities: response.analysis.entities.map(e => ({
               id: e.id,

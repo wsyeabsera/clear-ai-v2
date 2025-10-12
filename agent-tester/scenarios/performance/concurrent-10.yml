@@ -1,0 +1,32 @@
+id: perf-001
+name: "10 concurrent simple queries"
+category: performance
+description: |
+  Load test with 10 concurrent simple shipment queries.
+  Tests system under moderate concurrent load.
+
+tags:
+  - performance
+  - load
+  - concurrent
+  - stress
+
+priority: high
+
+query: "Show me all shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 30000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  
+  - type: performance
+    maxLatencyMs: 30000
+

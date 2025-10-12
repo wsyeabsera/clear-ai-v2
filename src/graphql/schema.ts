@@ -117,7 +117,7 @@ export const typeDefs = `#graphql
 
   type Relationship {
     type: String!
-    targetEntityId: ID!
+    targetEntityId: ID
     strength: Float
   }
 

@@ -1,0 +1,15 @@
+NODE_ENV=production
+PORT=4001
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-3.5-turbo
+NEO4J_CLOUD_URI=your-neo4j-uri-here
+NEO4J_CLOUD_USERNAME=neo4j
+NEO4J_CLOUD_PASSWORD=your-neo4j-password-here
+NEO4J_CLOUD_DATABASE=neo4j
+MONGODB_CLOUD_URI=your-mongodb-uri-here
+PINECONE_API_KEY=your-pinecone-api-key-here
+PINECONE_ENVIRONMENT=us-east-1-aws
+PINECONE_INDEX_NAME=clear-ai
+MEMORY_EMBEDDING_MODEL=nomic-embed-text
+MEMORY_EMBEDDING_DIMENSIONS=768
+WASTEER_API_URL=http://localhost:4000/api

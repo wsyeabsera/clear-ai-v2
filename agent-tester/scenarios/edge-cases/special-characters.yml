@@ -1,0 +1,31 @@
+id: edge-005
+name: "Handle special characters in query"
+category: edge-case
+description: |
+  Tests handling of special characters and SQL injection attempts.
+  Should sanitize input properly.
+
+tags:
+  - edge-case
+  - security
+  - sanitization
+
+priority: high
+
+query: "Show me facilities with name 'Berlin' OR 1=1--"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

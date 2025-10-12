@@ -1,0 +1,34 @@
+id: simple-shipments-001
+name: "List all shipments"
+category: simple
+description: |
+  Test basic shipment listing without filters.
+  Verifies the system can invoke the shipments tool correctly.
+
+tags:
+  - shipments
+  - basic
+  - smoke
+
+priority: critical
+
+query: "Show me all shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - shipment
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

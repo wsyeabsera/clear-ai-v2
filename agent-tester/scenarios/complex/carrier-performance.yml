@@ -1,0 +1,38 @@
+id: complex-012
+name: "Analyze carrier performance and contamination correlation"
+category: complex
+description: |
+  Analyze whether certain carriers have higher contamination rates
+  in their shipments.
+
+tags:
+  - complex
+  - carriers
+  - contamination
+  - correlation
+
+priority: medium
+
+query: "Do certain carriers have higher contamination rates in their shipments?"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - contaminants_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - carrier
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

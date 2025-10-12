@@ -1,0 +1,42 @@
+id: complex-013
+name: "Analyze rejected shipments and root causes"
+category: complex
+description: |
+  Comprehensive analysis of rejected shipments,
+  their contaminants, and common patterns.
+
+tags:
+  - complex
+  - rejected
+  - shipments
+  - root-cause
+
+priority: critical
+
+query: "Analyze all rejected shipments and identify common contamination patterns"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - inspections_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - rejected
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

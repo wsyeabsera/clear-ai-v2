@@ -1,0 +1,36 @@
+id: memory-001
+name: "Use context from previous query"
+category: memory
+description: |
+  Tests memory system's ability to load and use
+  context from previous queries.
+
+tags:
+  - memory
+  - context
+  - follow-up
+
+priority: high
+
+query: "Analyze contamination patterns in recent shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - shipment
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

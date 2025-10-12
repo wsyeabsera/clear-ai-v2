@@ -1,0 +1,40 @@
+id: complex-006
+name: "Analyze contamination trends over time"
+category: complex
+description: |
+  Time-based analysis of contamination patterns
+  across facilities and shipments.
+
+tags:
+  - complex
+  - trends
+  - contamination
+  - time-series
+
+priority: high
+
+query: "Analyze contamination trends over the last 30 days"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

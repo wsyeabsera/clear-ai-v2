@@ -1,0 +1,37 @@
+id: complex-009
+name: "Evaluate inspection effectiveness"
+category: complex
+description: |
+  Analyze inspection data to determine which facilities
+  have the most effective contamination detection.
+
+tags:
+  - complex
+  - inspections
+  - effectiveness
+  - quality
+
+priority: high
+
+query: "Which facilities have the most effective inspection processes?"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - inspection
+    - facility
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+
