@@ -13,7 +13,12 @@ export async function connectDB(uri?: string): Promise<void> {
     await mongoose.disconnect();
   }
 
-  const mongoUri = uri || process.env.MONGODB_URI || "mongodb://localhost:27017/wasteer";
+  const isProduction = process.env.NODE_ENV === 'production';
+  const mongoUri = uri ||
+    (isProduction
+      ? process.env.MONGODB_CLOUD_URI
+      : process.env.MONGODB_LOCAL_URI) ||
+    "mongodb://localhost:27017/wasteer";
 
   try {
     await mongoose.connect(mongoUri);

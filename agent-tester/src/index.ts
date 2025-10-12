@@ -19,6 +19,8 @@ import { HTMLReporter } from './reporting/html-reporter.js';
 import { generateCommand } from './commands/generate.js';
 import { benchmarkCommand } from './commands/benchmark.js';
 import { loadTestCommand } from './commands/load-test.js';
+import { BaselineManager } from './regression/baseline-manager.js';
+import { RegressionReporter } from './regression/reporter.js';
 import type { ScenarioCategory, Priority, TestSuiteResult } from './types/scenario.js';
 
 // Load environment variables
@@ -49,6 +51,9 @@ program
   .option('--parallel <n>', 'Number of parallel workers', '1')
   .option('--no-metrics', 'Disable metrics tracking')
   .option('--semantic', 'Enable semantic validation (requires OpenAI API key)')
+  .option('--compare-baseline <name>', 'Compare results to baseline (use "latest" for most recent)')
+  .option('--save-baseline [name]', 'Save results as baseline after test run')
+  .option('--fail-on-regression', 'Exit with code 1 if regressions detected')
   .action(async (options) => {
     try {
       const reporter = new ConsoleReporter();
@@ -196,6 +201,39 @@ program
 
       reporter.reportSummary(result);
 
+      // Regression detection if baseline comparison requested
+      let hasRegressions = false;
+      if (options.compareBaseline) {
+        try {
+          reporter.printSection('Regression Detection');
+          const baselineManager = new BaselineManager();
+          const regressionReporter = new RegressionReporter();
+          
+          const regressionReport = await baselineManager.compareToBaseline(result, options.compareBaseline);
+          regressionReporter.printConsole(regressionReport);
+          
+          hasRegressions = regressionReport.hasRegressions;
+          
+          // Add regression report to result for export
+          (result as any).regressions = regressionReport;
+        } catch (error: any) {
+          console.warn(`⚠️  Failed to compare with baseline: ${error.message}`);
+        }
+      }
+
+      // Save as baseline if requested
+      if (options.saveBaseline) {
+        try {
+          const baselineManager = new BaselineManager();
+          const baselineName = typeof options.saveBaseline === 'string' 
+            ? options.saveBaseline 
+            : undefined;
+          await baselineManager.saveBaseline(result, baselineName);
+        } catch (error: any) {
+          console.error(`❌ Failed to save baseline: ${error.message}`);
+        }
+      }
+
       // Export if requested
       if (options.export) {
         const exportPath = path.resolve(options.export);
@@ -210,7 +248,8 @@ program
       }
 
       // Exit with appropriate code
-      process.exit(result.summary.failed > 0 ? 1 : 0);
+      const shouldFail = result.summary.failed > 0 || (options.failOnRegression && hasRegressions);
+      process.exit(shouldFail ? 1 : 0);
     } catch (error: any) {
       console.error('❌ Fatal error:', error.message);
       if (options.verbose) {
@@ -312,6 +351,66 @@ program
       requests: parseInt(options.requests),
       endpoint: options.endpoint,
     });
+  });
+
+program
+  .command('baseline')
+  .description('Manage test baselines')
+  .action(() => {
+    console.log('\nBaseline Management Commands:');
+    console.log('  baseline save [name]       Save current test results as baseline');
+    console.log('  baseline list              List all available baselines');
+    console.log('  baseline compare <name>    Compare current results to a baseline');
+    console.log('  baseline delete <name>     Delete a baseline\n');
+    console.log('Usage with test run:');
+    console.log('  agent-tester run --all --save-baseline production-v1');
+    console.log('  agent-tester run --all --compare-baseline latest');
+    console.log('  agent-tester run --all --compare-baseline latest --fail-on-regression\n');
+  });
+
+program
+  .command('baseline:list')
+  .description('List all available baselines')
+  .action(async () => {
+    try {
+      const baselineManager = new BaselineManager();
+      const baselines = await baselineManager.listBaselines();
+
+      if (baselines.length === 0) {
+        console.log('\nNo baselines found. Run tests with --save-baseline to create one.\n');
+        return;
+      }
+
+      console.log(`\n📊 Available Baselines (${baselines.length}):\n`);
+
+      baselines.forEach((baseline) => {
+        console.log(`  ${baseline.name}`);
+        console.log(`    Date: ${new Date(baseline.timestamp).toLocaleString()}`);
+        if (baseline.gitCommit) {
+          console.log(`    Git: ${baseline.gitCommit}`);
+        }
+        console.log(`    Tests: ${baseline.passedTests}/${baseline.totalTests} passed (${baseline.successRate.toFixed(1)}%)`);
+        console.log(`    Avg Duration: ${baseline.avgDuration.toFixed(0)}ms`);
+        console.log('');
+      });
+    } catch (error: any) {
+      console.error('❌ Error:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('baseline:delete')
+  .description('Delete a baseline')
+  .argument('<name>', 'Baseline name to delete')
+  .action(async (name) => {
+    try {
+      const baselineManager = new BaselineManager();
+      await baselineManager.deleteBaseline(name);
+    } catch (error: any) {
+      console.error('❌ Error:', error.message);
+      process.exit(1);
+    }
   });
 
 program.parse();

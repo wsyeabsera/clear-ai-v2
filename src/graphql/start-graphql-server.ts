@@ -16,9 +16,15 @@ import { LLMProvider } from '../shared/llm/provider.js';
 import { MCPServer } from '../mcp/server.js';
 import { getLLMConfigs } from '../shared/llm/config.js';
 import { registerAllTools } from '../tools/index.js';
+import { validateProductionEnv } from '../shared/utils/validate-env.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+// Validate environment in production
+if (process.env.NODE_ENV === 'production') {
+  validateProductionEnv();
+}
 
 async function main() {
   try {
@@ -32,11 +38,19 @@ async function main() {
 
     // 2. Initialize Memory Manager
     console.log('🧠 Initializing Memory Manager...');
+    const isProduction = process.env.NODE_ENV === 'production';
+
     const memory = new MemoryManager({
       neo4j: {
-        uri: process.env.NEO4J_URI || 'bolt://localhost:7687',
-        user: process.env.NEO4J_USERNAME || 'neo4j',
-        password: process.env.NEO4J_PASSWORD || 'password',
+        uri: isProduction
+          ? process.env.NEO4J_CLOUD_URI!
+          : (process.env.NEO4J_URI || 'bolt://localhost:7687'),
+        user: isProduction
+          ? process.env.NEO4J_CLOUD_USERNAME!
+          : (process.env.NEO4J_USERNAME || 'neo4j'),
+        password: isProduction
+          ? process.env.NEO4J_CLOUD_PASSWORD!
+          : (process.env.NEO4J_PASSWORD || 'password'),
       },
       pinecone: {
         api_key: process.env.PINECONE_API_KEY || '',
@@ -80,17 +94,23 @@ async function main() {
 
     // 5. Start GraphQL Server
     console.log('🌐 Starting GraphQL Server...');
+    const port = parseInt(process.env.PORT || '4001');
     const server = new GraphQLAgentServer({
-      port: 4001,
+      port,
       orchestrator,
       memory,
     });
 
     await server.start();
-    
+
+    const host = process.env.NODE_ENV === 'production'
+      ? process.env.PUBLIC_URL || `https://your-app.railway.app`
+      : `http://localhost:${port}`;
+
     console.log('\n✅ GraphQL Server fully operational!');
-    console.log('   GraphQL endpoint: http://localhost:4001/graphql');
-    console.log('   Health check: http://localhost:4001/health');
+    console.log(`   GraphQL endpoint: ${host}/graphql`);
+    console.log(`   Health check: ${host}/health`);
+    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log('\nPress Ctrl+C to stop the server\n');
   } catch (error: any) {
     console.error('\n❌ Failed to start GraphQL server:', error.message);
