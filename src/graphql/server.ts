@@ -115,11 +115,14 @@ export class GraphQLAgentServer {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
-    // Start HTTP server
+    // Start HTTP server (bind to 0.0.0.0 for Railway/cloud deployments)
     await new Promise<void>((resolve) => {
-      this.httpServer.listen(this.config.port, () => {
-        console.log(`🚀 GraphQL Server ready at http://localhost:${this.config.port}/graphql`);
-        console.log(`🔌 WebSocket ready at ws://localhost:${this.config.port}/graphql`);
+      this.httpServer.listen(this.config.port, '0.0.0.0', () => {
+        const host = process.env.NODE_ENV === 'production'
+          ? process.env.PUBLIC_URL || `http://0.0.0.0:${this.config.port}`
+          : `http://localhost:${this.config.port}`;
+        console.log(`🚀 GraphQL Server ready at ${host}/graphql`);
+        console.log(`🔌 WebSocket ready at ${host.replace('http', 'ws')}/graphql`);
         resolve();
       });
     });
