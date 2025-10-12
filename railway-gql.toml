@@ -12,5 +12,5 @@ dockerfilePath = "Dockerfile.graphql"
 startCommand = "node dist/graphql/start-graphql-server.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-healthcheckPath = "/graphql"
+healthcheckPath = "/health"
 healthcheckTimeout = 300
