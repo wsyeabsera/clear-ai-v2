@@ -9,7 +9,7 @@ RUN corepack enable
 COPY package.json yarn.lock ./
 
 # Install dependencies with Yarn 4
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Copy source code
 COPY . .
