@@ -14,7 +14,7 @@ import { swaggerSpec } from "./swagger.js";
 dotenv.config();
 
 const app: Express = express();
-const PORT = process.env.API_PORT || 4000;
+const PORT = parseInt(process.env.PORT || '4000');
 
 // Middleware
 app.use(cors());
@@ -62,12 +62,16 @@ async function startServer() {
     // Connect to MongoDB
     await connectDB();
 
-    // Start listening
-    app.listen(PORT, () => {
-      console.log(`\n✓ Waste Management API server running on http://localhost:${PORT}`);
-      console.log(`✓ Health check: http://localhost:${PORT}/health`);
-      console.log(`✓ API Documentation: http://localhost:${PORT}/api-docs`);
-      console.log(`✓ API endpoints: http://localhost:${PORT}/api`);
+    // Start listening on 0.0.0.0 for Railway/cloud deployments
+    app.listen(PORT, '0.0.0.0', () => {
+      const host = process.env.NODE_ENV === 'production' 
+        ? process.env.PUBLIC_URL || `http://0.0.0.0:${PORT}`
+        : `http://localhost:${PORT}`;
+      
+      console.log(`\n✓ Waste Management API server running on ${host}`);
+      console.log(`✓ Health check: ${host}/health`);
+      console.log(`✓ API Documentation: ${host}/api-docs`);
+      console.log(`✓ API endpoints: ${host}/api`);
       console.log("\nAvailable endpoints:");
       console.log(`  - GET/POST/PUT/DELETE /api/shipments`);
       console.log(`  - GET/POST/PUT/DELETE /api/facilities`);
