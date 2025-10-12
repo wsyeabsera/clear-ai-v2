@@ -47,6 +47,7 @@
     "deploy:verify": "tsc && node dist/scripts/verify-deployment.js",
     "deploy:verify:staging": "tsc && GRAPHQL_ENDPOINT=$STAGING_URL node dist/scripts/verify-deployment.js $STAGING_URL",
     "deploy:verify:deployed": "tsc && GRAPHQL_ENDPOINT=${GRAPHQL_DEPLOYED_URL:-https://your-graphql-url.railway.app/graphql} node dist/scripts/verify-deployment.js",
+    "deploy:verify:production": "tsc && node dist/scripts/verify-production-memory.js",
     "lint": "tsc --noEmit",
     "docs:start": "cd docs && yarn start",
     "docs:build": "cd docs && yarn build",
