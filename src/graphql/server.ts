@@ -4,6 +4,7 @@
 
 import { ApolloServer } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import express from 'express';
 import { createServer } from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
@@ -59,23 +60,30 @@ export class GraphQLAgentServer {
     // );
     const serverCleanup = { dispose: async () => {} };
 
-    // Create Apollo Server
+    // Create Apollo Server with Playground enabled
+    const plugins: any[] = [
+      // Proper shutdown for HTTP server
+      ApolloServerPluginDrainHttpServer({ httpServer: this.httpServer }),
+      // Proper shutdown for WebSocket server
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ];
+
+    // Enable Apollo Studio Sandbox (playground) in non-production
+    if (process.env.NODE_ENV !== 'production') {
+      plugins.push(ApolloServerPluginLandingPageLocalDefault({ embed: true }));
+    }
+
     this.apolloServer = new ApolloServer({
       schema,
-      plugins: [
-        // Proper shutdown for HTTP server
-        ApolloServerPluginDrainHttpServer({ httpServer: this.httpServer }),
-        // Proper shutdown for WebSocket server
-        {
-          async serverWillStart() {
-            return {
-              async drainServer() {
-                await serverCleanup.dispose();
-              },
-            };
-          },
-        },
-      ],
+      plugins,
     });
 
     // Start Apollo Server
@@ -85,7 +93,13 @@ export class GraphQLAgentServer {
     this.app.use('/graphql', cors<cors.CorsRequest>());
     this.app.use('/graphql', bodyParser.json());
 
-    // GraphQL endpoint using executeOperation
+    // GraphQL endpoint - GET for playground, POST for queries
+    this.app.get('/graphql', (_req, res) => {
+      // Serve Apollo Sandbox
+      res.redirect('https://studio.apollographql.com/sandbox/explorer?endpoint=' + 
+        encodeURIComponent(`http://localhost:${this.config.port}/graphql`));
+    });
+
     this.app.post('/graphql', async (req, res) => {
       try {
         const { query, variables, operationName } = req.body;
