@@ -1,0 +1,32 @@
+id: edge-006
+name: "Handle very long query text"
+category: edge-case
+description: |
+  Tests handling of extremely long query strings.
+  Should handle gracefully without truncation issues.
+
+tags:
+  - edge-case
+  - long-input
+  - limits
+
+priority: low
+
+query: "Show me all shipments that were delivered to facilities in Berlin or Hamburg or Munich or Frankfurt or Stuttgart or Cologne or Dresden or Leipzig or Dortmund or Hannover and had contamination issues or inspection failures or were rejected or are currently in transit or pending"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 20000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

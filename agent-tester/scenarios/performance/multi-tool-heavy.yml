@@ -1,0 +1,35 @@
+id: perf-004
+name: "Heavy multi-tool query"
+category: performance
+description: |
+  Query requiring multiple tool executions with large datasets.
+  Tests system under heavy tool execution load.
+
+tags:
+  - performance
+  - multi-tool
+  - heavy
+
+priority: medium
+
+query: "Get all contaminated shipments, their facilities, all inspections, and all related contaminants"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - facilities_list
+    - inspections_list
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 40000
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 40000
+

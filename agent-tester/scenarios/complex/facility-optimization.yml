@@ -1,0 +1,37 @@
+id: complex-014
+name: "Optimize facility load distribution"
+category: complex
+description: |
+  Analyze facility capacity and current loads to
+  recommend optimal shipment distribution.
+
+tags:
+  - complex
+  - optimization
+  - facilities
+  - capacity
+
+priority: medium
+
+query: "Which facilities have excess capacity and could handle more shipments?"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - facility
+    - capacity
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

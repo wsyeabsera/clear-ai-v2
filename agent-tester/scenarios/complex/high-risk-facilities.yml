@@ -1,0 +1,43 @@
+id: complex-007
+name: "Identify high-risk facilities"
+category: complex
+description: |
+  Complex analysis to identify facilities with
+  highest contamination rates and risk levels.
+
+tags:
+  - complex
+  - risk
+  - facilities
+  - contamination
+
+priority: critical
+
+query: "Which facilities have the highest contamination rates and why?"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - contaminants_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - facility
+    - contamination
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+  
+  - type: analysis_quality
+    minInsights: 2
+    minEntities: 1
+    requireAnalysis: true
+

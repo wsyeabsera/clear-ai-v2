@@ -1,0 +1,31 @@
+id: perf-005
+name: "Rapid succession queries"
+category: performance
+description: |
+  Tests system handling of multiple quick queries.
+  Validates no resource exhaustion or memory leaks.
+
+tags:
+  - performance
+  - rapid
+  - stability
+
+priority: medium
+
+query: "List all facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+  
+  - type: performance
+    maxLatencyMs: 15000
+

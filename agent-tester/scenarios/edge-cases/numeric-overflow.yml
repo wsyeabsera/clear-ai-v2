@@ -1,0 +1,35 @@
+id: edge-007
+name: "Handle numeric overflow in filters"
+category: edge-case
+description: |
+  Tests handling of extremely large numbers.
+  Should handle gracefully or provide error.
+
+tags:
+  - edge-case
+  - numeric
+  - validation
+
+priority: low
+
+query: "Show me shipments weighing more than 999999999999 kg"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

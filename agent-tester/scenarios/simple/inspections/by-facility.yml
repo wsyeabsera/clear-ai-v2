@@ -1,0 +1,34 @@
+id: simple-inspections-002
+name: "List inspections by facility"
+category: simple
+description: |
+  Test inspection listing filtered by facility.
+  Verifies facility_id filter.
+
+tags:
+  - inspections_list
+  - filter
+  - facility
+
+priority: high
+
+query: "Show me inspections for facility FAC-001"
+
+expectedBehavior:
+  toolsUsed:
+    - inspections_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - inspection
+    - FAC-001
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - inspections_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+

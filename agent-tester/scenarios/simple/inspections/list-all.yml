@@ -1,0 +1,34 @@
+id: simple-inspections-001
+name: "List all inspections"
+category: simple
+description: |
+  Test basic inspection listing without filters.
+  Verifies the system can invoke the inspections tool.
+
+tags:
+  - inspections_list
+  - basic
+  - smoke
+
+priority: high
+
+query: "Show me all inspections"
+
+expectedBehavior:
+  toolsUsed:
+    - inspections_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - inspection
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - inspections_list
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

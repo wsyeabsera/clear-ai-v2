@@ -1,0 +1,40 @@
+id: complex-015
+name: "Detect temporal patterns in contamination"
+category: complex
+description: |
+  Analyze contamination data over time to identify
+  patterns, seasonality, or trends.
+
+tags:
+  - complex
+  - temporal
+  - patterns
+  - contamination
+
+priority: high
+
+query: "Are there any time-based patterns in when contamination is detected?"
+
+expectedBehavior:
+  toolsUsed:
+    - contaminants_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - contaminant
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+  
+  - type: analysis_quality
+    minInsights: 1
+    requireAnalysis: true
+

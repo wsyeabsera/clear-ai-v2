@@ -9,7 +9,8 @@
   },
   "packageManager": "yarn@4.9.2",
   "workspaces": [
-    "docs"
+    "docs",
+    "agent-tester"
   ],
   "scripts": {
     "build": "tsc",
@@ -17,6 +18,8 @@
     "dev": "tsc && node dist/main.js",
     "api:dev": "tsc && node dist/api/server.js",
     "api:start": "node dist/api/server.js",
+    "graphql:dev": "tsc && node dist/graphql/start-graphql-server.js",
+    "graphql:start": "node dist/graphql/start-graphql-server.js",
     "seed": "tsc && node dist/api/db/seed.js",
     "test": "jest --testPathIgnorePatterns=integration",
     "test:watch": "jest --watch --testPathIgnorePatterns=integration",
@@ -25,6 +28,10 @@
     "test:all": "jest --testTimeout=60000",
     "test:esm": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:llm": "tsc && node dist/scripts/test-llm-providers.js",
+    "agent-tester:build": "cd agent-tester && yarn build",
+    "agent-tester:run": "cd agent-tester && node dist/index.js run",
+    "agent-tester:list": "cd agent-tester && node dist/index.js list",
+    "agent-tester:all": "cd agent-tester && node dist/index.js run --all",
     "lint": "tsc --noEmit",
     "docs:start": "cd docs && yarn start",
     "docs:build": "cd docs && yarn build",

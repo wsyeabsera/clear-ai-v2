@@ -1,0 +1,35 @@
+id: complex-018
+name: "Identify seasonal shipment patterns"
+category: complex
+description: |
+  Temporal analysis to identify seasonal patterns
+  in waste shipments and contamination.
+
+tags:
+  - complex
+  - seasonal
+  - temporal
+  - patterns
+
+priority: medium
+
+query: "Are there seasonal patterns in shipment volumes or contamination rates?"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 25000
+

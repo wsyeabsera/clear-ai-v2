@@ -1,0 +1,35 @@
+id: memory-002
+name: "Reference entities from context"
+category: memory
+description: |
+  Tests implicit entity reference resolution
+  using conversation context.
+
+tags:
+  - memory
+  - entity-resolution
+  - coreference
+
+priority: high
+
+query: "Show me shipments for Berlin facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - shipment
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

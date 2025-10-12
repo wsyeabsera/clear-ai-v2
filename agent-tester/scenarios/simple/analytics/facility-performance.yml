@@ -1,0 +1,36 @@
+id: simple-analytics-002
+name: "Get facility performance analytics"
+category: simple
+description: |
+  Test analytics query for facility performance metrics.
+  Verifies the system can provide performance analysis.
+
+tags:
+  - analytics
+  - facility
+  - performance
+
+priority: high
+
+query: "Get facility performance analytics with acceptance and rejection rates"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - facility
+    - performance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

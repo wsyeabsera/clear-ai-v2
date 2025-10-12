@@ -1,0 +1,34 @@
+id: simple-facilities-001
+name: "List all facilities"
+category: simple
+description: |
+  Test basic facility listing without filters.
+  Verifies the system can invoke the facilities tool.
+
+tags:
+  - facilities_list
+  - basic
+  - smoke
+
+priority: critical
+
+query: "Show me all facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - facility
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+  - type: performance
+    maxLatencyMs: 15000
+  - type: data_structure
+    required: true
+

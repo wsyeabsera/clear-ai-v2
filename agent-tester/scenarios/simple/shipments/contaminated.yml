@@ -1,0 +1,34 @@
+id: simple-shipments-005
+name: "List contaminated shipments"
+category: simple
+description: |
+  Test shipment listing filtered by contamination status.
+  Verifies has_contaminants filter.
+
+tags:
+  - shipments
+  - filter
+  - contamination
+
+priority: critical
+
+query: "Show me all contaminated shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - shipment
+    - contaminant
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+

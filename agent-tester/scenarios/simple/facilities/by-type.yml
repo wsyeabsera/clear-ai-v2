@@ -1,0 +1,33 @@
+id: simple-facilities-003
+name: "List facilities by type"
+category: simple
+description: |
+  Test facility listing filtered by type.
+  Verifies type filter (sorting, processing, disposal).
+
+tags:
+  - facilities_list
+  - filter
+  - type
+
+priority: high
+
+query: "Show me all processing facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - facility
+    - processing
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+  - type: performance
+    maxLatencyMs: 15000
+

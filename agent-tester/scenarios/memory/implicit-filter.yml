@@ -1,0 +1,35 @@
+id: memory-003
+name: "Apply implicit filters from context"
+category: memory
+description: |
+  Tests whether system remembers filters from
+  previous conversation turns.
+
+tags:
+  - memory
+  - implicit
+  - filters
+
+priority: medium
+
+query: "Show me contaminants from high-risk shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - contaminants_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - contaminant
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - contaminants_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

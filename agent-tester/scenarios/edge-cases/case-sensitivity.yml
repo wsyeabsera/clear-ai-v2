@@ -1,0 +1,33 @@
+id: edge-009
+name: "Handle mixed case in filters"
+category: edge-case
+description: |
+  Tests case sensitivity in location and status filters.
+  Should handle case-insensitive matching.
+
+tags:
+  - edge-case
+  - case-sensitivity
+  - filters
+
+priority: medium
+
+query: "Show me facilities in BERLIN and shipments with status DELIVERED"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

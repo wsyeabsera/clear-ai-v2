@@ -1,0 +1,37 @@
+id: complex-004
+name: "Track shipment lifecycle with inspections"
+category: complex
+description: |
+  Complex query tracking a shipment through its lifecycle
+  including inspections and contamination checks.
+
+tags:
+  - complex
+  - lifecycle
+  - shipments
+  - inspections
+
+priority: high
+
+query: "Track shipment SHP-001 from origin to destination including all inspections"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  toolSequence: any
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - shipment
+    - SHP-001
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 20000
+

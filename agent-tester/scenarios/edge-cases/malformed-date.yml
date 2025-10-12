@@ -1,0 +1,31 @@
+id: edge-004
+name: "Handle malformed date input"
+category: edge-case
+description: |
+  Tests system handling of invalid date formats.
+  Should either parse flexibly or provide helpful error.
+
+tags:
+  - edge-case
+  - date-validation
+  - error-handling
+
+priority: medium
+
+query: "Show me shipments from 2025-13-45"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+

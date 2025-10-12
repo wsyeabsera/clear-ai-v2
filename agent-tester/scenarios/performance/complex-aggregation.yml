@@ -1,0 +1,35 @@
+id: perf-003
+name: "Complex aggregation query"
+category: performance
+description: |
+  Heavy aggregation across multiple entity types.
+  Tests performance of complex analysis.
+
+tags:
+  - performance
+  - aggregation
+  - analysis
+
+priority: medium
+
+query: "Calculate average shipment weight by facility type and contamination status"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - facilities_list
+  minResults: 0
+  maxLatencyMs: 30000
+  responseContains:
+    - average
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+    allowExtra: true
+  
+  - type: performance
+    maxLatencyMs: 30000
+

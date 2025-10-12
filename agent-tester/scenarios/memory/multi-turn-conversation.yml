@@ -1,0 +1,33 @@
+id: memory-004
+name: "Multi-turn conversation flow"
+category: memory
+description: |
+  Tests handling of complex multi-turn conversations
+  with evolving context.
+
+tags:
+  - memory
+  - conversation
+  - multi-turn
+
+priority: medium
+
+query: "Tell me about the most recent shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - shipment
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+  
+  - type: performance
+    maxLatencyMs: 15000
+

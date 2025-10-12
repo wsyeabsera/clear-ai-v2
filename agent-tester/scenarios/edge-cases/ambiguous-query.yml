@@ -1,0 +1,30 @@
+id: edge-002
+name: "Handle ambiguous query"
+category: edge-case
+description: |
+  Tests how the system handles vague or ambiguous requests.
+  Should either ask for clarification or make reasonable assumptions.
+
+tags:
+  - edge-case
+  - ambiguous
+  - clarification
+
+priority: medium
+
+query: "Show me the things"
+
+expectedBehavior:
+  toolsUsed: []
+  minResults: 0
+  maxLatencyMs: 15000
+  analysisRequired: false
+
+validation:
+  - type: error_handling
+    expectError: false
+    expectGracefulResponse: true
+  
+  - type: performance
+    maxLatencyMs: 15000
+
