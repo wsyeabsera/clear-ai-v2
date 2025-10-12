@@ -10,7 +10,8 @@
   "packageManager": "yarn@4.9.2",
   "workspaces": [
     "docs",
-    "agent-tester"
+    "agent-tester",
+    "web"
   ],
   "scripts": {
     "build": "tsc",
@@ -48,7 +49,10 @@
     "lint": "tsc --noEmit",
     "docs:start": "cd docs && yarn start",
     "docs:build": "cd docs && yarn build",
-    "docs:serve": "cd docs && yarn serve"
+    "docs:serve": "cd docs && yarn serve",
+    "web:dev": "cd web && npm run dev",
+    "web:build": "cd web && npm run build",
+    "web:preview": "cd web && npm run preview"
   },
   "keywords": [
     "ai",
