@@ -28,9 +28,44 @@ export function createJestTests(options: JestTestOptions) {
     timeout = 60000,
   } = options;
 
+  // Load scenarios synchronously at module level (Jest requirement)
+  const loader = new ScenarioLoader(scenariosDir);
+  const loadOptions: any = {};
+  if (category) loadOptions.category = category;
+  if (tags) loadOptions.tags = tags;
+  if (priority) loadOptions.priority = priority;
+
+  // Load scenarios synchronously using loader.loadSync() or fail fast
+  let scenarios: Scenario[] = [];
+  try {
+    // We need to load synchronously, so we'll use a workaround
+    // Note: This will be executed when Jest parses the file
+    const fs = require('fs');
+    const yaml = require('yaml');
+    const glob = require('glob');
+    
+    const pattern = category ? `${scenariosDir}/${category}/**/*.yml` : `${scenariosDir}/**/*.yml`;
+    const files = glob.sync(pattern);
+    
+    scenarios = files.map((file: string) => {
+      const content = fs.readFileSync(file, 'utf-8');
+      return yaml.parse(content);
+    });
+
+    if (priority) {
+      scenarios = scenarios.filter((s: Scenario) => s.priority === priority);
+    }
+    if (tags && tags.length > 0) {
+      scenarios = scenarios.filter((s: Scenario) => 
+        s.tags && s.tags.some((t: string) => tags.includes(t))
+      );
+    }
+  } catch (error: any) {
+    console.error('Failed to load scenarios:', error.message);
+  }
+
   let client: GraphQLClient;
   let runner: TestRunner;
-  let scenarios: Scenario[];
 
   beforeAll(async () => {
     // Initialize GraphQL client
@@ -53,15 +88,6 @@ export function createJestTests(options: JestTestOptions) {
       retries: 3,
       verbose: false,
     });
-
-    // Load scenarios
-    const loader = new ScenarioLoader(scenariosDir);
-    const loadOptions: any = {};
-    if (category) loadOptions.category = category;
-    if (tags) loadOptions.tags = tags;
-    if (priority) loadOptions.priority = priority;
-
-    scenarios = await loader.load(loadOptions);
 
     if (scenarios.length === 0) {
       throw new Error('No scenarios loaded for testing');
