@@ -89,7 +89,11 @@ export class ShipmentsListTool extends BaseTool {
 
       const response = await this.get("/shipments", queryParams);
 
-      return this.success(response.data, Date.now() - startTime);
+      // Unwrap API response to get just the data array
+      const apiData = response.data as any;
+      const shipments = apiData.success ? apiData.data : apiData;
+
+      return this.success(shipments, Date.now() - startTime);
     } catch (error: any) {
       return this.error(error, Date.now() - startTime);
     }

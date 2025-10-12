@@ -1,0 +1,9 @@
+{
+  "label": "🤖 Agent System",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Complete guide to the 5-agent orchestration system for intelligent query processing, planning, execution, analysis, and summarization."
+  }
+}
+

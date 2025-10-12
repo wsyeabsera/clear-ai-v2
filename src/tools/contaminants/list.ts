@@ -70,7 +70,11 @@ export class ContaminantsListTool extends BaseTool {
 
       const response = await this.get("/contaminants-detected", queryParams);
 
-      return this.success(response.data, Date.now() - startTime);
+      // Unwrap API response to get just the data array
+      const apiData = response.data as any;
+      const contaminants = apiData.success ? apiData.data : apiData;
+
+      return this.success(contaminants, Date.now() - startTime);
     } catch (error: any) {
       return this.error(error, Date.now() - startTime);
     }

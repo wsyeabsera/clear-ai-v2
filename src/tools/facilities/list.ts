@@ -59,7 +59,11 @@ export class FacilitiesListTool extends BaseTool {
 
       const response = await this.get("/facilities", queryParams);
 
-      return this.success(response.data, Date.now() - startTime);
+      // Unwrap API response to get just the data array
+      const apiData = response.data as any;
+      const facilities = apiData.success ? apiData.data : apiData;
+
+      return this.success(facilities, Date.now() - startTime);
     } catch (error: any) {
       return this.error(error, Date.now() - startTime);
     }
