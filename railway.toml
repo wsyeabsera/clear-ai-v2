@@ -1,9 +1,16 @@
 # Railway Configuration for Clear AI v2
-# This file is NOT used for multi-service setup - Railway needs manual config per service
-# See docs/railway-multi-service-setup.md for instructions
+# Docs: https://docs.railway.com/reference/config-as-code
 
-# This would work IF Railway supported service detection from a single repo
-# But Railway requires you to create separate services and configure each one
+# Default configuration for Wasteer API
+# This will be used unless overridden in Railway UI per service
 
-# For reference only - actual config is done in Railway UI
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.wasteer-api"
 
+[deploy]
+startCommand = "node dist/api/server.js"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/health"
+healthcheckTimeout = 300
