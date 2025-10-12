@@ -9,6 +9,59 @@ import GraphQLJSON from 'graphql-type-json';
 
 const pubsub = new PubSub();
 
+// Helper to create async iterator from PubSub
+function createAsyncIterator<T>(pubsub: PubSub, triggers: string | string[]) {
+  const triggerArray = Array.isArray(triggers) ? triggers : [triggers];
+  
+  return {
+    [Symbol.asyncIterator]() {
+      const queue: T[] = [];
+      const subscriptionIds: number[] = [];
+      let resolve: ((value: IteratorResult<T>) => void) | null = null;
+      let done = false;
+
+      // Subscribe to all triggers
+      triggerArray.forEach((trigger) => {
+        const id = pubsub.subscribe(trigger, (payload: T) => {
+          if (resolve) {
+            resolve({ value: payload, done: false });
+            resolve = null;
+          } else {
+            queue.push(payload);
+          }
+        });
+        subscriptionIds.push(id);
+      });
+
+      return {
+        async next(): Promise<IteratorResult<T>> {
+          if (done) {
+            return { value: undefined, done: true };
+          }
+
+          if (queue.length > 0) {
+            return { value: queue.shift()!, done: false };
+          }
+
+          return new Promise<IteratorResult<T>>((res) => {
+            resolve = res;
+          });
+        },
+        async return(): Promise<IteratorResult<T>> {
+          done = true;
+          subscriptionIds.forEach((id) => pubsub.unsubscribe(id));
+          return { value: undefined, done: true };
+        },
+        async throw(error: any): Promise<IteratorResult<T>> {
+          done = true;
+          subscriptionIds.forEach((id) => pubsub.unsubscribe(id));
+          throw error;
+        },
+      };
+    },
+  };
+}
+
 interface Context {
   orchestrator: OrchestratorAgent;
   memory: MemoryManager;
@@ -106,19 +159,19 @@ export const resolvers = {
       metrics.totalRequests++;
 
       try {
-        // Publish start status
+        // Execute query through orchestrator
+        const response = await context.orchestrator.handleQuery(query);
+
+        // Publish progress update with actual requestId
         await pubsub.publish('QUERY_PROGRESS', {
           queryProgress: {
-            requestId: 'temp',
-            phase: 'starting',
-            progress: 0,
-            message: 'Initializing query processing...',
+            requestId: response.metadata.request_id,
+            phase: 'processing',
+            progress: 50,
+            message: 'Query processing in progress...',
             timestamp: new Date().toISOString(),
           },
         });
-
-        // Execute query through orchestrator
-        const response = await context.orchestrator.handleQuery(query);
 
         const duration = Date.now() - startTime;
         metrics.totalDuration += duration;
@@ -227,21 +280,13 @@ export const resolvers = {
   Subscription: {
     queryProgress: {
       subscribe: () => {
-        // PubSub doesn't have asyncIterator in the current version
-        // Using a placeholder that returns an async generator
-        return (async function* () {
-          yield { queryProgress: { requestId: '', phase: 'init', progress: 0, message: '', timestamp: '' } };
-        })();
+        return createAsyncIterator(pubsub, 'QUERY_PROGRESS');
       },
     },
 
     agentStatus: {
       subscribe: () => {
-        // PubSub doesn't have asyncIterator in the current version
-        // Using a placeholder that returns an async generator
-        return (async function* () {
-          yield { agentStatus: { agent: '', status: '', timestamp: '' } };
-        })();
+        return createAsyncIterator(pubsub, 'AGENT_STATUS');
       },
     },
   },
