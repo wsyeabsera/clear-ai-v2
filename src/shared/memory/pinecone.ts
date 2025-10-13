@@ -122,7 +122,7 @@ export class PineconeMemory {
       // Build query options
       const queryOptions: any = {
         vector: queryEmbedding,
-        topK: query.top_k || 5,
+        topK: Math.floor(query.top_k || 5),
         includeMetadata: true,
       };
       

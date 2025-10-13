@@ -175,7 +175,7 @@ export class Neo4jMemory {
         ? `WHERE ${conditions.join(' AND ')}` 
         : '';
       
-      params.limit = query.limit || 10;
+      params.limit = Math.floor(query.limit || 10);
       
       // Execute query
       const result = await session.run(

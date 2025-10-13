@@ -17,7 +17,21 @@ const app: Express = express();
 const PORT = parseInt(process.env.PORT || '4000');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -41,11 +55,19 @@ app.use("/api-docs", swaggerUi.serve as any);
 app.get("/api-docs", swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: "Waste Management API Docs",
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    tryItOutEnabled: true
+  }
 }) as any);
 
 // Swagger JSON endpoint
 app.get("/swagger.json", (_req: any, res: any) => {
   res.setHeader("Content-Type", "application/json");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.send(swaggerSpec);
 });
 

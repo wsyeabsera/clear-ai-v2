@@ -68,6 +68,7 @@
   "license": "MIT",
   "dependencies": {
     "@apollo/server": "^5.0.0",
+    "@faker-js/faker": "^10.0.0",
     "@graphql-tools/schema": "^10.0.25",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",

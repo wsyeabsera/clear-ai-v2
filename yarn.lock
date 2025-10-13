@@ -3670,6 +3670,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@faker-js/faker@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@faker-js/faker@npm:10.0.0"
+  checksum: 10c0/7692f21cad661cd0cb150d72d4dff79322c892923c97a263c12ae74de45739306bea4e2630e8ac852dd4395ead2cb76be3715011395256c56e8a9b39acdcb97a
+  languageName: node
+  linkType: hard
+
 "@graphql-tools/merge@npm:^9.1.1":
   version: 9.1.1
   resolution: "@graphql-tools/merge@npm:9.1.1"
@@ -7816,6 +7823,7 @@ __metadata:
   resolution: "clear-ai-v2@workspace:."
   dependencies:
     "@apollo/server": "npm:^5.0.0"
+    "@faker-js/faker": "npm:^10.0.0"
     "@graphql-tools/schema": "npm:^10.0.25"
     "@langchain/core": "npm:^0.3.78"
     "@langchain/langgraph": "npm:^0.4.9"

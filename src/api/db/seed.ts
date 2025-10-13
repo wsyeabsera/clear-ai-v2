@@ -3,7 +3,7 @@
 // Database seed script
 import dotenv from "dotenv";
 import { connectDB, disconnectDB } from "./connection.js";
-import { seedCollections } from "./seed-data.js";
+import { seedCollections } from "./seed-collections.js";
 
 // Load environment variables
 dotenv.config();

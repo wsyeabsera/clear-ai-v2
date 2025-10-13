@@ -55,13 +55,27 @@ export abstract class BaseTool implements MCPTool {
   }
 
   protected error(error: any, executionTime: number): ToolResult {
+    // Log detailed error for debugging
+    console.error(`[${this.name}] Tool execution failed:`, {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      message: error.message,
+      code: error.code,
+    });
+
     return {
       success: false,
       tool: this.name,
       error: {
         code: error.response?.status?.toString() || error.code || "UNKNOWN",
         message: error.response?.data?.error?.message || error.message,
-      
+        details: {
+          url: error.config?.url,
+          statusCode: error.response?.status,
+          apiError: error.response?.data,
+        }
       },
       metadata: {
         executionTime,

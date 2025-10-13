@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { seedCollections } from "../db/seed-data.js";
+import { seedCollections } from "../db/seed-collections.js";
 
 const router = Router();
 
@@ -7,13 +7,13 @@ const router = Router();
  * POST /api/reset
  * Reset database - delete all data and reseed with test data
  * 
- * WARNING: This endpoint deletes ALL data in the database!
+ * WARNING: This endpoint deletesssss ALL data in the database!
  * Use only in development/testing environments.
  */
 router.post("/", async (_req: Request, res: Response) => {
   try {
     console.log("🔄 Database reset requested...");
-    
+
     const summary = await seedCollections();
     
     console.log("✅ Database reset complete");

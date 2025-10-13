@@ -63,7 +63,7 @@ API_PORT=4000
 MONGODB_URI=mongodb://localhost:27017/wasteer
 
 # MCP Tools Configuration
-WASTEER_API_URL=http://localhost:4000/api
+WASTEER_API_URL=http://localhost:3001/api
 ```
 
 3. **Build the project:**

@@ -222,12 +222,26 @@ export class ExecutorAgent {
     } catch (error: any) {
       console.error(`[ExecutorAgent] Step ${index} (${step.tool}) failed:`, error.message);
 
+      // Log additional details if available
+      if (error.response) {
+        console.error(`  HTTP Status: ${error.response.status}`);
+        console.error(`  Response:`, error.response.data);
+      }
+      if (error.config?.url) {
+        console.error(`  URL: ${error.config.url}`);
+      }
+
       return {
         success: false,
         tool: step.tool,
         error: {
           code: 'EXECUTION_FAILED',
           message: error.message,
+          details: {
+            httpStatus: error.response?.status,
+            url: error.config?.url,
+            apiError: error.response?.data,
+          }
         },
         metadata: {
           executionTime: Date.now() - startTime,

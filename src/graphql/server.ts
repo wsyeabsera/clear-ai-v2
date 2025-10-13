@@ -14,14 +14,16 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import { typeDefs } from './schema.js';
-import { resolvers } from './resolvers.js';
+import { resolvers, pubsub } from './resolvers.js';
 import { OrchestratorAgent } from '../agents/orchestrator.js';
 import { MemoryManager } from '../shared/memory/manager.js';
+import { PlanStorageService } from './services/plan-storage.service.js';
 
 export interface GraphQLServerConfig {
   port: number;
   orchestrator: OrchestratorAgent;
   memory: MemoryManager;
+  planStorage: PlanStorageService;
 }
 
 export class GraphQLAgentServer {
@@ -56,6 +58,7 @@ export class GraphQLAgentServer {
         context: () => ({
           orchestrator: this.config.orchestrator,
           memory: this.config.memory,
+          pubsub,
         }),
       },
       wsServer
@@ -117,6 +120,8 @@ export class GraphQLAgentServer {
             contextValue: {
               orchestrator: this.config.orchestrator,
               memory: this.config.memory,
+              planStorage: this.config.planStorage,
+              pubsub,
             },
           }
         );
