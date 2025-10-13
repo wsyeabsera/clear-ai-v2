@@ -59,7 +59,7 @@ export interface Analysis {
 }
 
 export interface Insight {
-  type: 'trend' | 'pattern' | 'correlation' | 'comparison';
+  type: 'trend' | 'pattern' | 'correlation' | 'comparison' | 'contamination_pattern' | 'capacity_risk' | 'data_quality' | 'compliance_risk' | 'operational_efficiency';
   description: string;
   confidence: number; // 0-1
   supporting_data: any[];
@@ -75,12 +75,12 @@ export interface Entity {
 
 export interface Relationship {
   type: string;
-  target_entity_id: string;
-  strength?: number;
+  targetEntityId: string;
+  strength?: string;
 }
 
 export interface Anomaly {
-  type: 'outlier' | 'unexpected' | 'missing' | 'threshold_exceeded';
+  type: 'outlier' | 'unexpected' | 'missing' | 'threshold_exceeded' | 'data_quality' | 'data_contradiction' | 'missing_relationship' | 'capacity_exceeded' | 'capacity_warning' | 'missing_contact';
   description: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   affected_entities: string[];

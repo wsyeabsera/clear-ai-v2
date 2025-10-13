@@ -19,6 +19,7 @@ import { registerAllTools } from '../tools/index.js';
 import { validateProductionEnv } from '../shared/utils/validate-env.js';
 import { connectDB } from '../api/db/connection.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
+import { ExecutionStorageService } from './services/execution-storage.service.js';
 import axios from 'axios';
 import dotenv from 'dotenv';
 
@@ -119,10 +120,11 @@ async function main() {
     );
     console.log('✓ Agent Pipeline ready\n');
 
-    // 6. Initialize Plan Storage Service
-    console.log('📋 Initializing Plan Storage Service...');
+    // 6. Initialize Storage Services
+    console.log('📋 Initializing Storage Services...');
     const planStorage = new PlanStorageService();
-    console.log('✓ Plan Storage Service ready\n');
+    const executionStorage = new ExecutionStorageService();
+    console.log('✓ Storage Services ready\n');
 
     // 7. Start GraphQL Server
     console.log('🌐 Starting GraphQL Server...');
@@ -132,6 +134,7 @@ async function main() {
       orchestrator,
       memory,
       planStorage,
+      executionStorage,
     });
 
     await server.start();

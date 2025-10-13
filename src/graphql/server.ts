@@ -18,12 +18,14 @@ import { resolvers, pubsub } from './resolvers.js';
 import { OrchestratorAgent } from '../agents/orchestrator.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
+import { ExecutionStorageService } from './services/execution-storage.service.js';
 
 export interface GraphQLServerConfig {
   port: number;
   orchestrator: OrchestratorAgent;
   memory: MemoryManager;
   planStorage: PlanStorageService;
+  executionStorage: ExecutionStorageService;
 }
 
 export class GraphQLAgentServer {
@@ -121,6 +123,7 @@ export class GraphQLAgentServer {
               orchestrator: this.config.orchestrator,
               memory: this.config.memory,
               planStorage: this.config.planStorage,
+              executionStorage: this.config.executionStorage,
               pubsub,
             },
           }

@@ -6,6 +6,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { OrchestratorAgent } from '../agents/orchestrator.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
+import { ExecutionStorageService } from './services/execution-storage.service.js';
 import GraphQLJSON from 'graphql-type-json';
 
 const pubsub = new PubSub();
@@ -73,6 +74,7 @@ interface Context {
   orchestrator: OrchestratorAgent;
   memory: MemoryManager;
   planStorage: PlanStorageService;
+  executionStorage: ExecutionStorageService;
   planner?: any;
   executor?: any;
   analyzer?: any;
@@ -189,6 +191,138 @@ export const resolvers = {
       } catch (error: any) {
         console.error('Error in getPlan:', error);
         throw new Error(`Failed to retrieve plan: ${error.message}`);
+      }
+    },
+
+    getExecution: async (
+      _: any,
+      { requestId }: { requestId: string },
+      ctx: Context
+    ) => {
+      try {
+        if (!requestId || requestId.trim().length === 0) {
+          throw new Error('RequestId cannot be empty');
+        }
+
+        const execution = await ctx.executionStorage.getExecution(requestId);
+        if (!execution) {
+          throw new Error(`Execution not found for requestId: ${requestId}`);
+        }
+
+        return {
+          requestId: execution.requestId,
+          results: execution.results.map((r: any) => ({
+            success: r.success,
+            tool: r.tool,
+            data: r.data || null,
+            error: r.error ? {
+              code: r.error.code,
+              message: r.error.message,
+              details: r.error.details || null,
+            } : null,
+            metadata: {
+              executionTime: r.metadata.executionTime,
+              timestamp: r.metadata.timestamp,
+              retries: r.metadata.retries || 0,
+            },
+          })),
+          metadata: {
+            totalDurationMs: execution.metadata.totalDurationMs,
+            successfulSteps: execution.metadata.successfulSteps,
+            failedSteps: execution.metadata.failedSteps,
+            timestamp: execution.metadata.timestamp,
+          },
+        };
+      } catch (error: any) {
+        console.error('Error in getExecution:', error);
+        throw new Error(`Failed to retrieve execution: ${error.message}`);
+      }
+    },
+
+    listExecutions: async (
+      _: any,
+      {
+        status,
+        limit = 20,
+        offset = 0,
+        startDate,
+        endDate
+      }: {
+        status?: string;
+        limit?: number;
+        offset?: number;
+        startDate?: string;
+        endDate?: string;
+      },
+      ctx: Context
+    ) => {
+      try {
+        const filters: any = {};
+
+        if (status) {
+          filters.status = status as 'completed' | 'failed' | 'partial';
+        }
+
+        if (startDate || endDate) {
+          filters.startDate = startDate ? new Date(startDate) : undefined;
+          filters.endDate = endDate ? new Date(endDate) : undefined;
+        }
+
+        const result = await ctx.executionStorage.listExecutions({
+          ...filters,
+          limit,
+          offset,
+        });
+
+        return {
+          executions: result.executions.map(execution => ({
+            requestId: execution.requestId,
+            results: execution.results.map((r: any) => ({
+              success: r.success,
+              tool: r.tool,
+              data: r.data || null,
+              error: r.error ? {
+                code: r.error.code,
+                message: r.error.message,
+                details: r.error.details || null,
+              } : null,
+              metadata: {
+                executionTime: r.metadata.executionTime,
+                timestamp: r.metadata.timestamp,
+                retries: r.metadata.retries || 0,
+              },
+            })),
+            metadata: {
+              totalDurationMs: execution.metadata.totalDurationMs,
+              successfulSteps: execution.metadata.successfulSteps,
+              failedSteps: execution.metadata.failedSteps,
+              timestamp: execution.metadata.timestamp,
+            },
+          })),
+          total: result.total,
+          hasMore: result.hasMore,
+        };
+      } catch (error: any) {
+        console.error('Error in listExecutions:', error);
+        throw new Error(`Failed to list executions: ${error.message}`);
+      }
+    },
+
+    getExecutionStats: async (
+      _: any,
+      __: any,
+      ctx: Context
+    ) => {
+      try {
+        const stats = await ctx.executionStorage.getExecutionStats();
+        return {
+          total: stats.total,
+          byStatus: stats.byStatus,
+          averageDuration: stats.averageDuration,
+        };
+      } catch (error: any) {
+        console.error('Error in getExecutionStats:', error);
+        throw new Error(`Failed to get execution stats: ${error.message}`);
       }
     },
   },
@@ -358,6 +492,14 @@ export const resolvers = {
 
         const duration = Date.now() - startTime;
 
+        // Save execution results to storage
+        await ctx.executionStorage.saveExecution(requestId, results, {
+          totalDurationMs: duration,
+          successfulSteps,
+          failedSteps,
+          timestamp: new Date().toISOString()
+        });
+
         return {
           requestId,
           results: results.map((r: any) => ({
@@ -398,20 +540,31 @@ export const resolvers = {
 
     analyzeResults: async (
       _: any,
-      { toolResults, query }: { toolResults: any[]; query: string },
+      { requestId }: { requestId: string },
       ctx: Context
     ) => {
-      const { randomUUID } = await import('crypto');
-      const requestId = randomUUID();
-
       try {
         // Validate inputs
-        if (!toolResults || toolResults.length === 0) {
-          throw new Error('Tool results cannot be empty');
+        if (!requestId || requestId.trim().length === 0) {
+          throw new Error('RequestId cannot be empty');
         }
-        if (!query || query.trim().length === 0) {
-          throw new Error('Query cannot be empty');
+
+        // Fetch plan and execution results from storage
+        const [storedPlan, storedExecution] = await Promise.all([
+          ctx.planStorage.getPlan(requestId),
+          ctx.executionStorage.getExecution(requestId)
+        ]);
+
+        if (!storedPlan) {
+          throw new Error(`Plan not found for requestId: ${requestId}`);
         }
+        if (!storedExecution) {
+          throw new Error(`Execution results not found for requestId: ${requestId}`);
+        }
+
+        // Extract query from plan and results from execution
+        const query = storedPlan.query;
+        const toolResults = storedExecution.results;
 
         // Get analyzer from context
         const analyzer = ctx.analyzer || (ctx.orchestrator as any).analyzer;
@@ -419,18 +572,8 @@ export const resolvers = {
           throw new Error('Analyzer not available in context');
         }
 
-        // Convert GraphQL input to internal format
-        const internalResults = toolResults.map((r: any) => ({
-          success: r.success,
-          tool: r.tool,
-          data: r.data,
-          error: r.error,
-          metadata: {
-            executionTime: r.metadata.executionTime,
-            timestamp: r.metadata.timestamp,
-            retries: r.metadata.retries,
-          },
-        }));
+        // Use results directly from storage (already in internal format)
+        const internalResults = toolResults;
 
         // Publish progress
         const pubsubInstance = ctx.pubsub || pubsub;

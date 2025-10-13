@@ -18,6 +18,21 @@ export const typeDefs = `#graphql
 
     """Get stored plan by request ID"""
     getPlan(requestId: ID!): PlanResult
+
+    """Get execution results by request ID"""
+    getExecution(requestId: ID!): ExecutionResults
+
+    """List execution results with filters"""
+    listExecutions(
+      status: String
+      limit: Int
+      offset: Int
+      startDate: String
+      endDate: String
+    ): ExecutionListResult
+
+    """Get execution statistics"""
+    getExecutionStats: ExecutionStats
   }
 
   type Mutation {
@@ -29,7 +44,7 @@ export const typeDefs = `#graphql
     executeTools(requestId: ID!): ExecutionResults!
 
     """Analyze tool execution results"""
-    analyzeResults(toolResults: [ToolResultInput!]!, query: String!): AnalysisResult!
+    analyzeResults(requestId: ID!): AnalysisResult!
 
     """Summarize analysis into a response"""
     summarizeResponse(analysis: AnalysisInput!, toolResults: [ToolResultInput!]!, query: String!): SummaryResult!
@@ -149,7 +164,7 @@ export const typeDefs = `#graphql
   type Relationship {
     type: String!
     targetEntityId: ID
-    strength: Float
+    strength: String
   }
 
   type Anomaly {
@@ -232,6 +247,18 @@ export const typeDefs = `#graphql
     timestamp: String!
   }
 
+  type ExecutionListResult {
+    executions: [ExecutionResults!]!
+    total: Int!
+    hasMore: Boolean!
+  }
+
+  type ExecutionStats {
+    total: Int!
+    byStatus: JSON!
+    averageDuration: Float!
+  }
+
   type AnalysisResult {
     requestId: ID!
     analysis: Analysis!
@@ -303,7 +330,7 @@ export const typeDefs = `#graphql
   input RelationshipInput {
     type: String!
     targetEntityId: ID
-    strength: Float
+    strength: String
   }
 
   input AnomalyInput {
