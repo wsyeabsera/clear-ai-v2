@@ -1,5 +1,5 @@
 {
   "scenario": "Scenario 10: integration-testing",
   "task": "Complete end-to-end workflow by creating new facility with specific capacity, creating shipment to that facility, simulating contamination detection, updating shipment status, creating inspection record, updating facility load, and generating analytics report.",
-  "timestamp": "2025-10-13T19:22:24Z"
+  "timestamp": "2025-10-13T20:24:21Z"
 }

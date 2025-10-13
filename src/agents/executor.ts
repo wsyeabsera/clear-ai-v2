@@ -4,7 +4,9 @@
  */
 
 import { Plan, PlanStep, ToolResult } from '../shared/types/agent.js';
-import { MCPServer } from '../mcp/server.js';
+import { ToolRegistry } from '../shared/tool-registry.js';
+import { StepResultCache } from './executor/step-cache.js';
+import { StepReferenceResolver } from './executor/reference-resolver.js';
 
 export interface ExecutorConfig {
   maxParallelExecutions: number;
@@ -16,9 +18,12 @@ export interface ExecutorConfig {
 
 export class ExecutorAgent {
   private config: ExecutorConfig;
+  private stepCache: StepResultCache;
+  private referenceResolver: StepReferenceResolver;
+  private enableStepReferences: boolean;
 
   constructor(
-    private mcpServer: MCPServer,
+    private toolRegistry: ToolRegistry,
     config?: Partial<ExecutorConfig>
   ) {
     this.config = {
@@ -29,6 +34,15 @@ export class ExecutorAgent {
       failFast: false,
       ...config,
     };
+    
+    // Initialize step reference resolution components
+    this.stepCache = new StepResultCache();
+    this.referenceResolver = new StepReferenceResolver();
+    this.enableStepReferences = process.env.ENABLE_STEP_REFERENCES === 'true';
+    
+    if (this.enableStepReferences) {
+      console.log('[ExecutorAgent] Step reference resolution enabled');
+    }
   }
 
   async execute(
@@ -37,6 +51,9 @@ export class ExecutorAgent {
   ): Promise<ToolResult[]> {
     console.log(`⚡ [Executor] Executing plan with ${plan.steps.length} steps`);
 
+    // Clear cache for new execution
+    this.stepCache.clear();
+    
     const results: ToolResult[] = [];
     const completed = new Set<number>();
 
@@ -197,19 +214,40 @@ export class ExecutorAgent {
     const startTime = Date.now();
 
     try {
-      // Get tool from MCP server
-      const tool = this.mcpServer.getTool(step.tool);
+      // Get tool from registry
+      const tool = this.toolRegistry.getToolInstance(step.tool);
       if (!tool) {
         throw new Error(`Tool not found: ${step.tool}`);
       }
 
-      // Resolve parameters (may reference previous results)
-      const resolvedParams = this.resolveParameters(
-        step.params,
-        previousResults
-      );
+      // Validate parameters against schema
+      const schema = this.toolRegistry.getToolSchema(step.tool);
+      if (schema) {
+        const validation = this.toolRegistry.validateParameters(step.tool, step.params);
+        if (!validation.valid) {
+          throw new Error(`Invalid parameters for ${step.tool}: ${validation.errors.join(', ')}`);
+        }
+      }
 
-      console.log(`[ExecutorAgent] Resolved params for ${step.tool}:`, resolvedParams);
+      // Resolve parameters using enhanced resolution if enabled
+      let resolvedParams: Record<string, any>;
+      if (this.enableStepReferences) {
+        const resolutionResult = this.referenceResolver.resolveReferences(
+          step.params,
+          this.stepCache
+        );
+        
+        if (!resolutionResult.success) {
+          throw new Error(`Parameter resolution failed: ${resolutionResult.error}`);
+        }
+        
+        resolvedParams = resolutionResult.resolved;
+        console.log(`[ExecutorAgent] Enhanced resolution for ${step.tool}:`, resolvedParams);
+      } else {
+        // Fallback to original resolution method
+        resolvedParams = this.resolveParameters(step.params, previousResults);
+        console.log(`[ExecutorAgent] Legacy resolution for ${step.tool}:`, resolvedParams);
+      }
 
       // Execute with retries
       const result = await this.executeWithRetry(
@@ -217,7 +255,26 @@ export class ExecutorAgent {
         step.tool
       );
 
-      return result;
+      // Enhanced result with step tracking
+      const enhancedResult: ToolResult = {
+        ...result,
+        step_index: index,
+        resolved_params: resolvedParams
+      };
+
+      // Cache result for future reference resolution
+      if (this.enableStepReferences) {
+        this.stepCache.set(index, {
+          success: result.success,
+          data: result.data,
+          error: result.error?.message || undefined,
+          timestamp: new Date(),
+          tool: step.tool,
+          params: resolvedParams
+        });
+      }
+
+      return enhancedResult;
 
     } catch (error: any) {
       console.error(`[ExecutorAgent] Step ${index} (${step.tool}) failed:`, error.message);
@@ -231,7 +288,7 @@ export class ExecutorAgent {
         console.error(`  URL: ${error.config.url}`);
       }
 
-      return {
+      const errorResult: ToolResult = {
         success: false,
         tool: step.tool,
         error: {
@@ -247,7 +304,23 @@ export class ExecutorAgent {
           executionTime: Date.now() - startTime,
           timestamp: new Date().toISOString(),
         },
+        step_index: index,
+        resolved_params: step.params
       };
+
+      // Cache failed result for reference resolution
+      if (this.enableStepReferences) {
+        this.stepCache.set(index, {
+          success: false,
+          data: null,
+          error: error.message,
+          timestamp: new Date(),
+          tool: step.tool,
+          params: step.params
+        });
+      }
+
+      return errorResult;
     }
   }
 

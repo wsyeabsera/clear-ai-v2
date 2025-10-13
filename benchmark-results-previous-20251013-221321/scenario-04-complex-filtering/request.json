@@ -1,0 +1,5 @@
+{
+  "scenario": "Scenario 04: complex-filtering",
+  "task": "Find all high-risk operations by getting shipments with critical/high risk contaminants, cross-referencing with facility capacity, identifying overloaded facilities handling dangerous waste, and ranking by risk score.",
+  "timestamp": "2025-10-13T19:21:51Z"
+}

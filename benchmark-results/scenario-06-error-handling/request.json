@@ -1,5 +1,5 @@
 {
   "scenario": "Scenario 06: error-handling",
   "task": "Test error handling by attempting to create shipment with invalid facility ID, trying to update non-existent shipment, creating contamination record for clean shipment, and handling malformed date parameters.",
-  "timestamp": "2025-10-13T19:22:02Z"
+  "timestamp": "2025-10-13T20:23:45Z"
 }

@@ -1,0 +1,66 @@
+{
+  "scenario": {
+    "id": "simple-shipments-001",
+    "name": "List all shipments",
+    "category": "simple",
+    "description": "Test basic shipment listing without filters.\nVerifies the system can invoke the shipments tool correctly.\n",
+    "tags": [
+      "shipments",
+      "basic",
+      "smoke"
+    ],
+    "priority": "critical",
+    "query": "Show me all shipments",
+    "expectedBehavior": {
+      "toolsUsed": [
+        "shipments_list"
+      ],
+      "toolSequence": "any",
+      "minResults": 0,
+      "responseContains": [
+        "shipment"
+      ],
+      "responseNotContains": [],
+      "maxLatencyMs": 20000,
+      "analysisRequired": false,
+      "entitiesExpected": []
+    },
+    "validation": [
+      {
+        "type": "tool_selection",
+        "expected": [
+          "shipments_list"
+        ]
+      },
+      {
+        "type": "performance",
+        "maxLatencyMs": 15000
+      },
+      {
+        "type": "data_structure",
+        "required": true
+      }
+    ]
+  },
+  "runs": 10,
+  "latencies": [
+    2920,
+    3802,
+    3924,
+    4383,
+    3549,
+    3542,
+    3479,
+    3676,
+    3287,
+    2913
+  ],
+  "avgLatency": 3547.5,
+  "minLatency": 2913,
+  "maxLatency": 4383,
+  "p50Latency": 3542,
+  "p95Latency": 4383,
+  "p99Latency": 4383,
+  "stdDev": 423.0870477809502,
+  "successRate": 100
+}

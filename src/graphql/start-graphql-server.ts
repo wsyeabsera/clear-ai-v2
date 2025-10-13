@@ -20,8 +20,14 @@ import { validateProductionEnv } from '../shared/utils/validate-env.js';
 import { connectDB } from '../api/db/connection.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
+import { ToolRegistry } from '../shared/tool-registry.js';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Only load .env in development (Railway injects env vars directly in production)
 if (process.env.NODE_ENV !== 'production') {
@@ -85,6 +91,13 @@ async function main() {
     registerAllTools(mcpServer, apiUrl);
     console.log('✓ MCP Tools registered\n');
 
+    // 4.5. Initialize Tool Registry
+    console.log('🔧 Discovering and registering tools...');
+    const toolRegistry = ToolRegistry.getInstance();
+    const toolsPath = path.join(__dirname, '../tools');
+    await toolRegistry.discoverTools(toolsPath, apiUrl);
+    console.log(`✓ Registered ${toolRegistry.getToolNames().length} tools\n`);
+
     // Verify API connectivity
     console.log('🏥 Checking Wasteer API connectivity...');
     try {
@@ -100,8 +113,8 @@ async function main() {
 
     // 5. Create Agent Pipeline
     console.log('🤖 Creating Agent Pipeline...');
-    const planner = new PlannerAgent(llm, mcpServer);
-    const executor = new ExecutorAgent(mcpServer);
+    const planner = new PlannerAgent(llm, toolRegistry);
+    const executor = new ExecutorAgent(toolRegistry);
     const analyzer = new AnalyzerAgent(llm);
     const summarizer = new SummarizerAgent(llm);
     

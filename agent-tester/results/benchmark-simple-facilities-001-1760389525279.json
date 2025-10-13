@@ -1,0 +1,66 @@
+{
+  "scenario": {
+    "id": "simple-facilities-001",
+    "name": "List all facilities",
+    "category": "simple",
+    "description": "Test basic facility listing without filters.\nVerifies the system can invoke the facilities tool.\n",
+    "tags": [
+      "facilities_list",
+      "basic",
+      "smoke"
+    ],
+    "priority": "critical",
+    "query": "Show me all facilities",
+    "expectedBehavior": {
+      "toolsUsed": [
+        "facilities_list"
+      ],
+      "toolSequence": "any",
+      "minResults": 0,
+      "responseContains": [
+        "facility"
+      ],
+      "responseNotContains": [],
+      "maxLatencyMs": 15000,
+      "analysisRequired": false,
+      "entitiesExpected": []
+    },
+    "validation": [
+      {
+        "type": "tool_selection",
+        "expected": [
+          "facilities_list"
+        ]
+      },
+      {
+        "type": "performance",
+        "maxLatencyMs": 15000
+      },
+      {
+        "type": "data_structure",
+        "required": true
+      }
+    ]
+  },
+  "runs": 10,
+  "latencies": [
+    5192,
+    3321,
+    3596,
+    3707,
+    3764,
+    3391,
+    3587,
+    3171,
+    2655,
+    3162
+  ],
+  "avgLatency": 3554.6,
+  "minLatency": 2655,
+  "maxLatency": 5192,
+  "p50Latency": 3391,
+  "p95Latency": 5192,
+  "p99Latency": 5192,
+  "stdDev": 627.9183386396674,
+  "successRate": 100
+}

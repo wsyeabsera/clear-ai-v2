@@ -1,0 +1,10 @@
+{
+  "scenario": "Scenario 05",
+  "startTime": "2025-10-13T19:22:02Z",
+  "endTime": "2025-10-13T19:22:02Z",
+  "totalDurationMs": 19,
+  "totalSteps": 5,
+  "successfulSteps": 4,
+  "failedSteps": 1,
+  "successRate": "80%"
+}

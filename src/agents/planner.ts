@@ -3,10 +3,12 @@
  * Converts natural language queries into structured, executable plans
  */
 
-import { Plan } from '../shared/types/agent.js';
+import { Plan, Intent } from '../shared/types/agent.js';
 import { LLMProvider } from '../shared/llm/provider.js';
 import { PlanSchema } from '../shared/validation/schemas.js';
-import { MCPServer } from '../mcp/server.js';
+import { ToolRegistry } from '../shared/tool-registry.js';
+import { IntentRecognizer } from './planner/intent-recognizer.js';
+import { PlanValidator } from './planner/plan-validator.js';
 
 export interface PlannerConfig {
   temperature: number;
@@ -17,10 +19,13 @@ export interface PlannerConfig {
 export class PlannerAgent {
   private config: PlannerConfig;
   private availableTools: Map<string, any>;
+  private intentRecognizer: IntentRecognizer;
+  private planValidator: PlanValidator;
+  private enableEnhancedPlanner: boolean;
 
   constructor(
     private llm: LLMProvider,
-    _mcpServer?: MCPServer,
+    private toolRegistry: ToolRegistry,
     config?: Partial<PlannerConfig>
   ) {
     this.config = {
@@ -30,64 +35,137 @@ export class PlannerAgent {
       ...config,
     };
 
-    // Cache available tools
+    // Initialize enhanced planner components
+    this.intentRecognizer = new IntentRecognizer();
+    this.planValidator = new PlanValidator(this.toolRegistry);
+    this.enableEnhancedPlanner = process.env.ENABLE_ENHANCED_PLANNER === 'true';
+
+    // Cache available tools from registry
     this.availableTools = new Map();
     this.loadAvailableTools();
+    
+    if (this.enableEnhancedPlanner) {
+      console.log('[PlannerAgent] Enhanced planner intelligence enabled');
+    }
   }
 
   private loadAvailableTools(): void {
-    // Hardcode the available tools for now
-    // In production, this would be loaded from MCP server
-    this.availableTools.set('shipments_list', {
-      description: 'Query shipments with filters',
-      params: ['date_from', 'date_to', 'facility_id', 'status', 'has_contaminants', 'waste_type', 'carrier', 'limit'],
-      paramDetails: {
-        facility_id: 'Single facility ID. Use template: ${step[N].data[0].id}',
-        date_from: 'Start date in ISO 8601 format (YYYY-MM-DD)',
-        date_to: 'End date in ISO 8601 format (YYYY-MM-DD)',
-        status: 'Shipment status: pending|in_transit|delivered|rejected',
-        has_contaminants: 'Boolean filter for contaminated shipments'
-      }
-    });
-    this.availableTools.set('facilities_list', {
-      description: 'Query waste management facilities',
-      params: ['location', 'type', 'min_capacity', 'ids'],
-      paramDetails: {
-        location: 'Location name for partial matching (e.g., "Hannover")',
-        type: 'Facility type: sorting|processing|disposal',
-        min_capacity: 'Minimum capacity in tons',
-        ids: 'Comma-separated facility IDs'
-      }
-    });
-    this.availableTools.set('contaminants_list', {
-      description: 'Query detected contaminants. Use shipment_ids (comma-separated) or facility_id (single)',
-      params: ['shipment_ids', 'facility_id', 'date_from', 'date_to', 'type', 'risk_level'],
-      paramDetails: {
-        shipment_ids: 'Comma-separated shipment IDs. Use template: ${step[N].data.*.id}',
-        facility_id: 'Single facility ID. Use template: ${step[N].data[0].id}',
-        date_from: 'Start date for detection in ISO 8601 format',
-        date_to: 'End date for detection in ISO 8601 format',
-        type: 'Contaminant type (Lead, Mercury, Plastic, etc.)',
-        risk_level: 'Risk level: low|medium|high|critical'
-      }
-    });
-    this.availableTools.set('inspections_list', {
-      description: 'Query inspection records',
-      params: ['date_from', 'date_to', 'status', 'facility_id', 'shipment_id', 'has_risk_contaminants', 'limit'],
-      paramDetails: {
-        facility_id: 'Single facility ID. Use template: ${step[N].data[0].id}',
-        shipment_id: 'Single shipment ID. Use template: ${step[N].data[0].id}',
-        date_from: 'Start date in ISO 8601 format',
-        date_to: 'End date in ISO 8601 format',
-        status: 'Inspection status: accepted|rejected|pending',
-        has_risk_contaminants: 'Boolean filter for high-risk contaminants'
-      }
-    });
+    // Load tools from the centralized registry
+    // This ensures consistency between planning and validation
+    const schemas = this.toolRegistry.getAllToolSchemas();
+    
+    for (const schema of schemas) {
+      this.availableTools.set(schema.name, {
+        description: schema.description,
+        params: schema.parameters.map(p => p.name),
+        paramDetails: schema.parameters.reduce((details, param) => {
+          details[param.name] = param.description + (param.required ? ' (REQUIRED)' : ' (optional)');
+          return details;
+        }, {} as Record<string, string>)
+      });
+    }
   }
 
   async plan(query: string, context?: any): Promise<Plan> {
     console.log('[PlannerAgent] Planning for query:', query);
 
+    let intent: Intent | undefined;
+    
+    // Enhanced planning with intent recognition and validation
+    if (this.enableEnhancedPlanner) {
+      try {
+        // Step 1: Recognize intent
+        intent = await this.intentRecognizer.recognizeIntent(query);
+        console.log('[PlannerAgent] Recognized intent:', intent);
+        
+        // Step 2: Generate plan using enhanced approach
+        const plan = await this.generateEnhancedPlan(query, intent, context);
+        
+        // Step 3: Validate plan
+        const validation = this.planValidator.validatePlan(plan, intent);
+        if (!validation.valid) {
+          console.warn('[PlannerAgent] Plan validation warnings:', validation.errors);
+          // Continue with warnings for now, but could implement plan fixing
+        }
+        
+        // Step 4: Get suggestions for improvement
+        const suggestions = this.planValidator.getPlanSuggestions(plan, intent);
+        if (suggestions.length > 0) {
+          console.log('[PlannerAgent] Plan suggestions:', suggestions);
+        }
+        
+        return plan;
+        
+      } catch (error: any) {
+        console.error('[PlannerAgent] Enhanced planning failed, falling back to legacy:', error.message);
+        // Fall through to legacy planning
+      }
+    }
+    
+    // Legacy planning approach
+    return this.generateLegacyPlan(query, context);
+  }
+  
+  private async generateEnhancedPlan(query: string, intent: Intent, context?: any): Promise<Plan> {
+    // Build enhanced system prompt with intent context
+    const systemPrompt = this.buildEnhancedSystemPrompt(intent);
+    
+    // Add intent context to user prompt
+    let userPrompt = `Query: ${query}`;
+    userPrompt += `\n\nIntent: ${intent.type}`;
+    userPrompt += `\nEntities: ${intent.entities.join(', ')}`;
+    userPrompt += `\nOperations: ${intent.operations.join(', ')}`;
+    userPrompt += `\nConfidence: ${intent.confidence}`;
+    
+    if (context && Object.keys(context).length > 0) {
+      userPrompt += `\n\nContext: ${JSON.stringify(context, null, 2)}`;
+    }
+    
+    // Call LLM with enhanced prompt
+    let attempts = 0;
+    
+    while (attempts < this.config.maxRetries) {
+      try {
+        const response = await this.llm.generate({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          config: {
+            temperature: this.config.temperature,
+            max_tokens: 1500, // Increased for more detailed plans
+          },
+        });
+
+        // Extract JSON from response
+        const planJson = this.extractJSON(response.content);
+
+        // Validate plan structure
+        const plan = PlanSchema.parse(planJson);
+
+        // Enhanced validation
+        this.validateEnhancedPlan(plan, intent);
+
+        console.log('[PlannerAgent] Enhanced plan generated successfully');
+        return plan;
+
+      } catch (error: any) {
+        attempts++;
+        console.error(`[PlannerAgent] Enhanced attempt ${attempts}/${this.config.maxRetries} failed:`, error.message);
+
+        if (attempts >= this.config.maxRetries) {
+          throw new Error(`Failed to generate enhanced plan after ${attempts} attempts: ${error.message}`);
+        }
+
+        // Add error feedback to next attempt
+        userPrompt += `\n\n[Previous attempt failed: ${error.message}. Please fix and try again.]`;
+      }
+    }
+
+    throw new Error('Failed to generate enhanced plan');
+  }
+  
+  private async generateLegacyPlan(query: string, context?: any): Promise<Plan> {
     // Build system prompt with tool descriptions
     const systemPrompt = this.buildSystemPrompt();
 
@@ -127,12 +205,12 @@ export class PlannerAgent {
         // Quality validation for common mistakes
         this.validatePlanQuality(plan, query);
 
-        console.log('[PlannerAgent] Plan generated successfully');
+        console.log('[PlannerAgent] Legacy plan generated successfully');
         return plan;
 
       } catch (error: any) {
         attempts++;
-        console.error(`[PlannerAgent] Attempt ${attempts}/${this.config.maxRetries} failed:`, error.message);
+        console.error(`[PlannerAgent] Legacy attempt ${attempts}/${this.config.maxRetries} failed:`, error.message);
 
         if (attempts >= this.config.maxRetries) {
           throw new Error(`Failed to generate valid plan after ${attempts} attempts: ${error.message}`);
@@ -144,6 +222,140 @@ export class PlannerAgent {
     }
 
     throw new Error('Failed to generate plan');
+  }
+
+  private buildEnhancedSystemPrompt(intent: Intent): string {
+    const basePrompt = this.buildSystemPrompt();
+    
+    // Add intent-specific guidance
+    const intentGuidance = this.getIntentGuidance(intent);
+    
+    return `${basePrompt}
+
+ENHANCED PLANNING MODE:
+You are operating in enhanced planning mode with the following context:
+
+INTENT: ${intent.type}
+ENTITIES: ${intent.entities.join(', ')}
+OPERATIONS: ${intent.operations.join(', ')}
+CONFIDENCE: ${intent.confidence}
+
+${intentGuidance}
+
+Generate a plan that fully addresses the intent with high confidence.
+Use the most appropriate tools for the entities and operations identified.
+Ensure all required parameters are included and step dependencies are correctly set.`;
+  }
+  
+  private getIntentGuidance(intent: Intent): string {
+    switch (intent.type) {
+      case 'CREATE':
+        return `CREATE INTENT GUIDANCE:
+- For shipment creation: Use facilities_list first to get facility_id, then shipments_create
+- For facility creation: Use facilities_create with all required parameters
+- Ensure all required parameters are provided with appropriate values
+- Set proper step dependencies for data retrieval before creation`;
+        
+      case 'READ':
+        return `READ INTENT GUIDANCE:
+- Use appropriate list tools (shipments_list, facilities_list, contaminants_list, inspections_list)
+- Apply filters based on entities and operations mentioned
+- For multi-entity queries, create separate steps for each entity
+- Use step references to connect related data (e.g., facility_id from facilities to shipments)`;
+        
+      case 'UPDATE':
+        return `UPDATE INTENT GUIDANCE:
+- First retrieve current data with appropriate list tools
+- Use update tools with proper parameters
+- Ensure step dependencies are set correctly`;
+        
+      case 'DELETE':
+        return `DELETE INTENT GUIDANCE:
+- First identify items to delete with list tools
+- Use delete tools with proper identifiers
+- Set step dependencies for identification before deletion`;
+        
+      case 'ANALYZE':
+        return `ANALYZE INTENT GUIDANCE:
+- Start with data retrieval using list tools
+- Add analytics tools for analysis operations
+- For contamination analysis: Use contaminants_list with appropriate filters
+- For performance analysis: Use facilities_list and related tools
+- Ensure comprehensive data collection for meaningful analysis`;
+        
+      case 'MONITOR':
+        return `MONITOR INTENT GUIDANCE:
+- Use list tools to gather current status
+- Apply appropriate filters for monitoring scope
+- Consider adding date ranges for temporal monitoring
+- Use analytics tools for trend analysis if needed`;
+        
+      default:
+        return `Use appropriate tools based on the identified entities and operations.`;
+    }
+  }
+  
+  private validateEnhancedPlan(plan: Plan, intent: Intent): void {
+    // Use the plan validator for comprehensive validation
+    const validation = this.planValidator.validatePlan(plan, intent);
+    if (!validation.valid) {
+      console.warn('[PlannerAgent] Enhanced plan validation issues:', validation.errors);
+    }
+    
+    // Additional enhanced validations
+    this.validateIntentAlignment(plan, intent);
+    this.validateOperationSupport(plan, intent);
+  }
+  
+  private validateIntentAlignment(plan: Plan, intent: Intent): void {
+    const tools = plan.steps.map(step => step.tool);
+    
+    // Check if plan tools align with intent using simple pattern matching
+    const allTools = this.toolRegistry.getAllToolSchemas();
+    const recommendedTools = allTools
+      .filter(tool => this.isToolSuitableForIntent(tool.name, intent.type, intent.entities))
+      .map(tool => tool.name);
+    
+    const missingTools = recommendedTools.filter(tool => !tools.includes(tool));
+    
+    if (missingTools.length > 0) {
+      console.warn(`[PlannerAgent] Consider adding these tools for better intent fulfillment: ${missingTools.join(', ')}`);
+    }
+  }
+
+  private isToolSuitableForIntent(toolName: string, intentType: string, entities: string[]): boolean {
+    const toolLower = toolName.toLowerCase();
+    const intentLower = intentType.toLowerCase();
+
+    if (intentLower === 'create' && toolLower.includes('create')) return true;
+    if (intentLower === 'read' && (toolLower.includes('list') || toolLower.includes('get'))) return true;
+    if (intentLower === 'update' && toolLower.includes('update')) return true;
+    if (intentLower === 'delete' && toolLower.includes('delete')) return true;
+
+    for (const entity of entities) {
+      if (toolLower.includes(entity.toLowerCase())) return true;
+    }
+
+    return false;
+  }
+  
+  private validateOperationSupport(plan: Plan, intent: Intent): void {
+    const tools = plan.steps.map(step => step.tool);
+    
+    // Check if plan supports required operations
+    for (const operation of intent.operations) {
+      if (operation === 'filter_high_risk' && !tools.some(t => t.includes('contaminants'))) {
+        console.warn('[PlannerAgent] High-risk filtering requires contaminant tools');
+      }
+      
+      if (operation === 'check_capacity' && !tools.some(t => t.includes('facilities'))) {
+        console.warn('[PlannerAgent] Capacity checking requires facility tools');
+      }
+      
+      if (operation === 'analyze_contamination' && !tools.some(t => t.includes('contaminants'))) {
+        console.warn('[PlannerAgent] Contamination analysis requires contaminant tools');
+      }
+    }
   }
 
   private buildSystemPrompt(): string {

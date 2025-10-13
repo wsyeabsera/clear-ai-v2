@@ -1,0 +1,5 @@
+{
+  "scenario": "Scenario 03: analytical",
+  "task": "Analyze contamination patterns by getting overall contamination rate, finding facilities with highest rejection rates, identifying most common contaminant types, and calculating average contamination concentration by risk level.",
+  "timestamp": "2025-10-13T19:21:46Z"
+}

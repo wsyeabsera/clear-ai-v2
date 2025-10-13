@@ -1,0 +1,72 @@
+{
+  "scenario": {
+    "id": "complex-001",
+    "name": "Analyze contaminated shipments and their facilities",
+    "category": "complex",
+    "description": "Complex multi-tool query that requires finding contaminated shipments\nand then analyzing which facilities they went to.\nTests tool dependency and cross-entity analysis.\n",
+    "tags": [
+      "complex",
+      "multi-tool",
+      "contamination",
+      "shipments",
+      "facilities"
+    ],
+    "priority": "high",
+    "query": "Show me contaminated shipments from the last month and which facilities received them",
+    "expectedBehavior": {
+      "toolsUsed": [
+        "shipments_list",
+        "facilities_list"
+      ],
+      "toolSequence": "any",
+      "minResults": 0,
+      "responseContains": [
+        "contaminant",
+        "shipment"
+      ],
+      "responseNotContains": [],
+      "maxLatencyMs": 20000,
+      "analysisRequired": true,
+      "entitiesExpected": []
+    },
+    "validation": [
+      {
+        "type": "tool_selection",
+        "expected": [
+          "shipments_list"
+        ],
+        "allowExtra": true
+      },
+      {
+        "type": "performance",
+        "maxLatencyMs": 20000
+      },
+      {
+        "type": "analysis_quality",
+        "minInsights": 1,
+        "requireAnalysis": true
+      }
+    ]
+  },
+  "runs": 10,
+  "latencies": [
+    6252,
+    3610,
+    4004,
+    5246,
+    4653,
+    7174,
+    5290,
+    3403,
+    5048,
+    5240
+  ],
+  "avgLatency": 4992,
+  "minLatency": 3403,
+  "maxLatency": 7174,
+  "p50Latency": 5048,
+  "p95Latency": 7174,
+  "p99Latency": 7174,
+  "stdDev": 1099.6633121096656,
+  "successRate": 100
+}

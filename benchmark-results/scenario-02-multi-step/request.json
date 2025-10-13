@@ -1,5 +1,5 @@
 {
   "scenario": "Scenario 02: multi-step",
   "task": "Find shipments with high-risk contaminants, get details of the most critical contamination, update the shipment status to rejected, and create a new inspection record documenting the rejection.",
-  "timestamp": "2025-10-13T19:21:39Z"
+  "timestamp": "2025-10-13T20:23:13Z"
 }

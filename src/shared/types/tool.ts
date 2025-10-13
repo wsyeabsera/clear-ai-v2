@@ -32,6 +32,8 @@ export interface ToolParam {
   required: boolean;
   default?: any;
   enum?: string[];
+  min?: number;
+  max?: number;
 }
 
 // Note: ToolResult is defined in agent.ts and re-exported from there

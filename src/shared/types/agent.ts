@@ -16,12 +16,24 @@ export interface PlanStep {
   params: Record<string, any>;
   depends_on?: number[] | undefined; // Indices of steps this depends on
   parallel?: boolean | undefined; // Can be run in parallel
+  optional?: boolean | undefined; // Step can fail without stopping execution
+  retry_count?: number | undefined; // Number of retries attempted
+  timeout?: number | undefined; // Step timeout in milliseconds
 }
 
 export interface PlanMetadata {
   query: string;
   timestamp: string;
   estimated_duration_ms?: number | undefined;
+  intent?: Intent | undefined; // Recognized intent from query
+  confidence?: number | undefined; // Confidence score for plan quality
+}
+
+export interface Intent {
+  type: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ANALYZE' | 'MONITOR';
+  entities: string[];
+  operations: string[];
+  confidence: number; // 0-1
 }
 
 /**
@@ -33,6 +45,8 @@ export interface ToolResult {
   data?: any;
   error?: ErrorDetails;
   metadata: ToolResultMetadata;
+  step_index?: number | undefined; // Index of step in plan
+  resolved_params?: Record<string, any> | undefined; // Parameters after reference resolution
 }
 
 export interface ToolResultMetadata {
