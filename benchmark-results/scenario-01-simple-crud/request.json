@@ -1,0 +1,5 @@
+{
+  "scenario": "Scenario 01: simple-crud",
+  "task": "Create a new shipment from Stuttgart to Frankfurt with 1500kg of mixed plastic waste, transported by EcoTrans GmbH.",
+  "timestamp": "2025-10-13T19:21:33Z"
+}
