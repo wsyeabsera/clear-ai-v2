@@ -58,8 +58,8 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
-      const hasContaminantTool = plan.steps.some(step => 
+
+      const hasContaminantTool = plan.steps.some(step =>
         step.tool === 'contaminants_list'
       );
       expect(hasContaminantTool).toBe(true);
@@ -76,13 +76,13 @@ describe('PlannerAgent Integration', () => {
       );
 
       expect(plan.steps.length).toBeGreaterThanOrEqual(2);
-      
+
       // First step should query shipments
       expect(plan.steps[0].tool).toBe('shipments_list');
       expect(plan.steps[0].params.has_contaminants).toBe(true);
 
       // Second step should query contaminants with dependency
-      const contaminantStep = plan.steps.find(step => 
+      const contaminantStep = plan.steps.find(step =>
         step.tool === 'contaminants_list'
       );
       expect(contaminantStep).toBeDefined();
@@ -103,14 +103,14 @@ describe('PlannerAgent Integration', () => {
       );
 
       expect(plan.steps.length).toBeGreaterThanOrEqual(2);
-      
+
       // Should query facilities first
       const facilityStep = plan.steps.find(step => step.tool === 'facilities_list');
       expect(facilityStep).toBeDefined();
       expect(facilityStep?.params.location).toContain('Hannover');
 
       // Should query contaminants with dependency
-      const contaminantStep = plan.steps.find(step => 
+      const contaminantStep = plan.steps.find(step =>
         step.tool === 'contaminants_list'
       );
       expect(contaminantStep).toBeDefined();
@@ -126,20 +126,133 @@ describe('PlannerAgent Integration', () => {
       );
 
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should query inspections (might be combined with contaminants in one query)
-      const hasInspectionOrContaminant = plan.steps.some(step => 
+      const hasInspectionOrContaminant = plan.steps.some(step =>
         step.tool === 'inspections_list' || step.tool === 'contaminants_list'
       );
       expect(hasInspectionOrContaminant).toBe(true);
 
       // Should have status or risk_level filter
-      const hasRelevantFilter = plan.steps.some(step => 
-        step.params.status === 'accepted' || 
-        step.params.risk_level || 
+      const hasRelevantFilter = plan.steps.some(step =>
+        step.params.status === 'accepted' ||
+        step.params.risk_level ||
         step.params.has_risk_contaminants
       );
       expect(hasRelevantFilter).toBe(true);
+
+      // Validate against schema
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+  });
+
+  describe('Enhanced Multi-Step Scenarios', () => {
+    it('should generate correct plan for "Get sorting facilities and their contaminants"', async () => {
+      const plan = await planner.plan(
+        'Get sorting facilities and their contaminants'
+      );
+
+      expect(plan.steps.length).toBeGreaterThanOrEqual(2);
+      // First step should query facilities
+      const facilityStep = plan.steps.find(step => step.tool === 'facilities_list');
+      expect(facilityStep).toBeDefined();
+      expect(facilityStep?.params.type).toBe('sorting');
+
+      // Second step should query contaminants with dependency
+      const contaminantStep = plan.steps.find(step =>
+        step.tool === 'contaminants_list'
+      );
+      expect(contaminantStep).toBeDefined();
+      expect(contaminantStep?.depends_on).toBeDefined();
+      expect(contaminantStep?.depends_on).toContain(0);
+
+      // Should use correct parameter name and template syntax
+      expect(contaminantStep?.params.facility_id || contaminantStep?.params.shipment_ids).toBeDefined();
+      const hasCorrectTemplate = JSON.stringify(contaminantStep?.params).includes('${step[0].data');
+      expect(hasCorrectTemplate).toBe(true);
+
+      // Validate against schema
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should generate correct plan for "Get rejected shipments and their contaminant details"', async () => {
+      const plan = await planner.plan(
+        'Get rejected shipments and their contaminant details'
+      );
+
+      expect(plan.steps.length).toBeGreaterThanOrEqual(2);
+
+      // First step should query shipments with status filter
+      const shipmentStep = plan.steps.find(step => step.tool === 'shipments_list');
+      expect(shipmentStep).toBeDefined();
+      expect(shipmentStep?.params.status).toBe('rejected');
+
+      // Second step should query contaminants with dependency
+      const contaminantStep = plan.steps.find(step =>
+        step.tool === 'contaminants_list'
+      );
+      expect(contaminantStep).toBeDefined();
+      expect(contaminantStep?.depends_on).toBeDefined();
+      expect(contaminantStep?.depends_on).toContain(0);
+
+      // Should use correct parameter name: shipment_ids not ids
+      expect(contaminantStep?.params.shipment_ids).toBeDefined();
+      expect(contaminantStep?.params.ids).toBeUndefined();
+
+      // Should use correct template syntax for array mapping
+      const hasCorrectTemplate = JSON.stringify(contaminantStep?.params).includes('${step[0].data.*.id}');
+      expect(hasCorrectTemplate).toBe(true);
+
+      // Validate against schema
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should generate correct plan for "Get contaminants in Hannover facilities"', async () => {
+      const plan = await planner.plan(
+        'Get contaminants in Hannover facilities'
+      );
+
+      expect(plan.steps.length).toBeGreaterThanOrEqual(2);
+
+      // First step should query facilities by location
+      const facilityStep = plan.steps.find(step => step.tool === 'facilities_list');
+      expect(facilityStep).toBeDefined();
+      expect(facilityStep?.params.location).toContain('Hannover');
+
+      // Second step should query contaminants with dependency
+      const contaminantStep = plan.steps.find(step =>
+        step.tool === 'contaminants_list'
+      );
+      expect(contaminantStep).toBeDefined();
+      expect(contaminantStep?.depends_on).toBeDefined();
+      expect(contaminantStep?.depends_on).toContain(0);
+
+      // Should use correct parameter name: facility_id for single facility
+      expect(contaminantStep?.params.facility_id).toBeDefined();
+
+      // Should use correct template syntax for single value
+      const hasCorrectTemplate = JSON.stringify(contaminantStep?.params).includes('${step[0].data[0].id}');
+      expect(hasCorrectTemplate).toBe(true);
+
+      // Validate against schema
+      expect(() => PlanSchema.parse(plan)).not.toThrow();
+    }, 30000);
+
+    it('should validate template syntax and reject .ids usage', async () => {
+      // This test would require mocking the LLM to return a plan with .ids
+      // In real integration, the enhanced prompt should prevent this
+      const plan = await planner.plan(
+        'Get contaminated shipments and their contaminant details'
+      );
+
+      // The plan should not contain .ids syntax
+      const planStr = JSON.stringify(plan);
+      expect(planStr).not.toContain('.ids}');
+
+      // Should contain correct .*.id syntax if using templates
+      if (planStr.includes('${step[')) {
+        expect(planStr).toContain('.data.*.id}');
+      }
 
       // Validate against schema
       expect(() => PlanSchema.parse(plan)).not.toThrow();
@@ -171,7 +284,7 @@ describe('PlannerAgent Integration', () => {
 
       const inspectionStep = plan.steps.find(step => step.tool === 'inspections_list');
       expect(inspectionStep).toBeDefined();
-      
+
       // Should have some date parameters (might be resolved dates or templates)
       const hasDateParams = inspectionStep?.params.date_from || inspectionStep?.params.date_to;
       expect(hasDateParams).toBeDefined();
@@ -182,15 +295,15 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should query contaminants
-      const hasContaminantTool = plan.steps.some(step => 
+      const hasContaminantTool = plan.steps.some(step =>
         step.tool === 'contaminants_list'
       );
       expect(hasContaminantTool).toBe(true);
-      
+
       // Should have some date parameter set
-      const hasAnyDateParam = plan.steps.some(step => 
+      const hasAnyDateParam = plan.steps.some(step =>
         step.params.date_from || step.params.date_to || step.params.date
       );
       expect(hasAnyDateParam).toBe(true);
@@ -228,7 +341,7 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Validate against schema
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
@@ -241,7 +354,7 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
       expect(plan.steps[0].tool).toBe('shipments_list');
-      
+
       // Validate against schema
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
@@ -251,12 +364,12 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should query shipments
       const shipmentStep = plan.steps.find(s => s.tool === 'shipments_list');
       expect(shipmentStep).toBeDefined();
       expect(shipmentStep?.params.has_contaminants).toBe(true);
-      
+
       // Validate against schema
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
@@ -268,7 +381,7 @@ describe('PlannerAgent Integration', () => {
 
       // All tools should be from available set
       const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
-      
+
       for (const step of plan.steps) {
         expect(validTools).toContain(step.tool);
       }
@@ -299,19 +412,19 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should have facility and/or shipment queries
-      const hasFacilityOrShipment = plan.steps.some(s => 
+      const hasFacilityOrShipment = plan.steps.some(s =>
         s.tool === 'facilities_list' || s.tool === 'shipments_list'
       );
       expect(hasFacilityOrShipment).toBe(true);
-      
+
       // Should have location or date filters
-      const hasRelevantFilters = plan.steps.some(s => 
+      const hasRelevantFilters = plan.steps.some(s =>
         s.params.location || s.params.date_from || s.params.date_to
       );
       expect(hasRelevantFilters).toBe(true);
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
 
@@ -322,11 +435,11 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should query shipments (to get carrier and contamination data)
       const hasShipments = plan.steps.some(s => s.tool === 'shipments_list');
       expect(hasShipments).toBe(true);
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
 
@@ -335,11 +448,11 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps.length).toBeGreaterThan(0);
-      
+
       // Should pick a reasonable tool (any of the available ones)
       const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
       expect(validTools).toContain(plan.steps[0].tool);
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
 
@@ -351,15 +464,15 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps).toBeDefined();
       const shipmentStep = plan.steps.find(s => s.tool === 'shipments_list');
       expect(shipmentStep).toBeDefined();
-      
+
       // Should have extracted date parameters
       const hasDateParams = shipmentStep?.params.date_from || shipmentStep?.params.date_to;
       expect(hasDateParams).toBeDefined();
-      
+
       // Location might be in various params or might not be extracted (LLM non-determinism)
       // Just check that we have a valid plan with date params
       console.log('Extracted plan:', JSON.stringify(plan, null, 2));
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
 
@@ -368,7 +481,7 @@ describe('PlannerAgent Integration', () => {
 
       expect(plan.steps).toBeDefined();
       expect(plan.steps[0].tool).toBe('facilities_list');
-      
+
       // All tools in plan should be available
       for (const step of plan.steps) {
         const validTools = ['shipments_list', 'facilities_list', 'contaminants_list', 'inspections_list'];
@@ -382,7 +495,7 @@ describe('PlannerAgent Integration', () => {
       );
 
       expect(plan.steps.length).toBeGreaterThanOrEqual(2);
-      
+
       // Should have sequential dependencies
       let hasDependencies = false;
       for (const step of plan.steps) {
@@ -392,7 +505,7 @@ describe('PlannerAgent Integration', () => {
         }
       }
       expect(hasDependencies).toBe(true);
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
 
@@ -402,7 +515,7 @@ describe('PlannerAgent Integration', () => {
       expect(plan.metadata).toBeDefined();
       expect(plan.metadata?.timestamp).toBeDefined();
       expect(plan.metadata?.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-      
+
       // Query should be stored
       expect(plan.metadata?.query).toBe('Get shipments');
     }, 30000);
@@ -413,7 +526,7 @@ describe('PlannerAgent Integration', () => {
       expect(plan.steps).toBeDefined();
       const facilityStep = plan.steps.find(s => s.tool === 'facilities_list');
       expect(facilityStep).toBeDefined();
-      
+
       expect(() => PlanSchema.parse(plan)).not.toThrow();
     }, 30000);
   });

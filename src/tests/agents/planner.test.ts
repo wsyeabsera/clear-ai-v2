@@ -447,5 +447,169 @@ describe('PlannerAgent', () => {
       expect(mockLLM.generate).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('Plan Quality Validation', () => {
+    it('should validate template syntax and throw error for .ids usage', async () => {
+      const mockPlan = {
+        steps: [
+          {
+            tool: 'contaminants_list',
+            params: { shipment_ids: '${step[0].data.ids}' }, // Wrong: .ids instead of .*.id
+          },
+        ],
+        metadata: {
+          query: 'test',
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      mockLLM.generate.mockResolvedValue({
+        content: JSON.stringify(mockPlan),
+        provider: 'openai',
+        model: 'gpt-4',
+        metadata: { latency_ms: 100, retries: 0 },
+      });
+
+      await expect(planner.plan('test')).rejects.toThrow('Invalid template: use ${step[N].data.*.id} not .ids');
+    });
+
+    it('should validate parameter names for contaminants_list', async () => {
+      const mockPlan = {
+        steps: [
+          {
+            tool: 'contaminants_list',
+            params: { ids: '${step[0].data.*.id}' }, // Wrong: ids instead of shipment_ids
+          },
+        ],
+        metadata: {
+          query: 'test',
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      mockLLM.generate.mockResolvedValue({
+        content: JSON.stringify(mockPlan),
+        provider: 'openai',
+        model: 'gpt-4',
+        metadata: { latency_ms: 100, retries: 0 },
+      });
+
+      await expect(planner.plan('test')).rejects.toThrow('contaminants_list uses "shipment_ids" not "ids"');
+    });
+
+    it('should generate valid multi-step plan for facilities and contaminants', async () => {
+      const mockPlan = {
+        steps: [
+          {
+            tool: 'facilities_list',
+            params: { type: 'sorting' },
+            depends_on: [],
+            parallel: false,
+          },
+          {
+            tool: 'contaminants_list',
+            params: {
+              facility_id: '${step[0].data[0].id}',
+            },
+            depends_on: [0],
+            parallel: false,
+          },
+        ],
+        metadata: {
+          query: 'Get sorting facilities and their contaminants',
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      mockLLM.generate.mockResolvedValue({
+        content: JSON.stringify(mockPlan),
+        provider: 'openai',
+        model: 'gpt-4',
+        metadata: { latency_ms: 100, retries: 0 },
+      });
+
+      const plan = await planner.plan('Get sorting facilities and their contaminants');
+
+      expect(plan.steps).toHaveLength(2);
+      expect(plan.steps[0].tool).toBe('facilities_list');
+      expect(plan.steps[1].tool).toBe('contaminants_list');
+      expect(plan.steps[1].depends_on).toEqual([0]);
+      expect(plan.steps[1].params.facility_id).toContain('${step[0]');
+    });
+
+    it('should generate valid plan for shipments to contaminants', async () => {
+      const mockPlan = {
+        steps: [
+          {
+            tool: 'shipments_list',
+            params: { has_contaminants: true },
+            depends_on: [],
+            parallel: false,
+          },
+          {
+            tool: 'contaminants_list',
+            params: {
+              shipment_ids: '${step[0].data.*.id}',
+            },
+            depends_on: [0],
+            parallel: false,
+          },
+        ],
+        metadata: {
+          query: 'Get contaminated shipments and their contaminant details',
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      mockLLM.generate.mockResolvedValue({
+        content: JSON.stringify(mockPlan),
+        provider: 'openai',
+        model: 'gpt-4',
+        metadata: { latency_ms: 100, retries: 0 },
+      });
+
+      const plan = await planner.plan('Get contaminated shipments and their contaminant details');
+
+      expect(plan.steps).toHaveLength(2);
+      expect(plan.steps[0].tool).toBe('shipments_list');
+      expect(plan.steps[1].tool).toBe('contaminants_list');
+      expect(plan.steps[1].depends_on).toEqual([0]);
+      expect(plan.steps[1].params.shipment_ids).toContain('${step[0].data.*.id}');
+    });
+
+    it('should warn for single-step plan when multi-step is suggested', async () => {
+      const mockPlan = {
+        steps: [
+          {
+            tool: 'facilities_list',
+            params: { type: 'sorting' },
+            depends_on: [],
+            parallel: false,
+          },
+        ],
+        metadata: {
+          query: 'Get sorting facilities and their contaminants',
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      mockLLM.generate.mockResolvedValue({
+        content: JSON.stringify(mockPlan),
+        provider: 'openai',
+        model: 'gpt-4',
+        metadata: { latency_ms: 100, retries: 0 },
+      });
+
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      await planner.plan('Get sorting facilities and their contaminants');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Query suggests multi-step plan but only 1 step generated')
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
 });
 
