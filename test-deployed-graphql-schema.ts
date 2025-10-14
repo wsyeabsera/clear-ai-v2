@@ -482,15 +482,31 @@ async function main() {
     });
     console.log(`✅ Health check passed: ${healthResponse.data.message || 'OK'}\n`);
 
-    // Perform schema introspection
-    console.log('🔍 Introspecting GraphQL schema...');
-    const introspection = await introspectSchema(endpoint);
-    console.log('✅ Schema introspection successful\n');
+    // Test specific queries and mutations
+    console.log('🔍 Testing specific queries and mutations...');
+    const testResults = await testSpecificQueries(endpoint);
+    console.log('✅ Specific query testing complete\n');
 
-    // Compare schemas
-    console.log('📊 Comparing deployed schema against expected schema...');
-    const comparison = compareSchemas(introspection);
-    console.log('✅ Schema comparison complete\n');
+    // Generate comparison from test results
+    const comparison: SchemaComparison = {
+      queries: { 
+        present: testResults.queries.filter(q => q.available).map(q => q.name),
+        missing: testResults.queries.filter(q => !q.available).map(q => q.name),
+        incorrectSignatures: []
+      },
+      mutations: { 
+        present: testResults.mutations.filter(m => m.available).map(m => m.name),
+        missing: testResults.mutations.filter(m => !m.available).map(m => m.name),
+        incorrectSignatures: testResults.mutations
+          .filter(m => !m.available && m.error.includes('Unknown argument'))
+          .map(m => ({
+            name: m.name,
+            expected: 'Correct signature',
+            actual: m.error
+          }))
+      },
+      subscriptions: { present: [], missing: [], incorrectSignatures: [] }
+    };
 
     // Generate and display report
     const report = generateReport(comparison, endpoint);

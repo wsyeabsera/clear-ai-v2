@@ -460,7 +460,7 @@ export const typeDefs = `#graphql
     description: String
     isDefault: Boolean!
     isActive: Boolean!
-    config: JSON!
+    config: JSON
     metadata: AgentConfigMetadata
     createdAt: String!
     updatedAt: String!
@@ -493,7 +493,7 @@ export const typeDefs = `#graphql
     name: String!
     type: AgentType!
     description: String
-    config: JSON!
+    config: JSON
     isDefault: Boolean
     isActive: Boolean
     metadata: AgentConfigMetadataInput
