@@ -15,14 +15,20 @@ import bodyParser from 'body-parser';
 
 import { typeDefs } from './schema.js';
 import { resolvers, pubsub } from './resolvers.js';
-import { OrchestratorAgent } from '../agents/orchestrator.js';
+import { PlannerAgent } from '../agents/planner.js';
+import { ExecutorAgent } from '../agents/executor.js';
+import { AnalyzerAgent } from '../agents/analyzer.js';
+import { SummarizerAgent } from '../agents/summarizer.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
 
 export interface GraphQLServerConfig {
   port: number;
-  orchestrator: OrchestratorAgent;
+  planner: PlannerAgent;
+  executor: ExecutorAgent;
+  analyzer: AnalyzerAgent;
+  summarizer: SummarizerAgent;
   memory: MemoryManager;
   planStorage: PlanStorageService;
   executionStorage: ExecutionStorageService;
@@ -58,7 +64,10 @@ export class GraphQLAgentServer {
       {
         schema,
         context: () => ({
-          orchestrator: this.config.orchestrator,
+          planner: this.config.planner,
+          executor: this.config.executor,
+          analyzer: this.config.analyzer,
+          summarizer: this.config.summarizer,
           memory: this.config.memory,
           pubsub,
         }),
@@ -136,7 +145,10 @@ export class GraphQLAgentServer {
           },
           {
             contextValue: {
-              orchestrator: this.config.orchestrator,
+              planner: this.config.planner,
+              executor: this.config.executor,
+              analyzer: this.config.analyzer,
+              summarizer: this.config.summarizer,
               memory: this.config.memory,
               planStorage: this.config.planStorage,
               executionStorage: this.config.executionStorage,
@@ -156,9 +168,10 @@ export class GraphQLAgentServer {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
-    // Start HTTP server (bind to 0.0.0.0 for Railway/cloud deployments)
+    // Start HTTP server (bind to localhost for development, 0.0.0.0 for production)
+    const bindAddress = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
     await new Promise<void>((resolve) => {
-      this.httpServer.listen(this.config.port, '0.0.0.0', () => {
+      this.httpServer.listen(this.config.port, bindAddress, () => {
         const host = process.env.NODE_ENV === 'production'
           ? process.env.PUBLIC_URL || `http://0.0.0.0:${this.config.port}`
           : `http://localhost:${this.config.port}`;

@@ -393,10 +393,11 @@ export class ExecutorAgent {
         throw new Error(`Tool not found: ${step.tool}`);
       }
 
+
       // Validate parameters against schema
       const schema = this.toolRegistry.getToolSchema(step.tool);
       if (schema) {
-        const validation = this.toolRegistry.validateParameters(step.tool, step.params);
+        const validation = this.toolRegistry.validateParameters(step.tool, step.params || {});
         if (!validation.valid) {
           throw new Error(`Invalid parameters for ${step.tool}: ${validation.errors.join(', ')}`);
         }
@@ -406,7 +407,7 @@ export class ExecutorAgent {
       let resolvedParams: Record<string, any>;
       if (this.enableStepReferences) {
         const resolutionResult = this.referenceResolver.resolveReferences(
-          step.params,
+          step.params || {},  // Ensure params is at least an empty object
           this.stepCache
         );
         
@@ -414,13 +415,20 @@ export class ExecutorAgent {
           throw new Error(`Parameter resolution failed: ${resolutionResult.error}`);
         }
         
-        resolvedParams = resolutionResult.resolved;
+        resolvedParams = resolutionResult.resolved || {};  // Ensure result is not undefined
         console.log(`[ExecutorAgent] Enhanced resolution for ${step.tool}:`, resolvedParams);
       } else {
         // Fallback to original resolution method
-        resolvedParams = this.resolveParameters(step.params, previousResults);
+        resolvedParams = this.resolveParameters(step.params || {}, previousResults);
         console.log(`[ExecutorAgent] Legacy resolution for ${step.tool}:`, resolvedParams);
       }
+
+      // Validate resolved params
+      if (resolvedParams === undefined || resolvedParams === null) {
+        console.warn(`[ExecutorAgent] Warning: resolvedParams is ${resolvedParams}, using empty object`);
+        resolvedParams = {};
+      }
+
 
       // Execute with retries
       const result = await this.executeWithRetry(

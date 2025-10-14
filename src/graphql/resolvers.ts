@@ -3,7 +3,6 @@
  */
 
 import { PubSub } from 'graphql-subscriptions';
-import { OrchestratorAgent } from '../agents/orchestrator.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
@@ -71,14 +70,13 @@ function createAsyncIterator<T>(pubsub: PubSub, triggers: string | string[]) {
 }
 
 interface Context {
-  orchestrator: OrchestratorAgent;
+  planner: any;
+  executor: any;
+  analyzer: any;
+  summarizer: any;
   memory: MemoryManager;
   planStorage: PlanStorageService;
   executionStorage: ExecutionStorageService;
-  planner?: any;
-  executor?: any;
-  analyzer?: any;
-  summarizer?: any;
   pubsub?: PubSub;
 }
 
@@ -343,8 +341,8 @@ export const resolvers = {
           throw new Error('Query cannot be empty');
         }
 
-        // Get planner from context (or extract from orchestrator)
-        const planner = ctx.planner || (ctx.orchestrator as any).planner;
+        // Get planner from context
+        const planner = ctx.planner;
         if (!planner) {
           throw new Error('Planner not available in context');
         }
@@ -434,7 +432,7 @@ export const resolvers = {
         await ctx.planStorage.updatePlanStatus(requestId, 'executing');
 
         // Get executor from context
-        const executor = ctx.executor || (ctx.orchestrator as any).executor;
+        const executor = ctx.executor;
         if (!executor) {
           throw new Error('Executor not available in context');
         }
@@ -567,7 +565,7 @@ export const resolvers = {
         const toolResults = storedExecution.results;
 
         // Get analyzer from context
-        const analyzer = ctx.analyzer || (ctx.orchestrator as any).analyzer;
+        const analyzer = ctx.analyzer;
         if (!analyzer) {
           throw new Error('Analyzer not available in context');
         }
@@ -663,7 +661,7 @@ export const resolvers = {
         }
 
         // Get summarizer from context
-        const summarizer = ctx.summarizer || (ctx.orchestrator as any).summarizer;
+        const summarizer = ctx.summarizer;
         if (!summarizer) {
           throw new Error('Summarizer not available in context');
         }
@@ -754,110 +752,6 @@ export const resolvers = {
       }
     },
 
-    // Convenience method (existing)
-    executeQuery: async (
-      _: any,
-      { query, userId }: { query: string; userId?: string },
-      context: Context
-    ) => {
-      const startTime = Date.now();
-      metrics.totalRequests++;
-
-      try {
-        // Create progress callback that publishes to pubsub
-        const progressCallback = (update: any) => {
-          console.log(`🔔 [GraphQL] Publishing progress: ${update.phase} - ${update.progress}% (requestId: ${update.requestId})`);
-          pubsub.publish('QUERY_PROGRESS', { queryProgress: update });
-        };
-
-        // Execute query through orchestrator with progress tracking
-        const response = await context.orchestrator.handleQuery(query, progressCallback);
-
-        const duration = Date.now() - startTime;
-        metrics.totalDuration += duration;
-
-        if (!response.metadata.error) {
-          metrics.successfulRequests++;
-        } else {
-          metrics.failedRequests++;
-        }
-
-        // Store in history
-        const record = {
-          requestId: response.metadata.request_id,
-          query,
-          response,
-          timestamp: response.metadata.timestamp,
-          userId,
-        };
-        requestHistory.set(response.metadata.request_id, record);
-
-        // Convert analysis to GraphQL format
-        const result = {
-          requestId: response.metadata.request_id,
-          message: response.message,
-          toolsUsed: response.tools_used,
-          data: response.data || null,
-          analysis: response.analysis ? {
-            summary: response.analysis.summary,
-            insights: response.analysis.insights.map(i => ({
-              type: i.type,
-              description: i.description,
-              confidence: i.confidence,
-              supportingData: Array.isArray(i.supporting_data) ? i.supporting_data : [i.supporting_data],
-            })),
-            entities: response.analysis.entities.map(e => ({
-              id: e.id,
-              type: e.type,
-              name: e.name,
-              attributes: e.attributes,
-              relationships: e.relationships || [],
-            })),
-            anomalies: response.analysis.anomalies.map(a => ({
-              type: a.type,
-              description: a.description,
-              severity: a.severity,
-              affectedEntities: a.affected_entities,
-              data: a.data,
-            })),
-            metadata: {
-              toolResultsCount: response.analysis.metadata.tool_results_count,
-              successfulResults: response.analysis.metadata.successful_results,
-              failedResults: response.analysis.metadata.failed_results,
-              analysisTimeMs: response.analysis.metadata.analysis_time_ms,
-            },
-          } : null,
-          metadata: {
-            requestId: response.metadata.request_id,
-            totalDurationMs: response.metadata.total_duration_ms,
-            timestamp: response.metadata.timestamp,
-            error: response.metadata.error || false,
-          },
-        };
-
-        return result;
-      } catch (error: any) {
-        const duration = Date.now() - startTime;
-        metrics.totalDuration += duration;
-        metrics.failedRequests++;
-
-        console.error('Error executing query:', error);
-
-        return {
-          requestId: '',
-          message: `Error: ${error.message}`,
-          toolsUsed: [],
-          data: null,
-          analysis: null,
-          metadata: {
-            requestId: '',
-            totalDurationMs: duration,
-            timestamp: new Date().toISOString(),
-            error: true,
-          },
-        };
-      }
-    },
 
     cancelQuery: async (_: any, { requestId }: { requestId: string }) => {
       // In a real implementation, this would cancel the ongoing request

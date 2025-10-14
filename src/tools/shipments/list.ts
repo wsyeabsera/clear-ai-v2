@@ -60,6 +60,7 @@ export class ShipmentsListTool extends BaseTool {
 
   async execute(params: Record<string, any>): Promise<ToolResult> {
     const startTime = Date.now();
+    
 
     try {
       // Check cache first
