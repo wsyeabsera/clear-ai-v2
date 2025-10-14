@@ -41,7 +41,7 @@ export class ProducersComplianceReportTool extends BaseTool {
         const producerData = producerResponse.data as any;
         producers = producerData.success ? [producerData.data] : [];
       } else {
-        const producersResponse = await this.get("/waste-producers");
+        const producersResponse = await this.get("/api/waste-producers");
         const producersData = producersResponse.data as any;
         producers = producersData.success ? producersData.data : [];
       }
@@ -72,7 +72,7 @@ export class ProducersComplianceReportTool extends BaseTool {
         };
 
         // Get producer's contracts
-        const contractsResponse = await this.get("/contracts", { producer_id: producer.id, status: "active" });
+        const contractsResponse = await this.get("/api/contracts", { producer_id: producer.id, status: "active" });
         const contractsData = contractsResponse.data as any;
         const contracts = contractsData.success ? contractsData.data : [];
         producerAnalysis.active_contracts = contracts.length;
@@ -89,7 +89,7 @@ export class ProducersComplianceReportTool extends BaseTool {
           if (params.date_from) shipmentQuery.date_from = params.date_from;
           if (params.date_to) shipmentQuery.date_to = params.date_to;
           
-          const shipmentsResponse = await this.get("/shipments", shipmentQuery);
+          const shipmentsResponse = await this.get("/api/shipments", shipmentQuery);
           const shipmentsData = shipmentsResponse.data as any;
           const allShipments = shipmentsData.success ? shipmentsData.data : [];
           
@@ -100,7 +100,7 @@ export class ProducersComplianceReportTool extends BaseTool {
           // Analyze each shipment
           for (const shipment of relevantShipments) {
             // Get shipment loads
-            const loadsResponse = await this.get("/shipment-loads", { shipment_id: shipment.id });
+            const loadsResponse = await this.get("/api/shipment-loads", { shipment_id: shipment.id });
             const loadsData = loadsResponse.data as any;
             const loads = loadsData.success ? loadsData.data : [];
 

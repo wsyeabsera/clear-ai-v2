@@ -89,7 +89,7 @@ export class InspectionsListTool extends BaseTool {
       }
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/inspections", queryParams);
+      const response = await this.get("/api/inspections", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

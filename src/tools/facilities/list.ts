@@ -77,7 +77,7 @@ export class FacilitiesListTool extends BaseTool {
       if (params.ids) queryParams.ids = params.ids;
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/facilities", queryParams);
+      const response = await this.get("/api/facilities", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

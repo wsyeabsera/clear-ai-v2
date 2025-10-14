@@ -1,0 +1,859 @@
+{
+  "timestamp": "2025-10-14T17:56:48.480Z",
+  "summary": {
+    "totalTests": 4,
+    "successfulTests": 1,
+    "successRate": 25,
+    "averageResponseTime": 44351.6489375
+  },
+  "results": [
+    {
+      "scenario": "Contamination Analysis",
+      "query": "Show me all critical contaminants and their risk levels",
+      "responseTime": 44145.932584,
+      "success": true,
+      "response": {
+        "requestId": "f3161daf-1cd8-4e9e-9e9a-c5c235b7aafd",
+        "plan": {
+          "requestId": "f3161daf-1cd8-4e9e-9e9a-c5c235b7aafd",
+          "plan": {
+            "steps": [
+              {
+                "tool": "contaminants_list",
+                "params": {
+                  "risk_level": "critical"
+                },
+                "dependsOn": [],
+                "parallel": false
+              }
+            ]
+          },
+          "metadata": {
+            "query": "Show me all critical contaminants and their risk levels",
+            "timestamp": "2025-10-14T17:53:52.459Z",
+            "estimatedDurationMs": 1000
+          },
+          "status": "pending"
+        },
+        "execution": {
+          "requestId": "f3161daf-1cd8-4e9e-9e9a-c5c235b7aafd",
+          "results": [
+            {
+              "success": true,
+              "tool": "contaminants_list",
+              "data": [
+                {
+                  "id": "contaminant-2",
+                  "shipment_id": "shipment-46",
+                  "type": "metal",
+                  "concentration_ppm": 961,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-26"
+                },
+                {
+                  "id": "contaminant-3",
+                  "shipment_id": "shipment-18",
+                  "type": "organic",
+                  "concentration_ppm": 316,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-13"
+                },
+                {
+                  "id": "contaminant-6",
+                  "shipment_id": "shipment-18",
+                  "type": "organic",
+                  "concentration_ppm": 184,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-30"
+                },
+                {
+                  "id": "contaminant-8",
+                  "shipment_id": "shipment-53",
+                  "type": "paper",
+                  "concentration_ppm": 670,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-04"
+                },
+                {
+                  "id": "contaminant-9",
+                  "shipment_id": "shipment-32",
+                  "type": "plastic",
+                  "concentration_ppm": 980,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-30"
+                },
+                {
+                  "id": "contaminant-10",
+                  "shipment_id": "shipment-20",
+                  "type": "plastic",
+                  "concentration_ppm": 20,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-21"
+                },
+                {
+                  "id": "contaminant-12",
+                  "shipment_id": "shipment-82",
+                  "type": "paper",
+                  "concentration_ppm": 812,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-03"
+                },
+                {
+                  "id": "contaminant-16",
+                  "shipment_id": "shipment-16",
+                  "type": "plastic",
+                  "concentration_ppm": 959,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-17"
+                },
+                {
+                  "id": "contaminant-17",
+                  "shipment_id": "shipment-10",
+                  "type": "paper",
+                  "concentration_ppm": 809,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-26"
+                },
+                {
+                  "id": "contaminant-19",
+                  "shipment_id": "shipment-47",
+                  "type": "organic",
+                  "concentration_ppm": 546,
+                  "risk_level": "critical",
+                  "detected_at": "2025-10-13"
+                },
+                {
+                  "id": "contaminant-23",
+                  "shipment_id": "shipment-31",
+                  "type": "paper",
+                  "concentration_ppm": 886,
+                  "risk_level": "critical",
+                  "detected_at": "2025-10-09"
+                },
+                {
+                  "id": "contaminant-24",
+                  "shipment_id": "shipment-37",
+                  "type": "electronic",
+                  "concentration_ppm": 733,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-18"
+                },
+                {
+                  "id": "contaminant-28",
+                  "shipment_id": "shipment-55",
+                  "type": "organic",
+                  "concentration_ppm": 609,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-25"
+                },
+                {
+                  "id": "contaminant-29",
+                  "shipment_id": "shipment-79",
+                  "type": "electronic",
+                  "concentration_ppm": 454,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-27"
+                },
+                {
+                  "id": "contaminant-35",
+                  "shipment_id": "shipment-76",
+                  "type": "organic",
+                  "concentration_ppm": 489,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-29"
+                },
+                {
+                  "id": "contaminant-36",
+                  "shipment_id": "shipment-99",
+                  "type": "paper",
+                  "concentration_ppm": 443,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-29"
+                },
+                {
+                  "id": "contaminant-37",
+                  "shipment_id": "shipment-32",
+                  "type": "paper",
+                  "concentration_ppm": 224,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-24"
+                }
+              ],
+              "error": null,
+              "metadata": {
+                "executionTime": 9,
+                "timestamp": "2025-10-14T17:53:52.503Z",
+                "retries": 0
+              }
+            }
+          ],
+          "metadata": {
+            "totalDurationMs": 31,
+            "successfulSteps": 1,
+            "failedSteps": 0,
+            "timestamp": "2025-10-14T17:53:52.510Z"
+          }
+        },
+        "analysis": {
+          "requestId": "f3161daf-1cd8-4e9e-9e9a-c5c235b7aafd",
+          "analysis": {
+            "summary": "Analyzed 1 tool executions. Found 3 insights. Extracted 17 entities. Detected 2 anomalies",
+            "insights": [
+              {
+                "type": "compliance_risk",
+                "description": "Found 17 high-risk contaminants requiring immediate attention - review safety protocols",
+                "confidence": 1,
+                "supportingData": [
+                  {
+                    "critical": 17
+                  }
+                ]
+              },
+              {
+                "type": "contamination_pattern",
+                "description": "Most common contaminant: paper (6 occurrences) - focus prevention efforts on this type",
+                "confidence": 0.9,
+                "supportingData": [
+                  {
+                    "metal": 1,
+                    "organic": 5,
+                    "paper": 6,
+                    "plastic": 3,
+                    "electronic": 2
+                  }
+                ]
+              },
+              {
+                "type": "compliance_risk",
+                "description": "organic contaminants have highest risk rate (100.0%) - prioritize safety measures for this type",
+                "confidence": 0.95,
+                "supportingData": [
+                  {
+                    "type": "organic",
+                    "total": 5,
+                    "highRiskRate": 1,
+                    "criticalRate": 1
+                  }
+                ]
+              }
+            ],
+            "entities": [
+              {
+                "id": "contaminant-2",
+                "type": "contaminant",
+                "name": "contaminant-2",
+                "attributes": {
+                  "id": "contaminant-2",
+                  "shipment_id": "shipment-46",
+                  "type": "metal",
+                  "concentration_ppm": 961,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-26"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-46",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-3",
+                "type": "contaminant",
+                "name": "contaminant-3",
+                "attributes": {
+                  "id": "contaminant-3",
+                  "shipment_id": "shipment-18",
+                  "type": "organic",
+                  "concentration_ppm": 316,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-13"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-18",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-6",
+                "type": "contaminant",
+                "name": "contaminant-6",
+                "attributes": {
+                  "id": "contaminant-6",
+                  "shipment_id": "shipment-18",
+                  "type": "organic",
+                  "concentration_ppm": 184,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-30"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-18",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-8",
+                "type": "contaminant",
+                "name": "contaminant-8",
+                "attributes": {
+                  "id": "contaminant-8",
+                  "shipment_id": "shipment-53",
+                  "type": "paper",
+                  "concentration_ppm": 670,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-04"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-53",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-9",
+                "type": "contaminant",
+                "name": "contaminant-9",
+                "attributes": {
+                  "id": "contaminant-9",
+                  "shipment_id": "shipment-32",
+                  "type": "plastic",
+                  "concentration_ppm": 980,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-30"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-32",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-10",
+                "type": "contaminant",
+                "name": "contaminant-10",
+                "attributes": {
+                  "id": "contaminant-10",
+                  "shipment_id": "shipment-20",
+                  "type": "plastic",
+                  "concentration_ppm": 20,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-21"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-20",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-12",
+                "type": "contaminant",
+                "name": "contaminant-12",
+                "attributes": {
+                  "id": "contaminant-12",
+                  "shipment_id": "shipment-82",
+                  "type": "paper",
+                  "concentration_ppm": 812,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-03"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-82",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-16",
+                "type": "contaminant",
+                "name": "contaminant-16",
+                "attributes": {
+                  "id": "contaminant-16",
+                  "shipment_id": "shipment-16",
+                  "type": "plastic",
+                  "concentration_ppm": 959,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-17"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-16",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-17",
+                "type": "contaminant",
+                "name": "contaminant-17",
+                "attributes": {
+                  "id": "contaminant-17",
+                  "shipment_id": "shipment-10",
+                  "type": "paper",
+                  "concentration_ppm": 809,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-26"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-10",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-19",
+                "type": "contaminant",
+                "name": "contaminant-19",
+                "attributes": {
+                  "id": "contaminant-19",
+                  "shipment_id": "shipment-47",
+                  "type": "organic",
+                  "concentration_ppm": 546,
+                  "risk_level": "critical",
+                  "detected_at": "2025-10-13"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-47",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-23",
+                "type": "contaminant",
+                "name": "contaminant-23",
+                "attributes": {
+                  "id": "contaminant-23",
+                  "shipment_id": "shipment-31",
+                  "type": "paper",
+                  "concentration_ppm": 886,
+                  "risk_level": "critical",
+                  "detected_at": "2025-10-09"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-31",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-24",
+                "type": "contaminant",
+                "name": "contaminant-24",
+                "attributes": {
+                  "id": "contaminant-24",
+                  "shipment_id": "shipment-37",
+                  "type": "electronic",
+                  "concentration_ppm": 733,
+                  "risk_level": "critical",
+                  "detected_at": "2025-09-18"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-37",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-28",
+                "type": "contaminant",
+                "name": "contaminant-28",
+                "attributes": {
+                  "id": "contaminant-28",
+                  "shipment_id": "shipment-55",
+                  "type": "organic",
+                  "concentration_ppm": 609,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-25"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-55",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-29",
+                "type": "contaminant",
+                "name": "contaminant-29",
+                "attributes": {
+                  "id": "contaminant-29",
+                  "shipment_id": "shipment-79",
+                  "type": "electronic",
+                  "concentration_ppm": 454,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-27"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-79",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-35",
+                "type": "contaminant",
+                "name": "contaminant-35",
+                "attributes": {
+                  "id": "contaminant-35",
+                  "shipment_id": "shipment-76",
+                  "type": "organic",
+                  "concentration_ppm": 489,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-29"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-76",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-36",
+                "type": "contaminant",
+                "name": "contaminant-36",
+                "attributes": {
+                  "id": "contaminant-36",
+                  "shipment_id": "shipment-99",
+                  "type": "paper",
+                  "concentration_ppm": 443,
+                  "risk_level": "critical",
+                  "detected_at": "2025-08-29"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-99",
+                    "strength": "critical"
+                  }
+                ]
+              },
+              {
+                "id": "contaminant-37",
+                "type": "contaminant",
+                "name": "contaminant-37",
+                "attributes": {
+                  "id": "contaminant-37",
+                  "shipment_id": "shipment-32",
+                  "type": "paper",
+                  "concentration_ppm": 224,
+                  "risk_level": "critical",
+                  "detected_at": "2025-07-24"
+                },
+                "relationships": [
+                  {
+                    "type": "belongs_to",
+                    "targetEntityId": "shipment-32",
+                    "strength": "critical"
+                  }
+                ]
+              }
+            ],
+            "anomalies": [
+              {
+                "type": "threshold_exceeded",
+                "description": "Critical contamination detected in 17 shipments",
+                "severity": "critical",
+                "affectedEntities": [
+                  "shipment-46",
+                  "shipment-18",
+                  "shipment-18",
+                  "shipment-53",
+                  "shipment-32",
+                  "shipment-20",
+                  "shipment-82",
+                  "shipment-16",
+                  "shipment-10",
+                  "shipment-47",
+                  "shipment-31",
+                  "shipment-37",
+                  "shipment-55",
+                  "shipment-79",
+                  "shipment-76",
+                  "shipment-99",
+                  "shipment-32"
+                ],
+                "data": [
+                  {
+                    "id": "contaminant-2",
+                    "shipment_id": "shipment-46",
+                    "type": "metal",
+                    "concentration_ppm": 961,
+                    "risk_level": "critical",
+                    "detected_at": "2025-07-26"
+                  },
+                  {
+                    "id": "contaminant-3",
+                    "shipment_id": "shipment-18",
+                    "type": "organic",
+                    "concentration_ppm": 316,
+                    "risk_level": "critical",
+                    "detected_at": "2025-09-13"
+                  },
+                  {
+                    "id": "contaminant-6",
+                    "shipment_id": "shipment-18",
+                    "type": "organic",
+                    "concentration_ppm": 184,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-30"
+                  },
+                  {
+                    "id": "contaminant-8",
+                    "shipment_id": "shipment-53",
+                    "type": "paper",
+                    "concentration_ppm": 670,
+                    "risk_level": "critical",
+                    "detected_at": "2025-09-04"
+                  },
+                  {
+                    "id": "contaminant-9",
+                    "shipment_id": "shipment-32",
+                    "type": "plastic",
+                    "concentration_ppm": 980,
+                    "risk_level": "critical",
+                    "detected_at": "2025-07-30"
+                  },
+                  {
+                    "id": "contaminant-10",
+                    "shipment_id": "shipment-20",
+                    "type": "plastic",
+                    "concentration_ppm": 20,
+                    "risk_level": "critical",
+                    "detected_at": "2025-07-21"
+                  },
+                  {
+                    "id": "contaminant-12",
+                    "shipment_id": "shipment-82",
+                    "type": "paper",
+                    "concentration_ppm": 812,
+                    "risk_level": "critical",
+                    "detected_at": "2025-09-03"
+                  },
+                  {
+                    "id": "contaminant-16",
+                    "shipment_id": "shipment-16",
+                    "type": "plastic",
+                    "concentration_ppm": 959,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-17"
+                  },
+                  {
+                    "id": "contaminant-17",
+                    "shipment_id": "shipment-10",
+                    "type": "paper",
+                    "concentration_ppm": 809,
+                    "risk_level": "critical",
+                    "detected_at": "2025-09-26"
+                  },
+                  {
+                    "id": "contaminant-19",
+                    "shipment_id": "shipment-47",
+                    "type": "organic",
+                    "concentration_ppm": 546,
+                    "risk_level": "critical",
+                    "detected_at": "2025-10-13"
+                  },
+                  {
+                    "id": "contaminant-23",
+                    "shipment_id": "shipment-31",
+                    "type": "paper",
+                    "concentration_ppm": 886,
+                    "risk_level": "critical",
+                    "detected_at": "2025-10-09"
+                  },
+                  {
+                    "id": "contaminant-24",
+                    "shipment_id": "shipment-37",
+                    "type": "electronic",
+                    "concentration_ppm": 733,
+                    "risk_level": "critical",
+                    "detected_at": "2025-09-18"
+                  },
+                  {
+                    "id": "contaminant-28",
+                    "shipment_id": "shipment-55",
+                    "type": "organic",
+                    "concentration_ppm": 609,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-25"
+                  },
+                  {
+                    "id": "contaminant-29",
+                    "shipment_id": "shipment-79",
+                    "type": "electronic",
+                    "concentration_ppm": 454,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-27"
+                  },
+                  {
+                    "id": "contaminant-35",
+                    "shipment_id": "shipment-76",
+                    "type": "organic",
+                    "concentration_ppm": 489,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-29"
+                  },
+                  {
+                    "id": "contaminant-36",
+                    "shipment_id": "shipment-99",
+                    "type": "paper",
+                    "concentration_ppm": 443,
+                    "risk_level": "critical",
+                    "detected_at": "2025-08-29"
+                  },
+                  {
+                    "id": "contaminant-37",
+                    "shipment_id": "shipment-32",
+                    "type": "paper",
+                    "concentration_ppm": 224,
+                    "risk_level": "critical",
+                    "detected_at": "2025-07-24"
+                  }
+                ]
+              },
+              {
+                "type": "outlier",
+                "description": "Detected 1 contaminants with unusually high concentration",
+                "severity": "high",
+                "affectedEntities": [
+                  "contaminant-10"
+                ],
+                "data": {
+                  "outliers": [
+                    {
+                      "id": "contaminant-10",
+                      "shipment_id": "shipment-20",
+                      "type": "plastic",
+                      "concentration_ppm": 20,
+                      "risk_level": "critical",
+                      "detected_at": "2025-07-21"
+                    }
+                  ],
+                  "mean": 593.8235294117648,
+                  "stdDev": 285.8150852837872
+                }
+              }
+            ],
+            "metadata": {
+              "toolResultsCount": 1,
+              "successfulResults": 1,
+              "failedResults": 0,
+              "analysisTimeMs": 22534
+            }
+          },
+          "metadata": {
+            "toolResultsCount": 1,
+            "successfulResults": 1,
+            "failedResults": 0,
+            "analysisTimeMs": 22534
+          }
+        },
+        "summary": {
+          "requestId": "f3161daf-1cd8-4e9e-9e9a-c5c235b7aafd",
+          "message": "Critical contaminants requiring immediate attention include 17 high-risk contaminants across shipments, demanding urgent safety protocol review. Organic contaminants pose the highest risk, with a 100% risk rate, necessitating prioritized safety measures. Paper contaminants, with 6 occurrences, require focused prevention efforts due to their medium severity and urgency. Actionable recommendations are to review safety protocols for high-risk contaminants, prioritize safety measures for organic contaminants, and focus prevention efforts on paper contaminants to enhance safety protocols effectively. This structured plan emphasizes the urgency of addressing contaminants promptly.",
+          "toolsUsed": [
+            "contaminants_list"
+          ],
+          "metadata": {
+            "requestId": "",
+            "totalDurationMs": 0,
+            "timestamp": "2025-10-14T17:54:35.194Z",
+            "error": false
+          }
+        }
+      },
+      "insights": [
+        {
+          "type": "compliance_risk",
+          "description": "Found 17 high-risk contaminants requiring immediate attention - review safety protocols",
+          "confidence": 1,
+          "supportingData": [
+            {
+              "critical": 17
+            }
+          ]
+        },
+        {
+          "type": "contamination_pattern",
+          "description": "Most common contaminant: paper (6 occurrences) - focus prevention efforts on this type",
+          "confidence": 0.9,
+          "supportingData": [
+            {
+              "metal": 1,
+              "organic": 5,
+              "paper": 6,
+              "plastic": 3,
+              "electronic": 2
+            }
+          ]
+        },
+        {
+          "type": "compliance_risk",
+          "description": "organic contaminants have highest risk rate (100.0%) - prioritize safety measures for this type",
+          "confidence": 0.95,
+          "supportingData": [
+            {
+              "type": "organic",
+              "total": 5,
+              "highRiskRate": 1,
+              "criticalRate": 1
+            }
+          ]
+        }
+      ],
+      "summary": "Critical contaminants requiring immediate attention include 17 high-risk contaminants across shipments, demanding urgent safety protocol review. Organic contaminants pose the highest risk, with a 100% risk rate, necessitating prioritized safety measures. Paper contaminants, with 6 occurrences, require focused prevention efforts due to their medium severity and urgency. Actionable recommendations are to review safety protocols for high-risk contaminants, prioritize safety measures for organic contaminants, and focus prevention efforts on paper contaminants to enhance safety protocols effectively. This structured plan emphasizes the urgency of addressing contaminants promptly."
+    },
+    {
+      "scenario": "Facility Capacity Analysis",
+      "query": "Which facilities are over 90% capacity?",
+      "responseTime": 32265.246415999994,
+      "success": false,
+      "error": "timeout of 30000ms exceeded"
+    },
+    {
+      "scenario": "Multi-Entity Analysis",
+      "query": "Show me contaminated shipments and their facility destinations with risk assessment",
+      "responseTime": 34097.31112499999,
+      "success": false,
+      "error": "timeout of 30000ms exceeded"
+    },
+    {
+      "scenario": "Status Summary",
+      "query": "Summarize the current waste management status",
+      "responseTime": 66898.10562500001,
+      "success": false,
+      "error": "timeout of 30000ms exceeded"
+    }
+  ]
+}

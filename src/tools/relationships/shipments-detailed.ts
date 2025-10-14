@@ -42,14 +42,14 @@ export class ShipmentsDetailedTool extends BaseTool {
 
       // Fetch related data based on include array
       if (include.includes("contaminants")) {
-        const contaminantsResponse = await this.get("/contaminants-detected", {
+        const contaminantsResponse = await this.get("/api/contaminants-detected", {
           shipment_ids: params.id,
         });
         result.contaminants = contaminantsResponse.data?.data || [];
       }
 
       if (include.includes("inspection")) {
-        const inspectionsResponse = await this.get("/inspections", {
+        const inspectionsResponse = await this.get("/api/inspections", {
           shipment_id: params.id,
         });
         result.inspections = inspectionsResponse.data?.data || [];

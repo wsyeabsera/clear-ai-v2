@@ -18,7 +18,7 @@ export class AnalyticsFacilityPerformanceTool extends BaseTool {
     const startTime = Date.now();
 
     try {
-      const response = await this.get("/analytics/facility-performance");
+      const response = await this.get("/api/analytics/facility-performance");
 
       return this.success(response.data, Date.now() - startTime);
     } catch (error: any) {

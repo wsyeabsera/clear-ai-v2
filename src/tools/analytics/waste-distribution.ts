@@ -18,7 +18,7 @@ export class AnalyticsWasteDistributionTool extends BaseTool {
     const startTime = Date.now();
 
     try {
-      const response = await this.get("/analytics/waste-type-distribution");
+      const response = await this.get("/api/analytics/waste-type-distribution");
 
       return this.success(response.data, Date.now() - startTime);
     } catch (error: any) {

@@ -101,7 +101,7 @@ export class ShipmentsListTool extends BaseTool {
       if (params.carrier) queryParams.carrier = params.carrier;
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/shipments", queryParams);
+      const response = await this.get("/api/shipments", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

@@ -87,7 +87,7 @@ export class ContaminantsListTool extends BaseTool {
       if (params.risk_level) queryParams.risk_level = params.risk_level;
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/contaminants-detected", queryParams);
+      const response = await this.get("/api/contaminants-detected", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

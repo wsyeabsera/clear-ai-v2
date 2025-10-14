@@ -22,6 +22,9 @@ export const typeDefs = `#graphql
     """Get execution results by request ID"""
     getExecution(requestId: ID!): ExecutionResults
 
+    """Get analysis results by request ID"""
+    getAnalysis(requestId: ID!): AnalysisResult
+
     """List execution results with filters"""
     listExecutions(
       status: String
@@ -33,6 +36,43 @@ export const typeDefs = `#graphql
 
     """Get execution statistics"""
     getExecutionStats: ExecutionStats
+
+    # Agent Configuration Management
+    """Get agent configuration by ID"""
+    getAgentConfig(id: ID!): AgentConfig
+
+    """List agent configurations with filters"""
+    listAgentConfigs(
+      type: AgentType
+      isActive: Boolean
+      isDefault: Boolean
+      limit: Int
+      offset: Int
+    ): [AgentConfig!]!
+
+    """Get default configuration for an agent type"""
+    getDefaultConfig(type: AgentType!): AgentConfig
+
+    """List available analysis strategies"""
+    listAnalysisStrategies: [StrategyInfo!]!
+
+    """List available summarization strategies"""
+    listSummarizationStrategies: [StrategyInfo!]!
+
+    # Training & Feedback
+    """Get training feedback by ID"""
+    getTrainingFeedback(id: ID!): TrainingFeedback
+
+    """List training feedback with filters"""
+    listTrainingFeedback(
+      configId: ID
+      agentType: AgentType
+      limit: Int
+      offset: Int
+    ): [TrainingFeedback!]!
+
+    """Get training statistics for a configuration"""
+    getTrainingStats(configId: ID!): TrainingStats
   }
 
   type Mutation {
@@ -44,13 +84,39 @@ export const typeDefs = `#graphql
     executeTools(requestId: ID!): ExecutionResults!
 
     """Analyze tool execution results"""
-    analyzeResults(requestId: ID!): AnalysisResult!
+    analyzeResults(requestId: ID!, analyzerConfigId: ID): AnalysisResult!
 
     """Summarize analysis into a response"""
-    summarizeResponse(analysis: AnalysisInput!, toolResults: [ToolResultInput!]!, query: String!): SummaryResult!
+    summarizeResponse(requestId: ID!, summarizerConfigId: ID): SummaryResult!
 
     """Cancel an in-progress query"""
     cancelQuery(requestId: ID!): Boolean!
+
+    # Agent Configuration Management
+    """Create a new agent configuration"""
+    createAgentConfig(input: CreateAgentConfigInput!): AgentConfig!
+
+    """Update an existing agent configuration"""
+    updateAgentConfig(id: ID!, input: UpdateAgentConfigInput!): AgentConfig!
+
+    """Delete an agent configuration"""
+    deleteAgentConfig(id: ID!): Boolean!
+
+    """Set a configuration as default for its agent type"""
+    setDefaultConfig(id: ID!): AgentConfig!
+
+    """Clone an existing configuration"""
+    cloneAgentConfig(id: ID!, name: String!): AgentConfig!
+
+    # Training & Feedback
+    """Submit feedback for a request"""
+    submitFeedback(input: SubmitFeedbackInput!): TrainingFeedback!
+
+    """Train a configuration based on collected feedback"""
+    trainConfig(configId: ID!, options: TrainingOptionsInput): TrainingResult!
+
+    """Apply a proposed training update"""
+    applyTrainingUpdate(configId: ID!, updateData: JSON!): AgentConfig!
   }
 
   type Subscription {
@@ -379,5 +445,225 @@ export const typeDefs = `#graphql
   }
 
   scalar JSON
+
+  # Agent Configuration Types
+  enum AgentType {
+    analyzer
+    summarizer
+  }
+
+  type AgentConfig {
+    id: ID!
+    name: String!
+    version: Int!
+    type: AgentType!
+    description: String
+    isDefault: Boolean!
+    isActive: Boolean!
+    config: JSON!
+    metadata: AgentConfigMetadata
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type AgentConfigMetadata {
+    createdBy: String
+    description: String
+    tags: [String!]
+    performanceMetrics: PerformanceMetrics
+    version: String
+    isSystemDefault: Boolean
+  }
+
+  type PerformanceMetrics {
+    avgConfidence: Float!
+    avgQualityScore: Float!
+    totalUsage: Int!
+    lastUsed: String
+    successRate: Float
+  }
+
+  type StrategyInfo {
+    name: String!
+    description: String!
+    version: String
+  }
+
+  input CreateAgentConfigInput {
+    name: String!
+    type: AgentType!
+    description: String
+    config: JSON!
+    isDefault: Boolean
+    isActive: Boolean
+    metadata: AgentConfigMetadataInput
+  }
+
+  input UpdateAgentConfigInput {
+    name: String
+    description: String
+    config: JSON
+    isActive: Boolean
+    metadata: AgentConfigMetadataInput
+  }
+
+  input AgentConfigMetadataInput {
+    createdBy: String
+    description: String
+    tags: [String!]
+  }
+
+  # Training & Feedback Types
+  type TrainingFeedback {
+    id: ID!
+    requestId: ID!
+    configId: ID!
+    agentType: AgentType!
+    rating: FeedbackRating!
+    issues: [FeedbackIssue!]!
+    suggestions: [String!]!
+    metadata: FeedbackMetadata!
+    createdAt: String!
+  }
+
+  type FeedbackRating {
+    overall: Int!
+    accuracy: Int
+    relevance: Int
+    clarity: Int
+    actionability: Int
+  }
+
+  type FeedbackIssue {
+    type: FeedbackIssueType!
+    severity: FeedbackSeverity!
+    description: String!
+    suggestion: String
+  }
+
+  enum FeedbackIssueType {
+    accuracy
+    relevance
+    clarity
+    completeness
+    actionability
+    tone
+  }
+
+  enum FeedbackSeverity {
+    low
+    medium
+    high
+    critical
+  }
+
+  type FeedbackMetadata {
+    query: String
+    responseTime: Int
+    confidence: Float
+    qualityScore: Float
+    userAgent: String
+    sessionId: String
+  }
+
+  input SubmitFeedbackInput {
+    requestId: ID!
+    configId: ID!
+    agentType: AgentType!
+    rating: FeedbackRatingInput!
+    issues: [FeedbackIssueInput!]
+    suggestions: [String!]
+    metadata: FeedbackMetadataInput
+  }
+
+  input FeedbackRatingInput {
+    overall: Int!
+    accuracy: Int
+    relevance: Int
+    clarity: Int
+    actionability: Int
+  }
+
+  input FeedbackIssueInput {
+    type: FeedbackIssueType!
+    severity: FeedbackSeverity!
+    description: String!
+    suggestion: String
+  }
+
+  input FeedbackMetadataInput {
+    query: String
+    responseTime: Int
+    confidence: Float
+    qualityScore: Float
+    userAgent: String
+    sessionId: String
+  }
+
+  type TrainingStats {
+    configId: ID!
+    totalFeedback: Int!
+    avgRating: Float!
+    commonIssues: [IssueFrequency!]!
+    recentTrend: String!
+    performanceMetrics: PerformanceMetrics
+    recommendations: [String!]!
+  }
+
+  type IssueFrequency {
+    type: FeedbackIssueType!
+    count: Int!
+    percentage: Float!
+  }
+
+  type TrainingResult {
+    configId: ID!
+    updates: [ConfigUpdate!]!
+    status: TrainingStatus!
+    message: String!
+    completedAt: String!
+  }
+
+  type ConfigUpdate {
+    id: ID!
+    type: ConfigUpdateType!
+    description: String!
+    changes: JSON!
+    confidence: Float!
+    reasoning: String!
+    status: ConfigUpdateStatus!
+  }
+
+  enum ConfigUpdateType {
+    threshold_adjustment
+    prompt_optimization
+    strategy_change
+    parameter_tuning
+  }
+
+  enum ConfigUpdateStatus {
+    pending
+    approved
+    rejected
+    applied
+  }
+
+  enum TrainingStatus {
+    success
+    partial
+    failed
+  }
+
+  input TrainingOptionsInput {
+    minSamples: Int
+    strategy: TrainingStrategy
+    maxIterations: Int
+  }
+
+  enum TrainingStrategy {
+    conservative
+    aggressive
+    balanced
+  }
 `;
 

@@ -90,7 +90,7 @@ export class ContractsListTool extends BaseTool {
       if (params.waste_type) queryParams.waste_type = params.waste_type;
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/contracts", queryParams);
+      const response = await this.get("/api/contracts", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

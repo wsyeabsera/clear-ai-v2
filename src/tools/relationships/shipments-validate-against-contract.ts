@@ -39,12 +39,12 @@ export class ShipmentsValidateAgainstContractTool extends BaseTool {
       const shipment = shipmentData.data;
 
       // Get shipment loads to check detected waste codes
-      const loadsResponse = await this.get("/shipment-loads", { shipment_id: shipment.id });
+      const loadsResponse = await this.get("/api/shipment-loads", { shipment_id: shipment.id });
       const loadsData = loadsResponse.data as any;
       const loads = loadsData.success ? loadsData.data : [];
 
       // Get contracts for the facility
-      const contractsResponse = await this.get("/contracts", { facility_id: shipment.facility_id, status: "active" });
+      const contractsResponse = await this.get("/api/contracts", { facility_id: shipment.facility_id, status: "active" });
       const contractsData = contractsResponse.data as any;
       const contracts = contractsData.success ? contractsData.data : [];
 

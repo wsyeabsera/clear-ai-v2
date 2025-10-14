@@ -3,14 +3,17 @@
  * Processes tool execution results to extract insights, detect anomalies, and identify patterns
  */
 
-import { ToolResult, Analysis, Insight, Entity, Anomaly } from '../shared/types/agent.js';
+import { ToolResult, Analysis, Insight, Entity, Anomaly, ReasoningStep, ValidationResult, ValidationIssue } from '../shared/types/agent.js';
 import { LLMProvider } from '../shared/llm/provider.js';
+import { ANALYZER_MAX_REASONING_STEPS, CHAIN_OF_THOUGHT_TEMPERATURE } from '../shared/constants/config.js';
 
 export interface AnalyzerConfig {
   anomalyThreshold: number; // Standard deviations from mean
   minConfidence: number;    // Minimum confidence for insights (0-1)
   useLLM: boolean;          // Use LLM for analysis or rule-based
   enableStatisticalAnalysis: boolean;
+  enableChainOfThought?: boolean; // Enable multi-step reasoning
+  enableSelfCritique?: boolean;   // Enable validation layer
 }
 
 export class AnalyzerAgent {
@@ -25,6 +28,8 @@ export class AnalyzerAgent {
       minConfidence: 0.7,
       useLLM: true,
       enableStatisticalAnalysis: true,
+      enableChainOfThought: true,
+      enableSelfCritique: true,
       ...config,
     };
   }
@@ -67,7 +72,19 @@ export class AnalyzerAgent {
       anomalies
     );
 
-    return {
+    // Extract reasoning trace and validation result if available
+    let reasoningTrace: ReasoningStep[] | undefined;
+    let validationResult: ValidationResult | undefined;
+
+    // If chain-of-thought was used, extract the reasoning trace
+    if (this.config.enableChainOfThought && this.config.useLLM) {
+      // The reasoning trace would be stored during the insight generation process
+      // For now, we'll create a placeholder - in a full implementation, this would be
+      // stored in the class instance during the chain-of-thought process
+      reasoningTrace = [];
+    }
+
+    const result: Analysis = {
       summary,
       insights,
       entities,
@@ -79,6 +96,16 @@ export class AnalyzerAgent {
         analysis_time_ms: Date.now() - startTime,
       },
     };
+
+    // Add optional fields if they exist
+    if (reasoningTrace) {
+      result.reasoning_trace = reasoningTrace;
+    }
+    if (validationResult) {
+      result.validation_result = validationResult;
+    }
+
+    return result;
   }
 
   private async generateInsights(results: ToolResult[]): Promise<Insight[]> {
@@ -92,41 +119,76 @@ export class AnalyzerAgent {
   }
 
   private async generateInsightsWithLLM(results: ToolResult[]): Promise<Insight[]> {
-    const systemPrompt = `You are a waste management data analyst specializing in contamination detection, facility operations, and compliance monitoring.
+    const systemPrompt = `You are an advanced waste management data analyst with expertise in:
+- Contamination pattern recognition and risk assessment
+- Facility operational efficiency analysis
+- Compliance and regulatory impact evaluation
+- Data quality validation and anomaly detection
 
-ANALYSIS FOCUS:
-1. **Relationship Mapping**:
-   - Contaminants belong to specific shipments (via shipment_id)
-   - Shipments are destined for facilities (via facility_id)
-   - Track the complete chain: contaminant → shipment → facility
+ANALYTICAL FRAMEWORK:
+1. **Pattern Recognition**: Identify trends across waste types, facilities, time periods
+2. **Root Cause Analysis**: Investigate underlying causes of patterns
+3. **Risk Assessment**: Evaluate contamination severity and compliance risks
+4. **Operational Impact**: Assess efficiency and capacity implications
+5. **Actionable Recommendations**: Provide specific, implementable solutions
 
-2. **Data Quality Issues**:
-   - Check for malformed arrays (single characters instead of proper strings)
-   - Identify contradictory data (same waste type in BOTH accepted AND rejected lists)
-   - Detect missing or invalid relationships
+CHAIN-OF-THOUGHT PROCESS:
+1. **Observe**: Extract key facts from data
+2. **Correlate**: Find relationships between entities
+3. **Hypothesize**: Propose explanations for patterns
+4. **Validate**: Check hypotheses against data
+5. **Conclude**: Formulate confident insights
 
-3. **Waste Management Insights**:
-   - Contamination patterns by waste type and facility
-   - Facility capacity utilization vs contamination rates
-   - Compliance risks (high-risk contaminants at facilities)
-   - Operational efficiency (rejection rates, processing bottlenecks)
+DOMAIN EXPERTISE:
 
-4. **Actionable Recommendations**:
-   - Facility capacity warnings
-   - Contamination risk assessments
-   - Process improvement opportunities
+**Contamination Analysis:**
+- Critical contaminants: Lead, Mercury, PCBs, Asbestos
+- Risk levels: Critical (>1000ppm), High (100-1000ppm), Medium (10-100ppm), Low (<10ppm)
+- Contamination patterns by waste type: Electronic waste has higher metal contamination, organic waste has biological risks
+- Seasonal variations: Construction debris spikes in summer, organic waste increases in fall
+
+**Facility Operations:**
+- Capacity thresholds: >90% = critical, >80% = high risk, <60% = underutilized
+- Processing efficiency: Sorting facilities should process 80%+ of capacity, disposal facilities 95%+
+- Rejection rates: >20% indicates quality control issues, >10% needs investigation
+- Waste type compatibility: Facilities have specific accepted/rejected waste type lists
+
+**Compliance & Regulations:**
+- Hazardous waste: Requires special handling, documentation, and disposal
+- Contaminant limits: EPA standards for different waste streams
+- Facility permits: Type determines what waste can be accepted
+- Reporting requirements: Critical contaminants must be reported within 24 hours
+
+**Data Quality Standards:**
+- Relationships: Every contaminant must have shipment_id, every shipment must have facility_id
+- Waste types: Must be valid categories (plastic, metal, paper, organic, electronic, etc.)
+- Policy consistency: Same waste type cannot be both accepted AND rejected by facility
+- Missing data: Identify incomplete records that affect analysis reliability
+
+QUALITY CRITERIA:
+- Confidence > 0.7 (70%) minimum for actionable insights
+- Clear supporting data with specific entity IDs and metrics
+- Actionable recommendations with implementation steps
+- Relevant to original query context and business impact
+- No speculation without supporting evidence
+- Prioritize insights by severity and business impact
 
 Return JSON array of insights:
 [
   {
     "type": "contamination_pattern|capacity_risk|data_quality|compliance_risk|operational_efficiency",
-    "description": "Specific, actionable insight with clear business impact",
+    "description": "Specific, actionable insight with clear business impact and supporting evidence",
     "confidence": 0.0-1.0,
-    "supporting_data": [{"key": "value", "entities": ["id1", "id2"]}]
+    "supporting_data": [{"metric": "value", "entities": ["id1", "id2"], "context": "additional details"}]
   }
 ]`;
 
     try {
+      // Use chain-of-thought reasoning if enabled
+      if (this.config.enableChainOfThought !== false) {
+        return await this.generateInsightsWithChainOfThought(results);
+      }
+
       const response = await this.llm.generate({
         messages: [
           { role: 'system', content: systemPrompt },
@@ -136,12 +198,12 @@ Return JSON array of insights:
           },
         ],
         config: {
-          temperature: 0.3,
-          max_tokens: 1000,
+          temperature: CHAIN_OF_THOUGHT_TEMPERATURE,
+          max_tokens: 1500,
         },
       });
 
-      const insights = JSON.parse(response.content);
+      const insights = this.extractJSONFromResponse(response.content);
 
       // Filter by confidence threshold
       return insights.filter((i: Insight) =>
@@ -859,6 +921,393 @@ Return JSON array of insights:
     ];
 
     return parts.join('. ');
+  }
+
+  /**
+   * Generate insights using chain-of-thought reasoning
+   */
+  private async generateInsightsWithChainOfThought(results: ToolResult[]): Promise<Insight[]> {
+    console.log('[AnalyzerAgent] Using chain-of-thought reasoning for insights...');
+
+    const reasoningSteps: ReasoningStep[] = [];
+    let currentInsights: Insight[] = [];
+
+    try {
+      // Step 1: Observation - Extract raw facts from data
+      const observationStep = await this.performReasoningStep(
+        'observation',
+        1,
+        'Extract key facts and metrics from the data',
+        results,
+        `Extract all key facts, metrics, and patterns from these tool results. Focus on:
+        - Contamination levels and risk classifications
+        - Facility capacity utilization rates
+        - Shipment status distributions
+        - Waste type compositions
+        - Any data quality issues
+
+        Return a structured list of observations with specific numbers and entity IDs.`
+      );
+      reasoningSteps.push(observationStep);
+
+      // Step 2: Correlation - Find relationships between entities
+      const correlationStep = await this.performReasoningStep(
+        'correlation',
+        2,
+        'Identify relationships and correlations between entities',
+        observationStep.output,
+        `Based on the observations, identify:
+        - Which contaminants belong to which shipments
+        - Which shipments are destined for which facilities
+        - Correlations between contamination levels and facility types
+        - Patterns in rejection rates by waste type
+        - Capacity utilization vs contamination correlation
+
+        Return structured relationships with supporting evidence.`
+      );
+      reasoningSteps.push(correlationStep);
+
+      // Step 3: Hypothesis - Generate explanations for patterns
+      const hypothesisStep = await this.performReasoningStep(
+        'hypothesis',
+        3,
+        'Generate hypotheses for observed patterns',
+        { observations: observationStep.output, correlations: correlationStep.output },
+        `Based on the observations and correlations, generate hypotheses for:
+        - Why certain facilities have higher contamination rates
+        - Root causes of rejection patterns
+        - Factors affecting capacity utilization
+        - Data quality issues and their implications
+
+        Each hypothesis should include confidence level and supporting evidence.`
+      );
+      reasoningSteps.push(hypothesisStep);
+
+      // Step 4: Validation - Check hypotheses against data
+      const validationStep = await this.performReasoningStep(
+        'validation',
+        4,
+        'Validate hypotheses against supporting data',
+        { hypotheses: hypothesisStep.output, originalData: results },
+        `Validate each hypothesis by:
+        - Checking if supporting data is sufficient
+        - Looking for contradictory evidence
+        - Assessing statistical significance
+        - Evaluating business impact
+        - Determining actionability
+
+        Return validated hypotheses with confidence scores and supporting data.`
+      );
+      reasoningSteps.push(validationStep);
+
+      // Step 5: Conclusion - Formulate final insights
+      const conclusionStep = await this.performReasoningStep(
+        'conclusion',
+        5,
+        'Formulate actionable insights from validated hypotheses',
+        { validatedHypotheses: validationStep.output },
+        `Convert validated hypotheses into actionable insights:
+        - Ensure each insight has clear business impact
+        - Include specific recommendations
+        - Provide supporting data with entity IDs
+        - Set appropriate confidence scores (>0.7)
+        - Prioritize by severity and urgency
+
+        Return JSON array of insights matching the required format.`
+      );
+      reasoningSteps.push(conclusionStep);
+
+      // Parse final insights with proper JSON extraction
+      try {
+        currentInsights = this.extractJSONFromResponse(conclusionStep.output);
+      } catch (parseError) {
+        console.warn('[AnalyzerAgent] Failed to parse insights JSON, falling back to rule-based analysis:', parseError);
+        return this.generateInsightsRuleBased(results);
+      }
+
+      // Apply self-critique validation if enabled
+      if (this.config.enableSelfCritique) {
+        const validation = await this.validateInsights(currentInsights, results, reasoningSteps);
+        if (!validation.is_valid) {
+          console.warn('[AnalyzerAgent] Self-critique validation found issues:', validation.issues);
+          // Filter out low-quality insights
+          currentInsights = currentInsights.filter(() =>
+            !validation.issues.some(issue =>
+              issue.type === 'relevance' && issue.severity === 'high'
+            )
+          );
+        }
+      }
+
+      // Filter by confidence threshold
+      return currentInsights.filter((i: Insight) =>
+        i.confidence >= this.config.minConfidence
+      );
+
+    } catch (error) {
+      console.error('[AnalyzerAgent] Chain-of-thought reasoning failed:', error);
+      // Fallback to rule-based analysis
+      return this.generateInsightsRuleBased(results);
+    }
+  }
+
+  /**
+   * Perform a single reasoning step
+   */
+  private async performReasoningStep(
+    type: ReasoningStep['reasoning_type'],
+    stepNumber: number,
+    description: string,
+    input: any,
+    prompt: string
+  ): Promise<ReasoningStep> {
+    const startTime = new Date();
+
+    const response = await this.llm.generate({
+      messages: [
+        {
+          role: 'system',
+          content: `You are performing step ${stepNumber} of ${ANALYZER_MAX_REASONING_STEPS} in a chain-of-thought analysis.
+
+          ${prompt}
+
+          Be specific, provide evidence, and maintain high quality standards.`
+        },
+        {
+          role: 'user',
+          content: `Input data:\n${JSON.stringify(input, null, 2)}`
+        },
+      ],
+      config: {
+        temperature: CHAIN_OF_THOUGHT_TEMPERATURE,
+        max_tokens: 800,
+      },
+    });
+
+    return {
+      step_number: stepNumber,
+      reasoning_type: type,
+      description,
+      input,
+      output: response.content,
+      confidence: this.calculateStepConfidence(response.content),
+      timestamp: startTime.toISOString(),
+    };
+  }
+
+  /**
+   * Extract JSON from LLM response, handling markdown formatting and common errors
+   */
+  private extractJSONFromResponse(response: string): any {
+    let jsonStr = response.trim();
+    
+    // Remove markdown code blocks if present
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    
+    // Try to find JSON array or object in the response
+    const jsonMatch = jsonStr.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonStr = jsonMatch[0];
+    }
+    
+    // Clean up common JSON formatting issues
+    jsonStr = this.cleanJsonString(jsonStr);
+    
+    try {
+      return JSON.parse(jsonStr);
+    } catch (error) {
+      console.warn('[AnalyzerAgent] JSON parsing failed, attempting to fix common issues:', error);
+      
+      // Try to fix common JSON issues
+      let fixedJson = jsonStr;
+      
+      // Fix trailing commas
+      fixedJson = fixedJson.replace(/,(\s*[}\]])/g, '$1');
+      
+      // Fix unescaped quotes in strings
+      fixedJson = fixedJson.replace(/([^\\])"([^"]*)"([^,}\]\s])/g, '$1\\"$2\\"$3');
+      
+      // Fix missing quotes around object keys
+      fixedJson = fixedJson.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+      
+      // Try parsing again
+      try {
+        return JSON.parse(fixedJson);
+      } catch (secondError) {
+        console.error('[AnalyzerAgent] JSON parsing failed even after fixes:', secondError);
+        console.error('[AnalyzerAgent] Original response:', response);
+        console.error('[AnalyzerAgent] Attempted JSON:', jsonStr);
+        console.error('[AnalyzerAgent] Fixed JSON:', fixedJson);
+        throw new Error(`Failed to parse JSON: ${secondError instanceof Error ? secondError.message : String(secondError)}`);
+      }
+    }
+  }
+
+  /**
+   * Clean up common JSON formatting issues
+   */
+  private cleanJsonString(jsonStr: string): string {
+    // Remove any text before the first [ or {
+    const startIndex = Math.min(
+      jsonStr.indexOf('[') >= 0 ? jsonStr.indexOf('[') : Infinity,
+      jsonStr.indexOf('{') >= 0 ? jsonStr.indexOf('{') : Infinity
+    );
+    
+    if (startIndex !== Infinity && startIndex > 0) {
+      jsonStr = jsonStr.substring(startIndex);
+    }
+    
+    // Remove any text after the last ] or }
+    const lastBracket = jsonStr.lastIndexOf(']');
+    const lastBrace = jsonStr.lastIndexOf('}');
+    const endIndex = Math.max(lastBracket, lastBrace);
+    
+    if (endIndex !== -1 && endIndex < jsonStr.length - 1) {
+      jsonStr = jsonStr.substring(0, endIndex + 1);
+    }
+    
+    return jsonStr.trim();
+  }
+
+  /**
+   * Calculate confidence score for a reasoning step
+   */
+  private calculateStepConfidence(content: string): number {
+    // Simple heuristic based on content characteristics
+    let confidence = 0.5; // Base confidence
+
+    if (content.includes('specific') || content.includes('evidence')) confidence += 0.1;
+    if (content.includes('data') || content.includes('metrics')) confidence += 0.1;
+    if (content.includes('recommendation') || content.includes('actionable')) confidence += 0.1;
+    if (content.includes('confidence') || content.includes('certain')) confidence += 0.1;
+    if (content.length > 200) confidence += 0.1; // More detailed responses
+
+    return Math.min(confidence, 1.0);
+  }
+
+  /**
+   * Self-critique validation for insights
+   */
+  private async validateInsights(
+    insights: Insight[],
+    originalResults: ToolResult[],
+    reasoningSteps: ReasoningStep[]
+  ): Promise<ValidationResult> {
+    console.log('[AnalyzerAgent] Performing self-critique validation...');
+
+    const issues: ValidationIssue[] = [];
+    let qualityScore = 1.0;
+
+    // Check relevance to original data
+    for (const insight of insights) {
+      if (!insight.supporting_data || insight.supporting_data.length === 0) {
+        issues.push({
+          type: 'relevance',
+          severity: 'high',
+          description: `Insight "${insight.description}" lacks supporting data`,
+          suggestion: 'Add specific metrics and entity IDs to support the insight'
+        });
+        qualityScore -= 0.2;
+      }
+
+      // Check confidence threshold
+      if (insight.confidence < this.config.minConfidence) {
+        issues.push({
+          type: 'accuracy',
+          severity: 'medium',
+          description: `Insight "${insight.description}" has low confidence (${insight.confidence})`,
+          suggestion: 'Increase confidence by providing stronger supporting evidence'
+        });
+        qualityScore -= 0.1;
+      }
+
+      // Check actionability
+      if (!insight.description.includes('recommend') &&
+          !insight.description.includes('action') &&
+          !insight.description.includes('should')) {
+        issues.push({
+          type: 'actionability',
+          severity: 'medium',
+          description: `Insight "${insight.description}" lacks actionable recommendations`,
+          suggestion: 'Include specific recommendations or next steps'
+        });
+        qualityScore -= 0.1;
+      }
+    }
+
+    // Check completeness
+    const hasContaminationInsights = insights.some(i => i.type === 'contamination_pattern');
+    const hasOperationalInsights = insights.some(i => i.type === 'operational_efficiency');
+
+    if (!hasContaminationInsights && this.hasContaminationData(originalResults)) {
+      issues.push({
+        type: 'completeness',
+        severity: 'medium',
+        description: 'Missing contamination pattern insights despite contamination data present',
+        suggestion: 'Analyze contamination patterns and risk levels'
+      });
+      qualityScore -= 0.15;
+    }
+
+    if (!hasOperationalInsights && this.hasOperationalData(originalResults)) {
+      issues.push({
+        type: 'completeness',
+        severity: 'medium',
+        description: 'Missing operational efficiency insights despite operational data present',
+        suggestion: 'Analyze facility capacity utilization and processing efficiency'
+      });
+      qualityScore -= 0.15;
+    }
+
+    // Check reasoning quality
+    if (reasoningSteps.length < 3) {
+      issues.push({
+        type: 'completeness',
+        severity: 'low',
+        description: 'Insufficient reasoning steps in chain-of-thought analysis',
+        suggestion: 'Ensure all reasoning steps (observe, correlate, hypothesize, validate, conclude) are performed'
+      });
+      qualityScore -= 0.1;
+    }
+
+    const is_valid = qualityScore >= 0.7 && issues.filter(i => i.severity === 'high').length === 0;
+    const confidence = Math.max(0, Math.min(1, qualityScore));
+
+    return {
+      is_valid,
+      quality_score: qualityScore,
+      issues,
+      recommendations: issues.map(i => i.suggestion),
+      confidence,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Check if results contain contamination data
+   */
+  private hasContaminationData(results: ToolResult[]): boolean {
+    return results.some(r =>
+      r.tool?.includes('contaminant') ||
+      (r.data && Array.isArray(r.data) && r.data.some((item: any) => item.has_contaminants))
+    );
+  }
+
+  /**
+   * Check if results contain operational data
+   */
+  private hasOperationalData(results: ToolResult[]): boolean {
+    return results.some(r =>
+      r.tool?.includes('facility') ||
+      r.tool?.includes('shipment') ||
+      (r.data && Array.isArray(r.data) && r.data.some((item: any) =>
+        item.capacity_tons || item.current_load_tons || item.status
+      ))
+    );
   }
 }
 

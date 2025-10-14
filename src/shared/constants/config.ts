@@ -15,6 +15,11 @@ export const DEFAULT_MAX_TOKENS = 1000;
 export const PLANNING_TEMPERATURE = 0.1; // Lower for deterministic plans
 export const ANALYZING_TEMPERATURE = 0.5; // Medium for structured analysis
 export const SUMMARIZING_TEMPERATURE = 0.7; // Higher for creative summaries
+export const CHAIN_OF_THOUGHT_TEMPERATURE = 0.4; // Between planning and summarizing
+
+// Enhanced agent configuration
+export const ANALYZER_MAX_REASONING_STEPS = 5;
+export const SUMMARIZER_MAX_REASONING_STEPS = 5;
 
 // Memory configuration
 export const DEFAULT_SEMANTIC_TOP_K = 5;

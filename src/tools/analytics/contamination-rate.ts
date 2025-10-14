@@ -18,7 +18,7 @@ export class AnalyticsContaminationRateTool extends BaseTool {
     const startTime = Date.now();
 
     try {
-      const response = await this.get("/analytics/contamination-rate");
+      const response = await this.get("/api/analytics/contamination-rate");
 
       return this.success(response.data, Date.now() - startTime);
     } catch (error: any) {

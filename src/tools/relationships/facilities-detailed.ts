@@ -41,21 +41,21 @@ export class FacilitiesDetailedTool extends BaseTool {
       const include = params.include || [];
 
       if (include.includes("shipments")) {
-        const shipmentsResponse = await this.get("/shipments", {
+        const shipmentsResponse = await this.get("/api/shipments", {
           facility_id: params.id,
         });
         result.data.shipments = shipmentsResponse.data?.data || [];
       }
 
       if (include.includes("inspections")) {
-        const inspectionsResponse = await this.get("/inspections", {
+        const inspectionsResponse = await this.get("/api/inspections", {
           facility_id: params.id,
         });
         result.data.inspections = inspectionsResponse.data?.data || [];
       }
 
       if (include.includes("contaminants")) {
-        const contaminantsResponse = await this.get("/contaminants-detected", {
+        const contaminantsResponse = await this.get("/api/contaminants-detected", {
           facility_id: params.id,
         });
         result.data.contaminants = contaminantsResponse.data?.data || [];

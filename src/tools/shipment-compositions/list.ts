@@ -92,7 +92,7 @@ export class ShipmentCompositionsListTool extends BaseTool {
       if (params.max_confidence !== undefined) queryParams.max_confidence = params.max_confidence.toString();
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/shipment-compositions", queryParams);
+      const response = await this.get("/api/shipment-compositions", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

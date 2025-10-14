@@ -5,6 +5,7 @@
 
 import request from 'supertest';
 import { GraphQLAgentServer } from '../../graphql/server.js';
+import { AnalysisStorageService } from '../../graphql/services/analysis-storage.service.js';
 import { OrchestratorAgent } from '../../agents/orchestrator.js';
 import { MemoryManager } from '../../shared/memory/manager.js';
 
@@ -43,6 +44,7 @@ describe('GraphQL Server Integration', () => {
       port: 4001,
       orchestrator: mockOrchestrator,
       memory: mockMemory,
+      analysisStorage: new AnalysisStorageService(),
     });
 
     await server.start();

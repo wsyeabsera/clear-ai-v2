@@ -17,21 +17,31 @@ import { typeDefs } from './schema.js';
 import { resolvers, pubsub } from './resolvers.js';
 import { PlannerAgent } from '../agents/planner.js';
 import { ExecutorAgent } from '../agents/executor.js';
-import { AnalyzerAgent } from '../agents/analyzer.js';
-import { SummarizerAgent } from '../agents/summarizer.js';
+import { ConfigurableAnalyzer } from '../agents/configurable-analyzer.js';
+import { ConfigurableSummarizer } from '../agents/configurable-summarizer.js';
+import { TrainerAgent } from '../agents/trainer.js';
+import { StrategyRegistry } from '../agents/strategies/registry.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
+import { AnalysisStorageService } from './services/analysis-storage.service.js';
+import { AgentConfigStorageService } from './services/agent-config-storage.service.js';
+import { TrainingStorageService } from './services/training-storage.service.js';
 
 export interface GraphQLServerConfig {
   port: number;
   planner: PlannerAgent;
   executor: ExecutorAgent;
-  analyzer: AnalyzerAgent;
-  summarizer: SummarizerAgent;
+  analyzer: ConfigurableAnalyzer;
+  summarizer: ConfigurableSummarizer;
+  trainer: TrainerAgent;
   memory: MemoryManager;
   planStorage: PlanStorageService;
   executionStorage: ExecutionStorageService;
+  analysisStorage: AnalysisStorageService;
+  agentConfigStorage: AgentConfigStorageService;
+  trainingStorage: TrainingStorageService;
+  strategyRegistry: StrategyRegistry;
 }
 
 export class GraphQLAgentServer {
@@ -68,7 +78,14 @@ export class GraphQLAgentServer {
           executor: this.config.executor,
           analyzer: this.config.analyzer,
           summarizer: this.config.summarizer,
+          trainer: this.config.trainer,
           memory: this.config.memory,
+          planStorage: this.config.planStorage,
+          executionStorage: this.config.executionStorage,
+          analysisStorage: this.config.analysisStorage,
+          agentConfigStorage: this.config.agentConfigStorage,
+          trainingStorage: this.config.trainingStorage,
+          strategyRegistry: this.config.strategyRegistry,
           pubsub,
         }),
       },
@@ -113,6 +130,7 @@ export class GraphQLAgentServer {
         'http://localhost:3001', 
         'http://192.168.2.216:3000',
         'http://192.168.2.216:3001',
+        'https://studio.apollographql.com',  // Add Apollo Studio
       ],
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS'],
@@ -149,9 +167,14 @@ export class GraphQLAgentServer {
               executor: this.config.executor,
               analyzer: this.config.analyzer,
               summarizer: this.config.summarizer,
+              trainer: this.config.trainer,
               memory: this.config.memory,
               planStorage: this.config.planStorage,
               executionStorage: this.config.executionStorage,
+              analysisStorage: this.config.analysisStorage,
+              agentConfigStorage: this.config.agentConfigStorage,
+              trainingStorage: this.config.trainingStorage,
+              strategyRegistry: this.config.strategyRegistry,
               pubsub,
             },
           }

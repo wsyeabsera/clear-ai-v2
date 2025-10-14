@@ -40,7 +40,7 @@ export class InspectionsDetailedTool extends BaseTool {
         result.data.shipment_details = shipmentResponse.data?.data || null;
 
         // Get contaminants for this shipment
-        const contaminantsResponse = await this.get("/contaminants-detected", {
+        const contaminantsResponse = await this.get("/api/contaminants-detected", {
           shipment_ids: result.data.shipment_id,
         });
         result.data.contaminants_found = contaminantsResponse.data?.data || [];

@@ -34,7 +34,7 @@ export class ShipmentsWithContaminantsTool extends BaseTool {
       const shipment = shipmentResponse.data;
 
       // Get contaminants for this shipment
-      const contaminantsResponse = await this.get("/contaminants-detected", {
+      const contaminantsResponse = await this.get("/api/contaminants-detected", {
         shipment_ids: params.id,
       });
 

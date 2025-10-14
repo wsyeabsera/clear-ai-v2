@@ -8,8 +8,14 @@
 import { GraphQLAgentServer } from './server.js';
 import { PlannerAgent } from '../agents/planner.js';
 import { ExecutorAgent } from '../agents/executor.js';
-import { AnalyzerAgent } from '../agents/analyzer.js';
-import { SummarizerAgent } from '../agents/summarizer.js';
+import { ConfigurableAnalyzer } from '../agents/configurable-analyzer.js';
+import { ConfigurableSummarizer } from '../agents/configurable-summarizer.js';
+import { StrategyRegistry } from '../agents/strategies/registry.js';
+import { RuleBasedAnalysisStrategy } from '../agents/strategies/analysis/rule-based.strategy.js';
+import { LLMBasedAnalysisStrategy } from '../agents/strategies/analysis/llm-based.strategy.js';
+import { TemplateBasedSummarizationStrategy } from '../agents/strategies/summarization/template-based.strategy.js';
+import { LLMBasedSummarizationStrategy } from '../agents/strategies/summarization/llm-based.strategy.js';
+import { TrainerAgent } from '../agents/trainer.js';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { LLMProvider } from '../shared/llm/provider.js';
 import { MCPServer } from '../mcp/server.js';
@@ -19,6 +25,9 @@ import { validateProductionEnv } from '../shared/utils/validate-env.js';
 import { connectDB } from '../api/db/connection.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
+import { AnalysisStorageService } from './services/analysis-storage.service.js';
+import { AgentConfigStorageService } from './services/agent-config-storage.service.js';
+import { TrainingStorageService } from './services/training-storage.service.js';
 import { ToolRegistry } from '../shared/tool-registry.js';
 import axios from 'axios';
 import dotenv from 'dotenv';
@@ -110,21 +119,36 @@ async function main() {
       console.warn('   Error:', error.message);
     }
 
-    // 5. Create Agent Pipeline
-    console.log('🤖 Creating Agent Pipeline...');
-    const planner = new PlannerAgent(llm, toolRegistry);
-    const executor = new ExecutorAgent(toolRegistry);
-    const analyzer = new AnalyzerAgent(llm);
-    const summarizer = new SummarizerAgent(llm);
-    console.log('✓ Agent Pipeline ready\n');
+    // 5. Initialize Strategy Registry
+    console.log('🔧 Initializing Strategy Registry...');
+    const strategyRegistry = new StrategyRegistry();
+
+    // Register built-in strategies
+    strategyRegistry.registerAnalysisStrategy(new RuleBasedAnalysisStrategy());
+    strategyRegistry.registerAnalysisStrategy(new LLMBasedAnalysisStrategy(llm));
+    strategyRegistry.registerSummarizationStrategy(new TemplateBasedSummarizationStrategy());
+    strategyRegistry.registerSummarizationStrategy(new LLMBasedSummarizationStrategy(llm));
+    console.log('✓ Strategy Registry ready\n');
 
     // 6. Initialize Storage Services
     console.log('📋 Initializing Storage Services...');
     const planStorage = new PlanStorageService();
     const executionStorage = new ExecutionStorageService();
+    const analysisStorage = new AnalysisStorageService();
+    const agentConfigStorage = new AgentConfigStorageService();
+    const trainingStorage = new TrainingStorageService();
     console.log('✓ Storage Services ready\n');
 
-    // 7. Start GraphQL Server
+    // 7. Create Agent Pipeline
+    console.log('🤖 Creating Agent Pipeline...');
+    const planner = new PlannerAgent(llm, toolRegistry);
+    const executor = new ExecutorAgent(toolRegistry);
+    const analyzer = new ConfigurableAnalyzer(llm, agentConfigStorage, strategyRegistry);
+    const summarizer = new ConfigurableSummarizer(llm, agentConfigStorage, strategyRegistry);
+    const trainer = new TrainerAgent(agentConfigStorage, trainingStorage, llm);
+    console.log('✓ Agent Pipeline ready\n');
+
+    // 8. Start GraphQL Server
     console.log('🌐 Starting GraphQL Server...');
     const port = parseInt(process.env.PORT || '4001');
     const server = new GraphQLAgentServer({
@@ -133,9 +157,14 @@ async function main() {
       executor,
       analyzer,
       summarizer,
+      trainer,
       memory,
       planStorage,
       executionStorage,
+      analysisStorage,
+      agentConfigStorage,
+      trainingStorage,
+      strategyRegistry,
     });
 
     await server.start();
@@ -148,6 +177,7 @@ async function main() {
     console.log(`   GraphQL endpoint: ${host}/graphql`);
     console.log(`   Health check: ${host}/health`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`   WASTEER API URL: ${process.env.WASTEER_API_URL || 'not-set'}`);
     console.log('\nPress Ctrl+C to stop the server\n');
   } catch (error: any) {
     console.error('\n❌ Failed to start GraphQL server:', error.message);

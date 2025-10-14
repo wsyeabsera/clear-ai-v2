@@ -409,7 +409,7 @@ describe('Agent Resolvers - analyzeResults', () => {
         summary: 'Found 1 facility',
         insights: [
           {
-            type: 'pattern',
+            type: 'pattern' as const,
             description: 'Test insight',
             confidence: 0.9,
             supporting_data: [],
@@ -530,6 +530,9 @@ describe('Agent Resolvers - analyzeResults', () => {
 describe('Agent Resolvers - summarizeResponse', () => {
   let mockSummarizer: jest.Mocked<SummarizerAgent>;
   let mockPubSub: jest.Mocked<PubSub>;
+  let mockAnalysisStorage: any;
+  let mockExecutionStorage: any;
+  let mockPlanStorage: any;
   let context: any;
   let resolvers: any;
 
@@ -542,8 +545,23 @@ describe('Agent Resolvers - summarizeResponse', () => {
       publish: jest.fn(),
     } as any;
 
+    mockAnalysisStorage = {
+      getAnalysis: jest.fn(),
+    };
+
+    mockExecutionStorage = {
+      getExecution: jest.fn(),
+    };
+
+    mockPlanStorage = {
+      getPlan: jest.fn(),
+    };
+
     context = {
       summarizer: mockSummarizer,
+      analysisStorage: mockAnalysisStorage,
+      executionStorage: mockExecutionStorage,
+      planStorage: mockPlanStorage,
       pubsub: mockPubSub,
     };
 
@@ -557,17 +575,18 @@ describe('Agent Resolvers - summarizeResponse', () => {
   });
 
   describe('summarizeResponse resolver', () => {
-    it('should call summarizer with analysis', async () => {
+    it('should call summarizer with data from storage', async () => {
+      const requestId = 'test-request-id';
       const analysis = {
         summary: 'Found 5 shipments',
         insights: [],
         entities: [],
         anomalies: [],
         metadata: {
-          toolResultsCount: 1,
-          successfulResults: 1,
-          failedResults: 0,
-          analysisTimeMs: 50,
+          tool_results_count: 1,
+          successful_results: 1,
+          failed_results: 0,
+          analysis_time_ms: 50,
         },
       };
       const toolResults = [
@@ -583,11 +602,26 @@ describe('Agent Resolvers - summarizeResponse', () => {
       ];
       const query = 'Get shipments';
 
+      // Mock storage responses
+      mockAnalysisStorage.getAnalysis.mockResolvedValue({
+        requestId,
+        analysis,
+        query,
+      });
+      mockExecutionStorage.getExecution.mockResolvedValue({
+        requestId,
+        results: toolResults,
+      });
+      mockPlanStorage.getPlan.mockResolvedValue({
+        requestId,
+        query,
+      });
+
       mockSummarizer.summarize.mockResolvedValue({
         message: 'I found 5 shipments for you.',
         tools_used: ['shipments_list'],
         metadata: {
-          request_id: 'test-id',
+          request_id: requestId,
           total_duration_ms: 200,
           timestamp: new Date().toISOString(),
         },
@@ -596,30 +630,34 @@ describe('Agent Resolvers - summarizeResponse', () => {
       await expect(
         resolvers.Mutation.summarizeResponse(
           null,
-          { analysis, toolResults, query },
+          { requestId },
           context
         )
       ).rejects.toThrow('Not implemented');
 
       // After implementation:
+      // expect(mockAnalysisStorage.getAnalysis).toHaveBeenCalledWith(requestId);
+      // expect(mockExecutionStorage.getExecution).toHaveBeenCalledWith(requestId);
+      // expect(mockPlanStorage.getPlan).toHaveBeenCalledWith(requestId);
       // expect(mockSummarizer.summarize).toHaveBeenCalledWith(
+      //   query,
       //   analysis,
-      //   toolResults,
-      //   query
+      //   ['shipments_list']
       // );
     });
 
     it('should return summary message', async () => {
+      const requestId = 'test-request-id';
       const analysis = {
         summary: 'Test summary',
         insights: [],
         entities: [],
         anomalies: [],
         metadata: {
-          toolResultsCount: 1,
-          successfulResults: 1,
-          failedResults: 0,
-          analysisTimeMs: 50,
+          tool_results_count: 1,
+          successful_results: 1,
+          failed_results: 0,
+          analysis_time_ms: 50,
         },
       };
       const toolResults = [
@@ -635,11 +673,26 @@ describe('Agent Resolvers - summarizeResponse', () => {
       ];
       const query = 'Get facilities';
 
+      // Mock storage responses
+      mockAnalysisStorage.getAnalysis.mockResolvedValue({
+        requestId,
+        analysis,
+        query,
+      });
+      mockExecutionStorage.getExecution.mockResolvedValue({
+        requestId,
+        results: toolResults,
+      });
+      mockPlanStorage.getPlan.mockResolvedValue({
+        requestId,
+        query,
+      });
+
       const expectedSummary = {
         message: 'Here are the facilities.',
         tools_used: ['facilities_list'],
         metadata: {
-          request_id: 'test-id',
+          request_id: requestId,
           total_duration_ms: 200,
           timestamp: new Date().toISOString(),
         },
@@ -650,7 +703,7 @@ describe('Agent Resolvers - summarizeResponse', () => {
       await expect(
         resolvers.Mutation.summarizeResponse(
           null,
-          { analysis, toolResults, query },
+          { requestId },
           context
         )
       ).rejects.toThrow('Not implemented');
@@ -658,7 +711,7 @@ describe('Agent Resolvers - summarizeResponse', () => {
       // After implementation:
       // const result = await resolvers.Mutation.summarizeResponse(
       //   null,
-      //   { analysis, toolResults, query },
+      //   { requestId },
       //   context
       // );
       // expect(result).toHaveProperty('requestId');
@@ -668,16 +721,17 @@ describe('Agent Resolvers - summarizeResponse', () => {
     });
 
     it('should handle summarizer errors', async () => {
+      const requestId = 'test-request-id';
       const analysis = {
         summary: 'Test',
         insights: [],
         entities: [],
         anomalies: [],
         metadata: {
-          toolResultsCount: 1,
-          successfulResults: 1,
-          failedResults: 0,
-          analysisTimeMs: 50,
+          tool_results_count: 1,
+          successful_results: 1,
+          failed_results: 0,
+          analysis_time_ms: 50,
         },
       };
       const toolResults = [
@@ -692,13 +746,28 @@ describe('Agent Resolvers - summarizeResponse', () => {
         },
       ];
       const query = 'Get shipments';
+
+      // Mock storage responses
+      mockAnalysisStorage.getAnalysis.mockResolvedValue({
+        requestId,
+        analysis,
+        query,
+      });
+      mockExecutionStorage.getExecution.mockResolvedValue({
+        requestId,
+        results: toolResults,
+      });
+      mockPlanStorage.getPlan.mockResolvedValue({
+        requestId,
+        query,
+      });
 
       mockSummarizer.summarize.mockRejectedValue(new Error('Summarization failed'));
 
       await expect(
         resolvers.Mutation.summarizeResponse(
           null,
-          { analysis, toolResults, query },
+          { requestId },
           context
         )
       ).rejects.toThrow('Not implemented');
@@ -707,21 +776,19 @@ describe('Agent Resolvers - summarizeResponse', () => {
       // await expect(
       //   resolvers.Mutation.summarizeResponse(
       //     null,
-      //     { analysis, toolResults, query },
+      //     { requestId },
       //     context
       //   )
       // ).rejects.toThrow('Summarization failed');
     });
 
-    it('should validate analysis input', async () => {
-      const invalidAnalysis = null;
-      const toolResults = [];
-      const query = 'Get shipments';
+    it('should validate requestId input', async () => {
+      const invalidRequestId = '';
 
       await expect(
         resolvers.Mutation.summarizeResponse(
           null,
-          { analysis: invalidAnalysis, toolResults, query },
+          { requestId: invalidRequestId },
           context
         )
       ).rejects.toThrow('Not implemented');
@@ -730,23 +797,24 @@ describe('Agent Resolvers - summarizeResponse', () => {
       // await expect(
       //   resolvers.Mutation.summarizeResponse(
       //     null,
-      //     { analysis: invalidAnalysis, toolResults, query },
+      //     { requestId: invalidRequestId },
       //     context
       //   )
-      // ).rejects.toThrow('Analysis cannot be null');
+      // ).rejects.toThrow('RequestId cannot be empty');
     });
 
     it('should publish summarizer progress events', async () => {
+      const requestId = 'test-request-id';
       const analysis = {
         summary: 'Test',
         insights: [],
         entities: [],
         anomalies: [],
         metadata: {
-          toolResultsCount: 1,
-          successfulResults: 1,
-          failedResults: 0,
-          analysisTimeMs: 50,
+          tool_results_count: 1,
+          successful_results: 1,
+          failed_results: 0,
+          analysis_time_ms: 50,
         },
       };
       const toolResults = [
@@ -762,11 +830,26 @@ describe('Agent Resolvers - summarizeResponse', () => {
       ];
       const query = 'Get shipments';
 
+      // Mock storage responses
+      mockAnalysisStorage.getAnalysis.mockResolvedValue({
+        requestId,
+        analysis,
+        query,
+      });
+      mockExecutionStorage.getExecution.mockResolvedValue({
+        requestId,
+        results: toolResults,
+      });
+      mockPlanStorage.getPlan.mockResolvedValue({
+        requestId,
+        query,
+      });
+
       mockSummarizer.summarize.mockResolvedValue({
         message: 'Test message',
         tools_used: ['shipments_list'],
         metadata: {
-          request_id: 'test-id',
+          request_id: requestId,
           total_duration_ms: 200,
           timestamp: new Date().toISOString(),
         },
@@ -775,7 +858,7 @@ describe('Agent Resolvers - summarizeResponse', () => {
       await expect(
         resolvers.Mutation.summarizeResponse(
           null,
-          { analysis, toolResults, query },
+          { requestId },
           context
         )
       ).rejects.toThrow('Not implemented');
@@ -783,14 +866,16 @@ describe('Agent Resolvers - summarizeResponse', () => {
       // After implementation:
       // await resolvers.Mutation.summarizeResponse(
       //   null,
-      //   { analysis, toolResults, query },
+      //   { requestId },
       //   context
       // );
       // expect(mockPubSub.publish).toHaveBeenCalledWith(
       //   'SUMMARIZER_PROGRESS',
       //   expect.objectContaining({
       //     summarizerProgress: expect.objectContaining({
+      //       requestId,
       //       phase: 'summarizing',
+      //       progress: 50,
       //     }),
       //   })
       // );

@@ -84,7 +84,7 @@ export class WasteProducersListTool extends BaseTool {
       if (params.max_contracts !== undefined) queryParams.max_contracts = params.max_contracts.toString();
       queryParams.limit = limit.toString();
 
-      const response = await this.get("/waste-producers", queryParams);
+      const response = await this.get("/api/waste-producers", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;

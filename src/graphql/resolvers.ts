@@ -6,6 +6,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { MemoryManager } from '../shared/memory/manager.js';
 import { PlanStorageService } from './services/plan-storage.service.js';
 import { ExecutionStorageService } from './services/execution-storage.service.js';
+import { AnalysisStorageService } from './services/analysis-storage.service.js';
+import { AgentConfigStorageService } from './services/agent-config-storage.service.js';
+import { TrainingStorageService } from './services/training-storage.service.js';
 import GraphQLJSON from 'graphql-type-json';
 
 const pubsub = new PubSub();
@@ -74,9 +77,14 @@ interface Context {
   executor: any;
   analyzer: any;
   summarizer: any;
+  trainer: any;
   memory: MemoryManager;
   planStorage: PlanStorageService;
   executionStorage: ExecutionStorageService;
+  analysisStorage: AnalysisStorageService;
+  agentConfigStorage: AgentConfigStorageService;
+  trainingStorage: TrainingStorageService;
+  strategyRegistry: any;
   pubsub?: PubSub;
 }
 
@@ -237,6 +245,65 @@ export const resolvers = {
       }
     },
 
+    getAnalysis: async (
+      _: any,
+      { requestId }: { requestId: string },
+      ctx: Context
+    ) => {
+      try {
+        if (!requestId || requestId.trim().length === 0) {
+          throw new Error('RequestId cannot be empty');
+        }
+
+        const analysis = await ctx.analysisStorage.getAnalysis(requestId);
+        if (!analysis) {
+          throw new Error(`Analysis not found for requestId: ${requestId}`);
+        }
+
+        return {
+          requestId: analysis.requestId,
+          analysis: {
+            summary: analysis.analysis.summary,
+            insights: analysis.analysis.insights.map((i: any) => ({
+              type: i.type,
+              description: i.description,
+              confidence: i.confidence,
+              supportingData: Array.isArray(i.supporting_data) ? i.supporting_data : [i.supporting_data],
+            })),
+            entities: analysis.analysis.entities.map((e: any) => ({
+              id: e.id,
+              type: e.type,
+              name: e.name,
+              attributes: e.attributes,
+              relationships: e.relationships || [],
+            })),
+            anomalies: analysis.analysis.anomalies.map((a: any) => ({
+              type: a.type,
+              description: a.description,
+              severity: a.severity,
+              affectedEntities: a.affected_entities,
+              data: a.data,
+            })),
+            metadata: {
+              toolResultsCount: analysis.analysis.metadata.tool_results_count,
+              successfulResults: analysis.analysis.metadata.successful_results,
+              failedResults: analysis.analysis.metadata.failed_results,
+              analysisTimeMs: analysis.analysis.metadata.analysis_time_ms,
+            },
+          },
+          metadata: {
+            toolResultsCount: analysis.analysis.metadata.tool_results_count,
+            successfulResults: analysis.analysis.metadata.successful_results,
+            failedResults: analysis.analysis.metadata.failed_results,
+            analysisTimeMs: analysis.analysis.metadata.analysis_time_ms,
+          },
+        };
+      } catch (error: any) {
+        console.error('Error in getAnalysis:', error);
+        throw new Error(`Failed to retrieve analysis: ${error.message}`);
+      }
+    },
+
     listExecutions: async (
       _: any,
       {
@@ -321,6 +388,114 @@ export const resolvers = {
       } catch (error: any) {
         console.error('Error in getExecutionStats:', error);
         throw new Error(`Failed to get execution stats: ${error.message}`);
+      }
+    },
+
+    // Agent Configuration Queries
+    getAgentConfig: async (_: any, { id }: { id: string }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.getConfig(id);
+        if (!config) {
+          throw new Error(`Agent config not found: ${id}`);
+        }
+        return config;
+      } catch (error: any) {
+        console.error('Error in getAgentConfig:', error);
+        throw new Error(`Failed to get agent config: ${error.message}`);
+      }
+    },
+
+    listAgentConfigs: async (
+      _: any,
+      { type, isActive, isDefault, limit = 50, offset = 0 }: any,
+      context: Context
+    ) => {
+      try {
+        const filters: any = {};
+        if (type) filters.type = type;
+        if (isActive !== undefined) filters.isActive = isActive;
+        if (isDefault !== undefined) filters.isDefault = isDefault;
+
+        const result = await context.agentConfigStorage.listConfigs(filters);
+        const configs = result.configs || [];
+        return configs.slice(offset, offset + limit);
+      } catch (error: any) {
+        console.error('Error in listAgentConfigs:', error);
+        throw new Error(`Failed to list agent configs: ${error.message}`);
+      }
+    },
+
+    getDefaultConfig: async (_: any, { type }: { type: string }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.getDefaultConfig(type as 'analyzer' | 'summarizer');
+        if (!config) {
+          throw new Error(`No default config found for type: ${type}`);
+        }
+        return config;
+      } catch (error: any) {
+        console.error('Error in getDefaultConfig:', error);
+        throw new Error(`Failed to get default config: ${error.message}`);
+      }
+    },
+
+    listAnalysisStrategies: async (_: any, __: any, context: Context) => {
+      try {
+        return context.strategyRegistry.listAnalysisStrategies();
+      } catch (error: any) {
+        console.error('Error in listAnalysisStrategies:', error);
+        throw new Error(`Failed to list analysis strategies: ${error.message}`);
+      }
+    },
+
+    listSummarizationStrategies: async (_: any, __: any, context: Context) => {
+      try {
+        return context.strategyRegistry.listSummarizationStrategies();
+      } catch (error: any) {
+        console.error('Error in listSummarizationStrategies:', error);
+        throw new Error(`Failed to list summarization strategies: ${error.message}`);
+      }
+    },
+
+    // Training & Feedback Queries
+    getTrainingFeedback: async (_: any, { id }: { id: string }, context: Context) => {
+      try {
+        const feedback = await context.trainingStorage.getFeedback(id);
+        if (!feedback) {
+          throw new Error(`Training feedback not found: ${id}`);
+        }
+        return feedback;
+      } catch (error: any) {
+        console.error('Error in getTrainingFeedback:', error);
+        throw new Error(`Failed to get training feedback: ${error.message}`);
+      }
+    },
+
+    listTrainingFeedback: async (
+      _: any,
+      { configId, agentType, limit = 50, offset = 0 }: any,
+      context: Context
+    ) => {
+      try {
+        const filters: any = {};
+        if (configId) filters.configId = configId;
+        if (agentType) filters.agentType = agentType;
+
+        const result = await context.trainingStorage.listFeedback(filters);
+        const feedback = result.feedback || [];
+        return feedback.slice(offset, offset + limit);
+      } catch (error: any) {
+        console.error('Error in listTrainingFeedback:', error);
+        throw new Error(`Failed to list training feedback: ${error.message}`);
+      }
+    },
+
+    getTrainingStats: async (_: any, { configId }: { configId: string }, context: Context) => {
+      try {
+        const stats = await context.trainer.getTrainingStats(configId);
+        return stats;
+      } catch (error: any) {
+        console.error('Error in getTrainingStats:', error);
+        throw new Error(`Failed to get training stats: ${error.message}`);
       }
     },
   },
@@ -538,7 +713,7 @@ export const resolvers = {
 
     analyzeResults: async (
       _: any,
-      { requestId }: { requestId: string },
+      { requestId, analyzerConfigId }: { requestId: string; analyzerConfigId?: string },
       ctx: Context
     ) => {
       try {
@@ -564,8 +739,25 @@ export const resolvers = {
         const query = storedPlan.query;
         const toolResults = storedExecution.results;
 
-        // Get analyzer from context
-        const analyzer = ctx.analyzer;
+        // Get or create analyzer with specific config
+        let analyzer = ctx.analyzer;
+        if (analyzerConfigId) {
+          // Create a new analyzer instance with the specified config
+          const { ConfigurableAnalyzer } = await import('../agents/configurable-analyzer.js');
+          const { LLMProvider } = await import('../shared/llm/provider.js');
+          const { getLLMConfigs } = await import('../shared/llm/config.js');
+          const llm = new LLMProvider(getLLMConfigs());
+          analyzer = new ConfigurableAnalyzer(
+            llm,
+            ctx.agentConfigStorage,
+            ctx.strategyRegistry,
+            analyzerConfigId
+          );
+          console.log(`[Resolver] Using custom analyzer config: ${analyzerConfigId}`);
+        } else {
+          console.log('[Resolver] Using default analyzer config');
+        }
+
         if (!analyzer) {
           throw new Error('Analyzer not available in context');
         }
@@ -586,7 +778,10 @@ export const resolvers = {
         });
 
         // Analyze results
-        const analysis = await analyzer.analyze(internalResults, query);
+        const analysis = await analyzer.analyze(internalResults, requestId);
+
+        // Store analysis results
+        await ctx.analysisStorage.saveAnalysis(requestId, analysis, query);
 
         // Publish completion
         pubsubInstance.publish('ANALYZER_PROGRESS', {
@@ -645,69 +840,60 @@ export const resolvers = {
 
     summarizeResponse: async (
       _: any,
-      { analysis, toolResults, query }: { analysis: any; toolResults: any[]; query: string },
+      { requestId, summarizerConfigId }: { requestId: string; summarizerConfigId?: string },
       ctx: Context
     ) => {
-      const { randomUUID } = await import('crypto');
-      const requestId = randomUUID();
-
       try {
         // Validate inputs
-        if (!analysis) {
-          throw new Error('Analysis cannot be null');
-        }
-        if (!query || query.trim().length === 0) {
-          throw new Error('Query cannot be empty');
+        if (!requestId || requestId.trim().length === 0) {
+          throw new Error('RequestId cannot be empty');
         }
 
-        // Get summarizer from context
-        const summarizer = ctx.summarizer;
+        // Get or create summarizer with specific config
+        let summarizer = ctx.summarizer;
+        if (summarizerConfigId) {
+          // Create a new summarizer instance with the specified config
+          const { ConfigurableSummarizer } = await import('../agents/configurable-summarizer.js');
+          const { LLMProvider } = await import('../shared/llm/provider.js');
+          const { getLLMConfigs } = await import('../shared/llm/config.js');
+          const llm = new LLMProvider(getLLMConfigs());
+          summarizer = new ConfigurableSummarizer(
+            llm,
+            ctx.agentConfigStorage,
+            ctx.strategyRegistry,
+            summarizerConfigId
+          );
+          console.log(`[Resolver] Using custom summarizer config: ${summarizerConfigId}`);
+        } else {
+          console.log('[Resolver] Using default summarizer config');
+        }
+
         if (!summarizer) {
           throw new Error('Summarizer not available in context');
         }
 
-        // Convert GraphQL input to internal format
-        const internalAnalysis = {
-          summary: analysis.summary,
-          insights: analysis.insights.map((i: any) => ({
-            type: i.type,
-            description: i.description,
-            confidence: i.confidence,
-            supporting_data: i.supportingData,
-          })),
-          entities: analysis.entities.map((e: any) => ({
-            id: e.id,
-            type: e.type,
-            name: e.name,
-            attributes: e.attributes,
-            relationships: e.relationships,
-          })),
-          anomalies: analysis.anomalies.map((a: any) => ({
-            type: a.type,
-            description: a.description,
-            severity: a.severity,
-            affected_entities: a.affectedEntities,
-            data: a.data,
-          })),
-          metadata: {
-            tool_results_count: analysis.metadata.toolResultsCount,
-            successful_results: analysis.metadata.successfulResults,
-            failed_results: analysis.metadata.failedResults,
-            analysis_time_ms: analysis.metadata.analysisTimeMs,
-          },
-        };
+        // Fetch stored data
+        const [storedAnalysis, storedExecution, storedPlan] = await Promise.all([
+          ctx.analysisStorage.getAnalysis(requestId),
+          ctx.executionStorage.getExecution(requestId),
+          ctx.planStorage.getPlan(requestId)
+        ]);
 
-        const internalResults = toolResults.map((r: any) => ({
-          success: r.success,
-          tool: r.tool,
-          data: r.data,
-          error: r.error,
-          metadata: {
-            executionTime: r.metadata.executionTime,
-            timestamp: r.metadata.timestamp,
-            retries: r.metadata.retries,
-          },
-        }));
+        if (!storedAnalysis) {
+          throw new Error(`Analysis not found for requestId: ${requestId}`);
+        }
+        if (!storedExecution) {
+          throw new Error(`Execution results not found for requestId: ${requestId}`);
+        }
+        if (!storedPlan) {
+          throw new Error(`Plan not found for requestId: ${requestId}`);
+        }
+
+        // Extract data from storage
+        const query = storedPlan.query;
+        const analysis = storedAnalysis.analysis;
+        const toolResults = storedExecution.results;
+        const toolsUsed = toolResults.map((r: any) => r.tool);
 
         // Publish progress
         const pubsubInstance = ctx.pubsub || pubsub;
@@ -722,7 +908,7 @@ export const resolvers = {
         });
 
         // Summarize
-        const summary = await summarizer.summarize(internalAnalysis, internalResults, query);
+        const summary = await summarizer.summarize(query, analysis, toolsUsed, requestId);
 
         // Publish completion
         pubsubInstance.publish('SUMMARIZER_PROGRESS', {
@@ -757,6 +943,95 @@ export const resolvers = {
       // In a real implementation, this would cancel the ongoing request
       console.log(`Cancelling request: ${requestId}`);
       return true;
+    },
+
+    // Agent Configuration Mutations
+    createAgentConfig: async (_: any, { input }: { input: any }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.createConfig(input);
+        return config;
+      } catch (error: any) {
+        console.error('Error in createAgentConfig:', error);
+        throw new Error(`Failed to create agent config: ${error.message}`);
+      }
+    },
+
+    updateAgentConfig: async (_: any, { id, input }: { id: string; input: any }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.updateConfig(id, input);
+        if (!config) {
+          throw new Error(`Agent config not found: ${id}`);
+        }
+        return config;
+      } catch (error: any) {
+        console.error('Error in updateAgentConfig:', error);
+        throw new Error(`Failed to update agent config: ${error.message}`);
+      }
+    },
+
+    deleteAgentConfig: async (_: any, { id }: { id: string }, context: Context) => {
+      try {
+        const deleted = await context.agentConfigStorage.deleteConfig(id);
+        return deleted;
+      } catch (error: any) {
+        console.error('Error in deleteAgentConfig:', error);
+        throw new Error(`Failed to delete agent config: ${error.message}`);
+      }
+    },
+
+    setDefaultConfig: async (_: any, { id }: { id: string }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.getConfig(id);
+        if (!config) {
+          throw new Error(`Agent config not found: ${id}`);
+        }
+        const updatedConfig = await context.agentConfigStorage.setDefaultConfig(id);
+        return updatedConfig;
+      } catch (error: any) {
+        console.error('Error in setDefaultConfig:', error);
+        throw new Error(`Failed to set default config: ${error.message}`);
+      }
+    },
+
+    cloneAgentConfig: async (_: any, { id, name }: { id: string; name: string }, context: Context) => {
+      try {
+        const config = await context.agentConfigStorage.cloneConfig(id, name);
+        return config;
+      } catch (error: any) {
+        console.error('Error in cloneAgentConfig:', error);
+        throw new Error(`Failed to clone agent config: ${error.message}`);
+      }
+    },
+
+    // Training & Feedback Mutations
+    submitFeedback: async (_: any, { input }: { input: any }, context: Context) => {
+      try {
+        const feedback = await context.trainer.recordFeedback(input);
+        return feedback;
+      } catch (error: any) {
+        console.error('Error in submitFeedback:', error);
+        throw new Error(`Failed to submit feedback: ${error.message}`);
+      }
+    },
+
+    trainConfig: async (_: any, { configId, options }: { configId: string; options?: any }, context: Context) => {
+      try {
+        const result = await context.trainer.trainConfig(configId, options);
+        return result;
+      } catch (error: any) {
+        console.error('Error in trainConfig:', error);
+        throw new Error(`Failed to train config: ${error.message}`);
+      }
+    },
+
+    applyTrainingUpdate: async (_: any, { configId, updateData }: { configId: string; updateData: any }, context: Context) => {
+      try {
+        const config = await context.trainer.applyTrainingUpdate(configId, updateData);
+        return config;
+      } catch (error: any) {
+        console.error('Error in applyTrainingUpdate:', error);
+        throw new Error(`Failed to apply training update: ${error.message}`);
+      }
     },
   },
 

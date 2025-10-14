@@ -30,7 +30,7 @@ export class AnalyticsRiskTrendsTool extends BaseTool {
         queryParams.days = params.days.toString();
       }
 
-      const response = await this.get("/analytics/risk-trends", queryParams);
+      const response = await this.get("/api/analytics/risk-trends", queryParams);
 
       return this.success(response.data, Date.now() - startTime);
     } catch (error: any) {

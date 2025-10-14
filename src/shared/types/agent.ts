@@ -70,6 +70,8 @@ export interface Analysis {
   entities: Entity[];
   anomalies: Anomaly[];
   metadata: AnalysisMetadata;
+  reasoning_trace?: ReasoningStep[]; // Chain-of-thought reasoning steps
+  validation_result?: ValidationResult; // Self-critique validation
 }
 
 export interface Insight {
@@ -124,5 +126,39 @@ export interface ResponseMetadata {
   total_duration_ms: number;
   timestamp: string;
   error?: boolean;
+  reasoning_trace?: ReasoningStep[]; // Chain-of-thought reasoning steps
+  validation_result?: ValidationResult; // Self-critique validation
+}
+
+/**
+ * Chain-of-thought reasoning step
+ */
+export interface ReasoningStep {
+  step_number: number;
+  reasoning_type: 'observation' | 'correlation' | 'hypothesis' | 'validation' | 'conclusion' | 'extraction' | 'prioritization' | 'structuring' | 'composition' | 'refinement';
+  description: string;
+  input: any;
+  output: any;
+  confidence?: number;
+  timestamp: string;
+}
+
+/**
+ * Self-critique validation result
+ */
+export interface ValidationResult {
+  is_valid: boolean;
+  quality_score: number; // 0-1
+  issues: ValidationIssue[];
+  recommendations: string[];
+  confidence: number; // 0-1
+  timestamp: string;
+}
+
+export interface ValidationIssue {
+  type: 'relevance' | 'clarity' | 'actionability' | 'completeness' | 'accuracy' | 'tone';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  suggestion: string;
 }
 

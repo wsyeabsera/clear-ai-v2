@@ -45,13 +45,13 @@ export class FacilitiesWithActivityTool extends BaseTool {
       const result: any = { ...facilityResponse.data };
 
       // Get recent shipments
-      const shipmentsResponse = await this.get("/shipments", {
+      const shipmentsResponse = await this.get("/api/shipments", {
         facility_id: params.id,
         date_from: dateFromStr,
       });
 
       // Get recent inspections
-      const inspectionsResponse = await this.get("/inspections", {
+      const inspectionsResponse = await this.get("/api/inspections", {
         facility_id: params.id,
         date_from: dateFromStr,
       });
