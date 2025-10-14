@@ -110,14 +110,13 @@ export class GraphQLAgentServer {
       },
     ];
 
-    // Enable Apollo Studio Sandbox (playground) in non-production
-    if (process.env.NODE_ENV !== 'production') {
-      plugins.push(ApolloServerPluginLandingPageLocalDefault({ embed: true }));
-    }
+    // Enable Apollo Studio Sandbox (playground) for testing
+    plugins.push(ApolloServerPluginLandingPageLocalDefault({ embed: true }));
 
     this.apolloServer = new ApolloServer({
       schema,
       plugins,
+      introspection: true, // Enable introspection in production for testing
     });
 
     // Start Apollo Server
