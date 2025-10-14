@@ -17,13 +17,16 @@ Before you begin, make sure you have:
   - [Groq API key](https://console.groq.com/) (fast, free tier available)
   - [Ollama](https://ollama.ai/) running locally (privacy-focused, free)
 
+### Required Services
+
+- **MongoDB** (required for tools & API) - [Download](https://www.mongodb.com/try/download/community)
+
 ### Optional Services
 
 For advanced features, you may want:
 
 - **Neo4j** (episodic memory) - [Download](https://neo4j.com/download/)
 - **Pinecone** (semantic memory) - [Sign up](https://www.pinecone.io/)
-- **MongoDB** (tools & API) - [Download](https://www.mongodb.com/try/download/community)
 - **Langfuse** (observability) - [Sign up](https://langfuse.com/)
 
 ## Installation
@@ -46,6 +49,7 @@ This will install all required packages including:
 - OpenAI, Axios (AI providers)
 - Neo4j, Pinecone, Mongoose (databases)
 - Express (API server)
+- GraphQL (API layer)
 - And more...
 
 ### 3. Configure Environment
@@ -101,7 +105,7 @@ ENABLE_PINECONE=false
 PINECONE_API_KEY=...
 PINECONE_INDEX=clear-ai-memories
 
-# ===== DATABASE (for tools & API) =====
+# ===== DATABASE (required for tools & API) =====
 
 MONGODB_URI=mongodb://localhost:27017/wasteer
 
@@ -140,12 +144,12 @@ This compiles TypeScript to JavaScript in the `dist/` directory.
 ### 2. Run Tests
 
 ```bash
-# Run all unit tests (724 tests)
+# Run all unit tests (960+ tests)
 yarn test
 
 # Expected output:
-# Test Suites: 44 passed, 44 total
-# Tests:       724 passed, 724 total
+# Test Suites: 44+ passed, 44+ total
+# Tests:       960+ passed, 960+ total
 ```
 
 All tests should pass! ✅
@@ -178,55 +182,50 @@ Now let's create a simple conversational agent to verify everything works.
 Create `my-first-agent.ts`:
 
 ```typescript
-import {
-  ResponseBuilder,
-  IntentClassifier,
-  ConfidenceScorer,
-  LLMProvider,
-} from './src/shared/index.js';
+import { OrchestratorAgent } from './src/agents/orchestrator.js';
+import { PlannerAgent } from './src/agents/planner.js';
+import { ExecutorAgent } from './src/agents/executor.js';
+import { AnalyzerAgent } from './src/agents/analyzer.js';
+import { SummarizerAgent } from './src/agents/summarizer.js';
+import { MemoryManager } from './src/shared/memory/manager.js';
+import { LLMProvider } from './src/shared/llm/provider.js';
+import { ToolRegistry } from './src/shared/tool-registry.js';
+import { getLLMConfigs } from './src/shared/llm/config.js';
 
 async function simpleAgent(userMessage: string) {
-  // 1. Detect user intent
-  const classifier = new IntentClassifier();
-  const intent = classifier.classify(userMessage);
-  
-  console.log(`User intent: ${intent.intent}`);
-  
-  // 2. Handle different intents
-  if (intent.intent === 'question') {
-    // User is asking a question
-    return ResponseBuilder.answer(
-      "I'm a demo agent. I can help you understand Clear AI v2!",
-      { helpful: true }
-    );
-  }
-  
-  if (intent.intent === 'confirmation') {
-    // User said yes/no
-    return ResponseBuilder.acknowledge("Got it!");
-  }
-  
-  // 3. For queries, use LLM
-  const llm = new LLMProvider();
-  const llmResponse = await llm.chat([
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user', content: userMessage }
-  ]);
-  
-  // 4. Calculate confidence
-  const scorer = new ConfidenceScorer();
-  const confidence = 0.85; // In real scenario, calculate based on data quality
-  
-  // 5. Return response with confidence
-  return ResponseBuilder.withConfidence(
-    ResponseBuilder.answer(llmResponse, { source: 'llm' }),
-    confidence
+  // 1. Initialize LLM
+  const llmConfigs = getLLMConfigs();
+  const llm = new LLMProvider(llmConfigs);
+
+  // 2. Initialize Tool Registry (discovers all 56 tools automatically)
+  const toolRegistry = new ToolRegistry('http://localhost:4000/api');
+  await toolRegistry.initialize();
+
+  // 3. Create agents
+  const planner = new PlannerAgent(llm, toolRegistry);
+  const executor = new ExecutorAgent(toolRegistry);
+  const analyzer = new AnalyzerAgent(llm);
+  const summarizer = new SummarizerAgent(llm);
+
+  // 4. Create orchestrator (coordinates everything)
+  const orchestrator = new OrchestratorAgent(
+    planner,
+    executor,
+    analyzer,
+    summarizer,
+    null // No memory for this simple example
   );
+
+  // 5. Execute query
+  const response = await orchestrator.handleQuery(userMessage);
+  
+  console.log('Agent response:', response.message);
+  console.log('Tools used:', response.tools_used);
+  return response;
 }
 
 // Test it
-const response = await simpleAgent("What can you do?");
-console.log('Agent response:', response);
+const response = await simpleAgent("Show me contaminated shipments from last week");
 ```
 
 Run it:
@@ -238,16 +237,11 @@ node dist/my-first-agent.js
 
 **You should see:**
 ```
-User intent: question
-Agent response: {
-  type: 'answer',
-  content: "I'm a demo agent. I can help you understand Clear AI v2!",
-  data: { helpful: true },
-  requiresInput: false
-}
+Agent response: Found 3 contaminated shipments from last week. High contamination rate: 60% of shipments have contaminants. Most common contaminant: Lead (2 occurrences).
+Tools used: ['shipments_list', 'contaminants_list']
 ```
 
-🎉 **Congratulations!** You've successfully set up Clear AI v2 and created your first conversational agent.
+🎉 **Congratulations!** You've successfully set up Clear AI v2 and created your first agent that can handle real queries using the 56 available tools!
 
 ## Project Structure
 
@@ -256,7 +250,14 @@ Here's what you're working with:
 ```
 clear-ai-v2/
 ├── src/
-│   ├── shared/              # 🎯 The shared library (19 modules)
+│   ├── agents/              # 🎯 The 4 main agents
+│   │   ├── orchestrator.ts  # Coordinates the entire pipeline
+│   │   ├── planner.ts       # Converts queries to execution plans
+│   │   ├── executor.ts      # Runs plans with parallel optimization
+│   │   ├── analyzer.ts      # Finds patterns and insights
+│   │   ├── summarizer.ts    # Creates human-friendly responses
+│   │   └── strategies/      # Configurable analysis/summarization strategies
+│   ├── shared/              # 🛠️ Shared utilities (19 modules)
 │   │   ├── conversational/  # Response, Intent, Confidence, Progress
 │   │   ├── context/         # Context management & compression
 │   │   ├── workflow/        # State graphs & execution
@@ -267,11 +268,12 @@ clear-ai-v2/
 │   │   ├── types/           # TypeScript types
 │   │   ├── validation/      # Zod schemas
 │   │   ├── utils/           # Utilities
-│   │   └── config/          # Configuration
-│   ├── tools/               # MCP tools (Shipments, Facilities, etc.)
-│   ├── api/                 # REST API server
-│   ├── mcp/                 # MCP server
-│   └── tests/               # 724 unit + 45 integration tests
+│   │   ├── config/          # Configuration
+│   │   └── tool-registry.ts # Tool discovery and registration
+│   ├── tools/               # 56 MCP tools across 8 API endpoints
+│   ├── api/                 # REST API server with MongoDB
+│   ├── graphql/             # GraphQL API with agent configurations
+│   └── tests/               # 960+ unit + integration tests
 ├── dist/                    # Compiled JavaScript
 ├── docs/                    # 📚 This documentation site
 └── package.json
@@ -283,14 +285,16 @@ clear-ai-v2/
 # Development
 yarn build              # Compile TypeScript
 yarn dev                # Build and run main
-yarn api:dev            # Build and run API server
+yarn api:dev            # Build and run API server (port 4000)
+yarn graphql:dev        # Build and run GraphQL server (port 3001)
 
 # Testing
-yarn test               # Run unit tests (724 tests)
-yarn test:integration   # Run integration tests (45 tests)
+yarn test               # Run unit tests (960+ tests)
+yarn test:integration   # Run integration tests
 yarn test:all           # Run all tests
 yarn test:coverage      # Generate coverage report
 yarn test:watch         # Watch mode
+yarn test:memory        # Test memory systems (Neo4j + Pinecone)
 
 # API Server
 yarn api:start          # Start API server (port 4000)
@@ -339,9 +343,11 @@ Now that you're set up, dive deeper:
 
 - 📖 [**Core Concepts**](./core-concepts.md) - Understand the key ideas (plain language)
 - 🏗️ [**Architecture**](./architecture.md) - See how everything fits together
-- 💬 [**Conversational AI**](./conversational/response-system.md) - Build natural conversations
-- 🧠 [**Context Management**](./context-memory/context-management.md) - Handle long conversations
-- 🔄 [**Workflows**](./workflows/workflow-graphs.md) - Create complex logic flows
+- 🤖 [**Agent System**](./agents/overview.md) - Learn about the 4 main agents
+- 🛠️ [**Tool System**](./foundation/tool-system.md) - Explore the 56 tools and registry
+- ⚙️ [**Agent Configuration**](./guides/agent-configuration.md) - Customize agent behavior
+- 🧠 [**Memory Systems**](./context-memory/memory-systems.md) - Set up Neo4j and Pinecone
+- 🚀 [**Intelligence Upgrades**](./guides/intelligence-upgrades.md) - Learn about P0, Phase 1 & 2 improvements
 
 ---
 
