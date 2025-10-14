@@ -38,6 +38,13 @@ export class InspectionsListTool extends BaseTool {
         description: "Filter inspections with contaminants detected",
         required: false,
       },
+      limit: {
+        type: "number",
+        description: "Maximum number of results (default: 50, max: 500)",
+        required: false,
+        min: 1,
+        max: 500,
+      },
     },
     returns: {
       type: "array",
@@ -49,6 +56,11 @@ export class InspectionsListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
       if (params.status) {
         const statusValidation = this.validateEnum(
           params.status,
@@ -60,6 +72,12 @@ export class InspectionsListTool extends BaseTool {
         }
       }
 
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
+      }
+
       const queryParams: Record<string, string> = {};
       if (params.date_from) queryParams.date_from = params.date_from;
       if (params.date_to) queryParams.date_to = params.date_to;
@@ -69,12 +87,16 @@ export class InspectionsListTool extends BaseTool {
       if (params.has_risk_contaminants !== undefined) {
         queryParams.has_risk_contaminants = params.has_risk_contaminants.toString();
       }
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/inspections", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const inspections = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, inspections);
 
       return this.success(inspections, Date.now() - startTime);
     } catch (error: any) {

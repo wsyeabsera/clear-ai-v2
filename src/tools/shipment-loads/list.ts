@@ -50,9 +50,10 @@ export class ShipmentLoadsListTool extends BaseTool {
       },
       limit: {
         type: "number",
-        description: "Maximum results to return",
+        description: "Maximum number of results (default: 50, max: 500)",
         required: false,
-        default: 100,
+        min: 1,
+        max: 500,
       },
     },
     returns: {
@@ -65,12 +66,23 @@ export class ShipmentLoadsListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
       // Validate confidence range
       if (params.min_confidence !== undefined && (params.min_confidence < 0 || params.min_confidence > 1)) {
         throw new Error("min_confidence must be between 0 and 1");
       }
       if (params.max_confidence !== undefined && (params.max_confidence < 0 || params.max_confidence > 1)) {
         throw new Error("max_confidence must be between 0 and 1");
+      }
+
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
       }
 
       // Build query parameters
@@ -84,13 +96,16 @@ export class ShipmentLoadsListTool extends BaseTool {
       if (params.matches_contract !== undefined) queryParams.matches_contract = params.matches_contract.toString();
       if (params.min_confidence !== undefined) queryParams.min_confidence = params.min_confidence.toString();
       if (params.max_confidence !== undefined) queryParams.max_confidence = params.max_confidence.toString();
-      queryParams.limit = (params.limit || 100).toString();
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/shipment-loads", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const loads = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, loads);
 
       return this.success(loads, Date.now() - startTime);
     } catch (error: any) {

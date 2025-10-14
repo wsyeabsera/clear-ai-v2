@@ -14,6 +14,8 @@ export interface ExecutorConfig {
   maxRetries: number;
   retryDelay: number;
   failFast: boolean; // Stop on first error
+  enableAggressiveParallelization: boolean; // Enhanced parallel execution
+  stepTimeout: number; // Per-step timeout
 }
 
 export class ExecutorAgent {
@@ -32,6 +34,8 @@ export class ExecutorAgent {
       maxRetries: 3,
       retryDelay: 1000,
       failFast: false,
+      enableAggressiveParallelization: process.env.ENABLE_AGGRESSIVE_PARALLELIZATION === 'true',
+      stepTimeout: parseInt(process.env.STEP_TIMEOUT_MS || '15000'),
       ...config,
     };
     
@@ -42,6 +46,10 @@ export class ExecutorAgent {
     
     if (this.enableStepReferences) {
       console.log('[ExecutorAgent] Step reference resolution enabled');
+    }
+
+    if (this.config.enableAggressiveParallelization) {
+      console.log('[ExecutorAgent] Aggressive parallelization enabled');
     }
   }
 
@@ -60,53 +68,65 @@ export class ExecutorAgent {
     // Build execution graph
     const graph = this.buildExecutionGraph(plan.steps);
 
+    // Optimize execution order if aggressive parallelization is enabled
+    const optimizedSteps = this.config.enableAggressiveParallelization
+      ? this.optimizeDependencyGraph(plan.steps, graph)
+      : plan.steps;
+
     // Execute in topological order (respecting dependencies)
-    while (completed.size < plan.steps.length) {
+    while (completed.size < optimizedSteps.length) {
       // Find steps that are ready to execute
-      const readySteps = this.findReadySteps(plan.steps, completed, graph);
+      const readySteps = this.findReadySteps(optimizedSteps, completed, graph);
 
       if (readySteps.length === 0) {
         throw new Error('Circular dependency or invalid plan');
       }
 
-      console.log(`⚡ [Executor] Executing ${readySteps.length} steps in parallel`);
+      // Enhanced parallel execution with better batching
+      const parallelBatches = this.config.enableAggressiveParallelization
+        ? this.detectParallelizableSteps(readySteps, optimizedSteps)
+        : [readySteps];
 
-      // Emit progress for each ready step
-      for (const stepIndex of readySteps) {
-        if (stepIndex !== undefined) {
-          const step = plan.steps[stepIndex];
-          if (step) {
-            console.log(`🔧 [Executor] Step ${stepIndex + 1}/${plan.steps.length}: ${step.tool}`);
-            progressCallback?.(stepIndex + 1, plan.steps.length, step.tool);
+      for (const batch of parallelBatches) {
+        console.log(`⚡ [Executor] Executing ${batch.length} steps in parallel`);
+
+        // Emit progress for each ready step
+        for (const stepIndex of batch) {
+          if (stepIndex !== undefined) {
+            const step = optimizedSteps[stepIndex];
+            if (step) {
+              console.log(`🔧 [Executor] Step ${stepIndex + 1}/${optimizedSteps.length}: ${step.tool}`);
+              progressCallback?.(stepIndex + 1, optimizedSteps.length, step.tool);
+            }
           }
         }
-      }
 
-      // Execute ready steps in parallel (up to maxParallelExecutions)
-      const batchResults = await this.executeBatch(
-        readySteps,
-        plan.steps,
-        results
-      );
+        // Execute batch with enhanced timeout handling
+        const batchResults = await this.executeBatchWithTimeout(
+          batch,
+          optimizedSteps,
+          results
+        );
 
-      // Store results and mark as completed
-      for (let i = 0; i < readySteps.length; i++) {
-        const stepIndex = readySteps[i];
-        if (stepIndex !== undefined) {
-          results[stepIndex] = batchResults[i]!;
-          completed.add(stepIndex);
+        // Store results and mark as completed
+        for (let i = 0; i < batch.length; i++) {
+          const stepIndex = batch[i];
+          if (stepIndex !== undefined) {
+            results[stepIndex] = batchResults[i]!;
+            completed.add(stepIndex);
 
-          const result = batchResults[i];
-          if (result) {
-            const status = result.success ? '✅' : '❌';
-            console.log(`${status} [Executor] Step ${stepIndex + 1} complete: ${result.success ? 'success' : 'failed'}`);
-          }
+            const result = batchResults[i];
+            if (result) {
+              const status = result.success ? '✅' : '❌';
+              console.log(`${status} [Executor] Step ${stepIndex + 1} complete: ${result.success ? 'success' : 'failed'}`);
+            }
 
-          // Check for failure if failFast is enabled
-          if (result && this.config.failFast && !result.success) {
-            throw new Error(
-              `Step ${stepIndex} failed: ${result.error?.message}`
-            );
+            // Check for failure if failFast is enabled
+            if (result && this.config.failFast && !result.success) {
+              throw new Error(
+                `Step ${stepIndex} failed: ${result.error?.message}`
+              );
+            }
           }
         }
       }
@@ -189,6 +209,8 @@ export class ExecutorAgent {
     return ready;
   }
 
+  // Legacy method - kept for compatibility but not used with enhanced parallelization
+  // @ts-ignore - Method kept for compatibility
   private async executeBatch(
     stepIndices: number[],
     steps: PlanStep[],
@@ -203,6 +225,157 @@ export class ExecutorAgent {
     });
 
     return Promise.all(promises);
+  }
+
+  private async executeBatchWithTimeout(
+    stepIndices: number[],
+    steps: PlanStep[],
+    previousResults: ToolResult[]
+  ): Promise<ToolResult[]> {
+    const promises = stepIndices.map(index => {
+      const step = steps[index];
+      if (!step) {
+        throw new Error(`Step at index ${index} not found`);
+      }
+      return this.executeStepWithTimeout(step, index, previousResults);
+    });
+
+    return Promise.all(promises);
+  }
+
+  private async executeStepWithTimeout(
+    step: PlanStep,
+    index: number,
+    previousResults: ToolResult[]
+  ): Promise<ToolResult> {
+    const timeout = this.config.stepTimeout;
+
+    try {
+      return await Promise.race([
+        this.executeStep(step, index, previousResults),
+        this.timeout(timeout)
+      ]);
+    } catch (error: any) {
+      if (error.message.includes('Timeout after')) {
+        console.error(`[ExecutorAgent] Step ${index} (${step.tool}) timed out after ${timeout}ms`);
+        return {
+          success: false,
+          tool: step.tool,
+          error: {
+            code: 'TIMEOUT',
+            message: `Step timed out after ${timeout}ms`,
+            details: { timeout }
+          },
+          metadata: {
+            executionTime: timeout,
+            timestamp: new Date().toISOString(),
+          },
+          step_index: index,
+          resolved_params: step.params
+        };
+      }
+      throw error;
+    }
+  }
+
+  private detectParallelizableSteps(
+    readySteps: number[],
+    steps: PlanStep[]
+  ): number[][] {
+    if (!this.config.enableAggressiveParallelization) {
+      return [readySteps];
+    }
+
+    // Group steps by tool type for better parallelization
+    const toolGroups = new Map<string, number[]>();
+
+    for (const stepIndex of readySteps) {
+      const step = steps[stepIndex];
+      if (step) {
+        const toolType = this.getToolType(step.tool);
+        if (!toolGroups.has(toolType)) {
+          toolGroups.set(toolType, []);
+        }
+        toolGroups.get(toolType)!.push(stepIndex);
+      }
+    }
+
+    // Create batches prioritizing independent tools
+    const batches: number[][] = [];
+    const independentTools = ['list', 'get', 'analytics'];
+
+    // First batch: independent tools that can run together
+    const independentBatch: number[] = [];
+    for (const [toolType, indices] of toolGroups) {
+      if (independentTools.some(t => toolType.includes(t))) {
+        independentBatch.push(...indices);
+      }
+    }
+    
+    if (independentBatch.length > 0) {
+      batches.push(independentBatch);
+    }
+
+    // Remaining batches: other tools
+    for (const [toolType, indices] of toolGroups) {
+      if (!independentTools.some(t => toolType.includes(t))) {
+        batches.push(indices);
+      }
+    }
+
+    return batches.length > 0 ? batches : [readySteps];
+  }
+
+  private getToolType(toolName: string): string {
+    if (toolName.includes('_list')) return 'list';
+    if (toolName.includes('_get')) return 'get';
+    if (toolName.includes('_create')) return 'create';
+    if (toolName.includes('_update')) return 'update';
+    if (toolName.includes('_delete')) return 'delete';
+    if (toolName.includes('analytics')) return 'analytics';
+    return 'other';
+  }
+
+  private optimizeDependencyGraph(
+    steps: PlanStep[],
+    graph: Map<number, number[]>
+  ): PlanStep[] {
+    if (!this.config.enableAggressiveParallelization) {
+      return steps;
+    }
+
+    // Reorder steps to maximize parallel execution opportunities
+    const optimized: PlanStep[] = [];
+    const visited = new Set<number>();
+    const inProgress = new Set<number>();
+
+    const visit = (index: number) => {
+      if (inProgress.has(index)) {
+        throw new Error('Circular dependency detected');
+      }
+      if (visited.has(index)) {
+        return;
+      }
+
+      inProgress.add(index);
+
+      // Visit dependencies first
+      const deps = graph.get(index) || [];
+      for (const dep of deps) {
+        visit(dep);
+      }
+
+      inProgress.delete(index);
+      visited.add(index);
+      optimized.push(steps[index]!);
+    };
+
+    // Visit all steps
+    for (let i = 0; i < steps.length; i++) {
+      visit(i);
+    }
+
+    return optimized;
   }
 
   private async executeStep(

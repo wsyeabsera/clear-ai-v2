@@ -35,9 +35,10 @@ export class ShipmentCompositionsListTool extends BaseTool {
       },
       limit: {
         type: "number",
-        description: "Maximum results to return",
+        description: "Maximum number of results (default: 50, max: 500)",
         required: false,
-        default: 100,
+        min: 1,
+        max: 500,
       },
     },
     returns: {
@@ -50,6 +51,11 @@ export class ShipmentCompositionsListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
       // Validate enum values
       if (params.detected_by) {
         const detectedByValidation = this.validateEnum(
@@ -70,6 +76,12 @@ export class ShipmentCompositionsListTool extends BaseTool {
         throw new Error("max_confidence must be between 0 and 1");
       }
 
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
+      }
+
       // Build query parameters
       const queryParams: Record<string, string> = {};
       
@@ -78,13 +90,16 @@ export class ShipmentCompositionsListTool extends BaseTool {
       if (params.detected_by) queryParams.detected_by = params.detected_by;
       if (params.min_confidence !== undefined) queryParams.min_confidence = params.min_confidence.toString();
       if (params.max_confidence !== undefined) queryParams.max_confidence = params.max_confidence.toString();
-      queryParams.limit = (params.limit || 100).toString();
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/shipment-compositions", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const compositions = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, compositions);
 
       return this.success(compositions, Date.now() - startTime);
     } catch (error: any) {

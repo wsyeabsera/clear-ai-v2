@@ -2,6 +2,7 @@
 import axios, { AxiosResponse } from "axios";
 import { MCPTool, ToolResult } from "../shared/types/tool.js";
 import { ToolSchema as RegistryToolSchema } from "../shared/types/tool-registry.js";
+import { QueryCache, getGlobalCache } from "../shared/cache/query-cache.js";
 
 export abstract class BaseTool implements MCPTool {
   abstract name: string;
@@ -9,6 +10,50 @@ export abstract class BaseTool implements MCPTool {
   abstract schema: MCPTool["schema"];
 
   constructor(protected apiBaseUrl?: string) {}
+
+  /**
+   * Get cache instance
+   */
+  protected getCache(): QueryCache {
+    return getGlobalCache();
+  }
+
+  /**
+   * Check if this tool should use caching
+   */
+  protected shouldUseCache(): boolean {
+    return QueryCache.shouldCache(this.name) && process.env.ENABLE_QUERY_CACHE === 'true';
+  }
+
+  /**
+   * Get cached result if available
+   */
+  protected getCachedResult(params: Record<string, any>): any | null {
+    if (!this.shouldUseCache()) return null;
+
+    const cacheKey = QueryCache.generateKey(this.name, params);
+    return this.getCache().get(cacheKey);
+  }
+
+  /**
+   * Cache result for future use
+   */
+  protected cacheResult(params: Record<string, any>, data: any): void {
+    if (!this.shouldUseCache()) return;
+
+    const cacheKey = QueryCache.generateKey(this.name, params);
+    this.getCache().set(cacheKey, data);
+  }
+
+  /**
+   * Invalidate cache for this tool
+   */
+  protected invalidateCache(): void {
+    if (!this.shouldUseCache()) return;
+
+    const pattern = `${this.name}:.*`;
+    this.getCache().invalidate(pattern);
+  }
 
   abstract execute(params: Record<string, any>): Promise<ToolResult>;
 

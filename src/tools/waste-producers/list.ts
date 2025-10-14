@@ -35,9 +35,10 @@ export class WasteProducersListTool extends BaseTool {
       },
       limit: {
         type: "number",
-        description: "Maximum results to return",
+        description: "Maximum number of results (default: 50, max: 500)",
         required: false,
-        default: 100,
+        min: 1,
+        max: 500,
       },
     },
     returns: {
@@ -50,6 +51,11 @@ export class WasteProducersListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
       // Validate enum values
       if (params.type) {
         const typeValidation = this.validateEnum(
@@ -62,6 +68,12 @@ export class WasteProducersListTool extends BaseTool {
         }
       }
 
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
+      }
+
       // Build query parameters
       const queryParams: Record<string, string> = {};
       
@@ -70,13 +82,16 @@ export class WasteProducersListTool extends BaseTool {
       if (params.license_number) queryParams.license_number = params.license_number;
       if (params.min_contracts !== undefined) queryParams.min_contracts = params.min_contracts.toString();
       if (params.max_contracts !== undefined) queryParams.max_contracts = params.max_contracts.toString();
-      queryParams.limit = (params.limit || 100).toString();
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/waste-producers", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const producers = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, producers);
 
       return this.success(producers, Date.now() - startTime);
     } catch (error: any) {

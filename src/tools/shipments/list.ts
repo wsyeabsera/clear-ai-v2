@@ -46,9 +46,10 @@ export class ShipmentsListTool extends BaseTool {
       },
       limit: {
         type: "number",
-        description: "Maximum results to return",
+        description: "Maximum number of results (default: 50, max: 500)",
         required: false,
-        default: 100,
+        min: 1,
+        max: 500,
       },
     },
     returns: {
@@ -61,6 +62,12 @@ export class ShipmentsListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
+
       // Validate enum values
       if (params.status) {
         const statusValidation = this.validateEnum(
@@ -71,6 +78,12 @@ export class ShipmentsListTool extends BaseTool {
         if (!statusValidation.valid) {
           throw new Error(statusValidation.error);
         }
+      }
+
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
       }
 
       // Build query parameters
@@ -85,13 +98,16 @@ export class ShipmentsListTool extends BaseTool {
       }
       if (params.waste_type) queryParams.waste_type = params.waste_type;
       if (params.carrier) queryParams.carrier = params.carrier;
-      queryParams.limit = (params.limit || 100).toString();
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/shipments", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const shipments = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, shipments);
 
       return this.success(shipments, Date.now() - startTime);
     } catch (error: any) {
