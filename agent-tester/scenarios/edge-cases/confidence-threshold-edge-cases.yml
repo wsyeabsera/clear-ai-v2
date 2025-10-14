@@ -1,0 +1,41 @@
+id: edge-cases-005
+name: "Confidence threshold edge cases"
+category: edge-cases
+description: |
+  Test handling of edge cases with detection confidence thresholds.
+  Tests threshold logic and edge case handling.
+
+tags:
+  - edge-cases
+  - confidence
+  - thresholds
+  - detection
+
+priority: medium
+
+query: "Find shipments with detection confidence exactly 0.5 and analyze their accuracy"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - confidence
+    - 0.5
+    - detection
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    shouldContain:
+      - "confidence"
+      - "0.5"

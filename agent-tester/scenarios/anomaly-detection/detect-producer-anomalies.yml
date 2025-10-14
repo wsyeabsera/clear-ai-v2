@@ -1,0 +1,45 @@
+id: anomaly-detection-004
+name: "Detect producer anomalies"
+category: anomaly-detection
+description: |
+  Test detecting anomalous behavior patterns in producers.
+  Tests producer-specific anomaly detection.
+
+tags:
+  - anomaly
+  - producers
+  - detection
+  - behavior
+
+priority: medium
+
+query: "Identify producers with anomalous shipment patterns or compliance issues"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - shipments_list
+    - shipment_loads_list
+    - contracts_list
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - anomaly
+    - producer
+    - pattern
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - shipments_list
+      - shipment_loads_list
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "anomaly"
+      - "producer"

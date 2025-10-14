@@ -1,0 +1,45 @@
+id: compliance-checking-004
+name: "Producer performance ranking"
+category: compliance-checking
+description: |
+  Test ranking producers by compliance performance.
+  Tests performance ranking and comparison analysis.
+
+tags:
+  - compliance
+  - producers
+  - ranking
+  - performance
+
+priority: medium
+
+query: "Rank all producers by their compliance performance and show the top 5 and bottom 5"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 30000
+  responseContains:
+    - producer
+    - ranking
+    - performance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "producer"
+      - "ranking"

@@ -1,0 +1,41 @@
+id: anomaly-detection-005
+name: "Detect detection confidence anomalies"
+category: anomaly-detection
+description: |
+  Test detecting anomalies in camera detection confidence levels.
+  Tests detection quality anomaly analysis.
+
+tags:
+  - anomaly
+  - confidence
+  - detection
+  - camera
+
+priority: medium
+
+query: "Find shipments with unusually low camera detection confidence that might indicate detection issues"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - anomaly
+    - confidence
+    - detection
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    mustContain:
+      - "anomaly"
+      - "confidence"

@@ -1,0 +1,41 @@
+id: edge-cases-004
+name: "Missing data handling"
+category: edge-cases
+description: |
+  Test handling of queries when data is missing or incomplete.
+  Tests graceful handling of missing data scenarios.
+
+tags:
+  - edge-cases
+  - missing-data
+  - error-handling
+  - graceful-degradation
+
+priority: medium
+
+query: "Analyze the contract compliance for a producer that has no contracts"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - contracts_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - no
+    - contract
+    - producer
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    shouldContain:
+      - "no"
+      - "contract"

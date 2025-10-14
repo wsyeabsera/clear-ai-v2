@@ -1,0 +1,41 @@
+id: anomaly-detection-002
+name: "Detect weight anomalies in shipments"
+category: anomaly-detection
+description: |
+  Test detecting weight anomalies in shipments that are unusually heavy or light.
+  Tests statistical anomaly detection.
+
+tags:
+  - anomaly
+  - weight
+  - detection
+  - statistical
+
+priority: medium
+
+query: "Find shipments with unusual weights that are significantly different from normal patterns"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - shipment_loads_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - anomaly
+    - weight
+    - unusual
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    mustContain:
+      - "anomaly"
+      - "weight"

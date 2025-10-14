@@ -1,0 +1,44 @@
+id: analytics-001
+name: "Waste code distribution analysis"
+category: analytics
+description: |
+  Test analyzing waste code distribution across shipments and facilities.
+  Tests statistical analysis and distribution patterns.
+
+tags:
+  - analytics
+  - waste-codes
+  - distribution
+  - statistics
+
+priority: medium
+
+query: "Analyze the distribution of European waste codes across all shipments and identify the most common codes"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+    - shipments_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - distribution
+    - waste
+    - code
+    - analysis
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "distribution"
+      - "waste"

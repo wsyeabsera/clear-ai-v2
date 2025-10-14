@@ -1,0 +1,45 @@
+id: compliance-checking-003
+name: "Waste code compliance report"
+category: compliance-checking
+description: |
+  Test generating a comprehensive waste code compliance report.
+  Tests European waste code compliance analysis.
+
+tags:
+  - compliance
+  - waste-codes
+  - reporting
+  - european-codes
+
+priority: medium
+
+query: "Generate a report showing compliance rates for each European waste code across all shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+    - contracts_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - waste
+    - code
+    - compliance
+    - rate
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "waste"
+      - "code"
+      - "compliance"

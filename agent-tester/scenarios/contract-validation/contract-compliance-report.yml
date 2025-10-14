@@ -1,0 +1,45 @@
+id: contract-validation-003
+name: "Generate contract compliance report"
+category: contract-validation
+description: |
+  Test generating a comprehensive compliance report for a producer.
+  Tests data aggregation and reporting capabilities.
+
+tags:
+  - contracts
+  - compliance
+  - reporting
+  - aggregation
+
+priority: medium
+
+query: "Generate a compliance report for producer PR-001 showing all contract violations in the last 30 days"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_get
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 30000
+  responseContains:
+    - compliance
+    - report
+    - producer
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_get
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "compliance"
+      - "report"

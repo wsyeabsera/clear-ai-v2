@@ -1,0 +1,44 @@
+id: contract-validation-002
+name: "Find contract violations in shipments"
+category: contract-validation
+description: |
+  Test finding shipments that contain waste types not declared in their contracts.
+  Tests complex filtering and cross-resource analysis.
+
+tags:
+  - contracts
+  - violations
+  - compliance
+  - filtering
+
+priority: high
+
+query: "Find all shipments where the detected waste composition differs from the contract by more than 20%"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 0
+  maxLatencyMs: 25000
+  responseContains:
+    - violation
+    - contract
+    - shipment
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "contract"
+      - "violation"

@@ -1,0 +1,46 @@
+id: relationship-management-005
+name: "Facility-producer network analysis"
+category: relationship-management
+description: |
+  Test analyzing the network of relationships between facilities and producers.
+  Tests network analysis and relationship mapping.
+
+tags:
+  - relationships
+  - facilities
+  - producers
+  - network
+
+priority: medium
+
+query: "Analyze the network of relationships between facilities and producers, showing connection patterns and volumes"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - waste_producers_list
+    - contracts_list
+    - shipments_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - network
+    - facility
+    - producer
+    - relationship
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+      - waste_producers_list
+      - contracts_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "network"
+      - "relationship"

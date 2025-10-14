@@ -1,0 +1,43 @@
+id: anomaly-detection-001
+name: "Detect unusual waste codes in shipments"
+category: anomaly-detection
+description: |
+  Test detecting unusual or unexpected waste codes in shipments.
+  Tests anomaly detection and pattern recognition.
+
+tags:
+  - anomaly
+  - waste-codes
+  - detection
+  - unusual
+
+priority: high
+
+query: "Find shipments with unusual waste codes that don't match typical patterns"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - anomaly
+    - unusual
+    - waste
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "anomaly"
+      - "unusual"

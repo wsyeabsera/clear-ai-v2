@@ -1,0 +1,42 @@
+id: analytics-004
+name: "Detection confidence analysis"
+category: analytics
+description: |
+  Test analyzing camera detection confidence levels and accuracy.
+  Tests detection quality analytics.
+
+tags:
+  - analytics
+  - detection
+  - confidence
+  - accuracy
+
+priority: medium
+
+query: "Analyze camera detection confidence levels and identify patterns in detection accuracy"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 1
+  maxLatencyMs: 15000
+  responseContains:
+    - confidence
+    - detection
+    - accuracy
+    - analysis
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    mustContain:
+      - "confidence"
+      - "detection"

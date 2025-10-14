@@ -1,0 +1,45 @@
+id: compliance-checking-001
+name: "Producer compliance analysis"
+category: compliance-checking
+description: |
+  Test analyzing producer compliance by checking their shipments against contracts.
+  Tests complex multi-step analysis and compliance metrics.
+
+tags:
+  - compliance
+  - producers
+  - analysis
+  - multi-step
+
+priority: high
+
+query: "Show me all producers who have shipped waste types not declared in their contracts in the last 30 days"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 0
+  maxLatencyMs: 30000
+  responseContains:
+    - producer
+    - compliance
+    - violation
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "producer"
+      - "compliance"
