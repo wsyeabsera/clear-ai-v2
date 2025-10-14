@@ -37,7 +37,7 @@ export class ToolRegistry {
     }
 
     console.log(`[ToolRegistry] Discovering tools from: ${toolsPath}`);
-    
+
     try {
       await this.scanToolsDirectory(toolsPath, apiBaseUrl);
       this.initialized = true;
@@ -79,10 +79,10 @@ export class ToolRegistry {
       // Convert file path to module path relative to dist/shared/
       const relativePath = path.relative(path.join(__dirname, '../'), filePath);
       const modulePath = '../' + relativePath;
-      
+
       // Import the module
       const module = await import(modulePath);
-      
+
       // Find tool classes (classes that extend BaseTool)
       for (const [_, exportedClass] of Object.entries(module)) {
         if (this.isToolClass(exportedClass)) {
@@ -91,15 +91,23 @@ export class ToolRegistry {
           try {
             if (apiBaseUrl) {
               toolInstance = new (exportedClass as any)(apiBaseUrl) as BaseTool;
+              console.log(`[ToolRegistry] Instantiated ${(exportedClass as any).name} with apiBaseUrl`);
             } else {
               // Try without parameters first
               toolInstance = new (exportedClass as any)() as BaseTool;
+              console.warn(`[ToolRegistry] Instantiated ${(exportedClass as any).name} without apiBaseUrl`);
+            }
+
+            // Validate tool was instantiated correctly
+            if (!toolInstance.schema || !toolInstance.schema.params) {
+              console.warn(`[ToolRegistry] Tool from ${filePath} has invalid schema, skipping`);
+              continue;
             }
           } catch (error: any) {
             console.warn(`[ToolRegistry] Failed to instantiate tool from ${filePath}:`, error.message);
             continue;
           }
-          
+
           await this.registerTool(toolInstance);
         }
       }
@@ -116,7 +124,7 @@ export class ToolRegistry {
     return (
       typeof exportedClass === 'function' &&
       exportedClass.prototype &&
-      (exportedClass.prototype instanceof BaseTool || 
+      (exportedClass.prototype instanceof BaseTool ||
        exportedClass.name?.includes('Tool'))
     );
   }
@@ -126,7 +134,7 @@ export class ToolRegistry {
    */
   private async registerTool(tool: BaseTool): Promise<void> {
     const toolName = tool.name;
-    
+
     if (this.tools.has(toolName)) {
       console.warn(`[ToolRegistry] Tool ${toolName} already registered, skipping`);
       return;
@@ -147,7 +155,12 @@ export class ToolRegistry {
    */
   private extractToolSchema(tool: BaseTool): ToolSchema {
     const toolSchema = tool.schema;
-    
+
+    // Add validation
+    if (!toolSchema || !toolSchema.params) {
+      throw new Error(`Tool ${tool.name} has invalid schema: missing schema or params`);
+    }
+
     const parameters: ParameterDefinition[] = Object.entries(toolSchema.params).map(([name, paramDef]) => ({
       name,
       type: paramDef.type as 'string' | 'number' | 'boolean' | 'array' | 'object',
@@ -167,8 +180,39 @@ export class ToolRegistry {
       description: tool.description,
       parameters,
       requiredParameters,
-      returns: toolSchema.returns.description
+      returns: toolSchema.returns.description,
+      complexity: this.calculateToolComplexity(tool.name),
+      isBasicCrud: this.isBasicCrud(tool.name)
     };
+  }
+
+  /**
+   * Calculate tool complexity score (lower is better, basic CRUD preferred)
+   */
+  private calculateToolComplexity(toolName: string): number {
+    // Basic CRUD operations = Low complexity (1-2)
+    if (toolName.endsWith('_list')) return 1;
+    if (toolName.endsWith('_get')) return 1;
+    if (toolName.endsWith('_create')) return 2;
+    if (toolName.endsWith('_update')) return 2;
+    if (toolName.endsWith('_delete')) return 2;
+
+    // Analytics tools = Medium complexity (3-4)
+    if (toolName.startsWith('analytics_')) return 3;
+
+    // Relationship tools = High complexity (5-6)
+    if (toolName.includes('_with_') || toolName.includes('_detailed')) return 5;
+
+    // Unknown = Medium complexity
+    return 3;
+  }
+
+  /**
+   * Check if tool is a basic CRUD operation
+   */
+  private isBasicCrud(toolName: string): boolean {
+    const crudSuffixes = ['_list', '_get', '_create', '_update', '_delete'];
+    return crudSuffixes.some(suffix => toolName.endsWith(suffix));
   }
 
   /**
@@ -223,7 +267,7 @@ export class ToolRegistry {
     // Validate parameter types and constraints
     for (const param of schema.parameters) {
       const value = params[param.name];
-      
+
       if (value !== undefined) {
         // Type validation
         if (!this.validateParameterType(value, param.type)) {
@@ -277,7 +321,7 @@ export class ToolRegistry {
    * Get tools by category/type
    */
   getToolsByCategory(category: string): ToolSchema[] {
-    return this.getAllToolSchemas().filter(schema => 
+    return this.getAllToolSchemas().filter(schema =>
       schema.name.includes(category.toLowerCase())
     );
   }

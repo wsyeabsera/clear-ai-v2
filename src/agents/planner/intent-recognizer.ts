@@ -9,7 +9,7 @@ export class IntentRecognizer {
   private readonly intents = {
     CREATE: ['create', 'add', 'new', 'generate', 'make', 'build', 'establish', 'set up'],
     READ: ['get', 'find', 'list', 'show', 'display', 'fetch', 'retrieve', 'view', 'see', 'check'],
-    UPDATE: ['update', 'modify', 'change', 'edit', 'alter', 'adjust', 'revise', 'correct'],
+    UPDATE: ['update', 'modify', 'change', 'edit', 'alter', 'adjust', 'revise', 'correct', 'updating', 'modifying', 'changing', 'editing', 'setting', 'set'],
     DELETE: ['delete', 'remove', 'destroy', 'eliminate', 'clear', 'purge'],
     ANALYZE: ['analyze', 'examine', 'study', 'investigate', 'evaluate', 'assess', 'review', 'assess'],
     MONITOR: ['monitor', 'watch', 'track', 'observe', 'check', 'follow', 'supervise']
@@ -57,6 +57,11 @@ export class IntentRecognizer {
       }, 0);
     }
     
+    // Enhanced UPDATE detection with pattern matching
+    if (this.recognizeUpdateIntent(words.join(' '))) {
+      scores.UPDATE = (scores.UPDATE || 0) + 2; // Boost UPDATE score
+    }
+    
     // Find the intent with highest score
     const maxScore = Math.max(...Object.values(scores));
     if (maxScore === 0) {
@@ -65,6 +70,20 @@ export class IntentRecognizer {
     
     const bestIntent = Object.entries(scores).find(([_, score]) => score === maxScore)?.[0];
     return (bestIntent as Intent['type']) || 'READ';
+  }
+
+  /**
+   * Enhanced UPDATE intent pattern recognition
+   */
+  private recognizeUpdateIntent(query: string): boolean {
+    const updatePatterns = [
+      /\b(update|modify|change|edit|set|alter)\b/i,
+      /\b(updating|modifying|changing|editing|setting)\b/i,
+      /\b(set\s+.*\s+to)\b/i, // "set X to Y" pattern
+      /\b(change\s+.*\s+from.*\s+to)\b/i, // "change X from Y to Z" pattern
+    ];
+    
+    return updatePatterns.some(pattern => pattern.test(query));
   }
   
   private extractEntities(query: string): string[] {

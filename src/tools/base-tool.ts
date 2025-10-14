@@ -12,6 +12,22 @@ export abstract class BaseTool implements MCPTool {
   constructor(protected apiBaseUrl?: string) {}
 
   /**
+   * Check if this tool requires an API URL
+   */
+  requiresApiUrl(): boolean {
+    return true; // Most tools require API URL
+  }
+
+  /**
+   * Validate that API URL is configured
+   */
+  protected validateApiUrl(): void {
+    if (this.requiresApiUrl() && !this.apiBaseUrl) {
+      throw new Error(`API base URL not configured for ${this.name}`);
+    }
+  }
+
+  /**
    * Get cache instance
    */
   protected getCache(): QueryCache {
@@ -89,9 +105,7 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     params?: Record<string, any>
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     const queryParams = params ? new URLSearchParams(params).toString() : "";
     const url = `${this.apiBaseUrl}${endpoint}${queryParams ? `?${queryParams}` : ""}`;
     return axios.get<T>(url);
@@ -101,9 +115,7 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     data: any
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.post<T>(`${this.apiBaseUrl}${endpoint}`, data);
   }
 
@@ -111,18 +123,14 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     data: any
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.put<T>(`${this.apiBaseUrl}${endpoint}`, data);
   }
 
   protected async delete<T = any>(
     endpoint: string
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.delete<T>(`${this.apiBaseUrl}${endpoint}`);
   }
 

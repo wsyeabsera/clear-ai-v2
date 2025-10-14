@@ -97,8 +97,24 @@ export class GraphQLAgentServer {
     // Start Apollo Server
     await this.apolloServer.start();
 
-    // Apply CORS and body parser
-    this.app.use('/graphql', cors<cors.CorsRequest>());
+    // Configure CORS for frontend development
+    const corsOptions = {
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:3001', 
+        'http://192.168.2.216:3000',
+        'http://192.168.2.216:3001',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    };
+
+    // Global CORS for WebSocket handshake
+    this.app.use(cors(corsOptions));
+    
+    // Apply CORS and body parser to GraphQL endpoint
+    this.app.use('/graphql', cors(corsOptions));
     this.app.use('/graphql', bodyParser.json());
 
     // GraphQL endpoint - GET for playground, POST for queries

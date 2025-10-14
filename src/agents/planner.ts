@@ -97,7 +97,10 @@ export class PlannerAgent {
           console.log('[PlannerAgent] Plan suggestions:', suggestions);
         }
 
-        return plan;
+        // Step 5: Simplify plan by preferring basic tools over complex ones
+        const simplifiedPlan = this.simplifyPlan(plan);
+
+        return simplifiedPlan;
 
       } catch (error: any) {
         console.error('[PlannerAgent] Enhanced planning failed, falling back to legacy:', error.message);
@@ -324,6 +327,68 @@ Consider complementary tools that work well together for comprehensive results.`
 ${intentTools.length > 0 ? `Recommended tools for ${intent.type} intent: ${intentTools.slice(0, 5).join(', ')}` : ''}
 
 ${categoryGuidance}
+
+SMART TOOL SELECTION GUIDELINES:
+1. PREFER basic CRUD operations (list, get, create, update, delete) over complex relationship tools
+2. COMPOSE multiple simple steps instead of using complex relationship tools
+3. ONLY use relationship tools (_with_, _detailed) when:
+   - Time is critical and performance matters
+   - The relationship tool provides unique functionality
+   - The basic approach would require 5+ steps
+
+EXAMPLES:
+❌ BAD: Use facilities_get_with_activity (complex, single step)
+✅ GOOD:
+  Step 1: facilities_get (get facility)
+  Step 2: shipments_list (get recent shipments for facility)
+  Step 3: inspections_list (get recent inspections for facility)
+
+❌ BAD: Use shipments_get_with_contaminants (complex, single step)
+✅ GOOD:
+  Step 1: shipments_get (get shipment)
+  Step 2: contaminants_list (get contaminants for shipment)
+
+ANALYTICS TOOLS REQUIREMENT:
+Analytics tools MUST be paired with supporting data tools:
+
+1. analytics_contamination_rate:
+   - REQUIRED: contaminants_list (to get contamination data)
+   - OPTIONAL: shipments_list (for shipment context)
+
+2. analytics_facility_performance:
+   - REQUIRED: facilities_list, shipments_list, inspections_list
+   - ALL THREE are needed for complete performance analysis
+
+3. analytics_waste_distribution:
+   - REQUIRED: shipments_list, shipment_compositions_list
+   - Both needed to analyze waste distribution patterns
+
+4. analytics_risk_trends:
+   - REQUIRED: contaminants_list (to get risk data over time)
+   - OPTIONAL: facilities_list (for facility context)
+
+EXAMPLE:
+❌ BAD: "Show contamination rate" → [analytics_contamination_rate]
+✅ GOOD: "Show contamination rate" → [contaminants_list, analytics_contamination_rate]
+
+ENTITY-SPECIFIC TOOL SELECTION:
+1. When query mentions a SPECIFIC entity (e.g., "facility-1", "shipment-2"):
+   → Use GET tool (facilities_get, shipments_get)
+   
+2. When query mentions MULTIPLE or ALL entities (e.g., "all facilities", "facilities"):
+   → Use LIST tool (facilities_list, shipments_list)
+
+EXAMPLES:
+✅ "Get facility-1" → facilities_get (specific entity)
+✅ "List all facilities" → facilities_list (multiple entities)
+✅ "Analyze facility-1 trends" → facilities_get (specific entity in analysis)
+❌ "Analyze facility-1 trends" → facilities_list (WRONG - use GET not LIST)
+
+INTENT RECOGNITION PATTERNS:
+- UPDATE: "update X", "modify X", "change X", "edit X", "alter X"
+  → Use X_update tool, NOT X_get
+- READ: "get X", "show X", "list X", "find X", "retrieve X"
+  → Use X_get or X_list tool
 
 IMPORTANT: When selecting tools, consider their relationships:
 - Contract validation: contracts_list + shipment_loads_list + waste_producers_list
@@ -721,6 +786,140 @@ RESPONSE FORMAT (JSON only):
       if (paramsStr.includes('${step[') && (!step.depends_on || step.depends_on.length === 0)) {
         console.warn(`[Planner] Step ${step.tool} uses template but has no dependencies`);
       }
+    }
+  }
+
+
+  /**
+   * Check if tool is a complex relationship tool
+   */
+  private isRelationshipTool(toolName: string): boolean {
+    return toolName.includes('_with_') || toolName.includes('_detailed');
+  }
+
+  /**
+   * Simplify plan by decomposing complex relationship tools into basic CRUD operations
+   */
+  private simplifyPlan(plan: Plan): Plan {
+    const simplifiedSteps: any[] = [];
+
+    for (const step of plan.steps) {
+      // Check if this is a complex relationship tool
+      if (this.isRelationshipTool(step.tool)) {
+        // Try to decompose into basic operations
+        const basicSteps = this.decomposeRelationshipTool(step);
+        if (basicSteps.length > 0) {
+          console.log(`[PlannerAgent] Simplified ${step.tool} into ${basicSteps.length} basic operations`);
+          simplifiedSteps.push(...basicSteps);
+          continue;
+        }
+      }
+      simplifiedSteps.push(step);
+    }
+
+    return { ...plan, steps: simplifiedSteps };
+  }
+
+  /**
+   * Decompose relationship tools into basic CRUD operations
+   */
+  private decomposeRelationshipTool(step: any): any[] {
+    // Decompose relationship tools into basic CRUD operations
+    switch (step.tool) {
+      case 'facilities_get_with_activity':
+        return [
+          {
+            tool: 'facilities_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          },
+          {
+            tool: 'inspections_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: true
+          }
+        ];
+
+      case 'shipments_get_with_contaminants':
+        return [
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'contaminants_list',
+            params: { shipment_ids: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'facilities_get_detailed':
+        return [
+          {
+            tool: 'facilities_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'inspections_get_detailed':
+        return [
+          {
+            tool: 'inspections_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.shipment_id || '${step[0].data.shipment_id}' },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'shipments_get_detailed':
+        return [
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'contaminants_list',
+            params: { shipment_ids: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          },
+          {
+            tool: 'inspections_list',
+            params: { shipment_id: step.params.id },
+            dependsOn: [0],
+            parallel: true
+          }
+        ];
+
+      default:
+        return []; // Can't decompose, keep original
     }
   }
 
