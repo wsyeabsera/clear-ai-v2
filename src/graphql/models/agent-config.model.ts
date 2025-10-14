@@ -84,7 +84,8 @@ const agentConfigSchema = new Schema<IAgentConfigDocument>({
   },
   config: {
     type: Schema.Types.Mixed,
-    required: true
+    required: false,
+    default: null
   },
   metadata: {
     type: metadataSchema,
