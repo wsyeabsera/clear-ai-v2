@@ -1,0 +1,44 @@
+id: contract-validation-001
+name: "Validate shipment against contract terms"
+category: contract-validation
+description: |
+  Test contract validation by checking if a shipment matches the declared waste types
+  in the producer's contract. Tests multi-step reasoning and data validation.
+
+tags:
+  - contracts
+  - validation
+  - compliance
+  - multi-step
+
+priority: high
+
+query: "Check if shipment SH-001 matches the contract terms for producer PR-001"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_get
+    - contracts_get
+    - contracts_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - contract
+    - validation
+    - compliance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_get
+      - contracts_get
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "contract"
+      - "validation"

@@ -49,10 +49,6 @@ export const typeDefs = `#graphql
     """Summarize analysis into a response"""
     summarizeResponse(analysis: AnalysisInput!, toolResults: [ToolResultInput!]!, query: String!): SummaryResult!
 
-    # Convenience method (existing)
-    """Execute a query through the agent system"""
-    executeQuery(query: String!, userId: String): ExecutionResult!
-
     """Cancel an in-progress query"""
     cancelQuery(requestId: ID!): Boolean!
   }

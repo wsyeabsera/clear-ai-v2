@@ -1,0 +1,43 @@
+id: contract-validation-004
+name: "Analyze active contracts and performance"
+category: contract-validation
+description: |
+  Test analyzing active contracts and their performance metrics.
+  Tests contract filtering and performance analysis.
+
+tags:
+  - contracts
+  - performance
+  - analysis
+  - active
+
+priority: medium
+
+query: "Show me all active contracts and their performance metrics including compliance rates"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - active
+    - contract
+    - performance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "active"
+      - "contract"

@@ -1,0 +1,41 @@
+id: edge-cases-002
+name: "Contract date edge cases"
+category: edge-cases
+description: |
+  Test handling of edge cases with contract dates (expired, future dates, etc.).
+  Tests date validation and edge case handling.
+
+tags:
+  - edge-cases
+  - contracts
+  - dates
+  - validation
+
+priority: medium
+
+query: "Find contracts that expired yesterday and shipments that were received after expiration"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - expired
+    - contract
+    - date
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    mustContain:
+      - "expired"
+      - "contract"

@@ -1,0 +1,48 @@
+id: multi-step-workflows-005
+name: "Producer compliance workflow"
+category: multi-step-workflows
+description: |
+  Test conducting a producer compliance review with corrective actions.
+  Tests compliance workflow with enforcement actions.
+
+tags:
+  - workflow
+  - producer
+  - compliance
+  - enforcement
+
+priority: high
+
+query: "Review producer PR-001 compliance, identify violations, and recommend corrective actions"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_get
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+    - contracts_update
+  minResults: 1
+  maxLatencyMs: 30000
+  responseContains:
+    - producer
+    - compliance
+    - violation
+    - action
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_get
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+      - contracts_update
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "producer"
+      - "compliance"

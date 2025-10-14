@@ -15,6 +15,22 @@ const GERMAN_CITIES = [
 const FACILITY_TYPES = ["sorting", "processing", "disposal"];
 const WASTE_TYPES = ["plastic", "metal", "paper", "industrial", "electronic", "organic"];
 
+// European waste codes for realistic data
+const EUROPEAN_WASTE_CODES = [
+  "191212", // Other wastes from mechanical treatment (mixed plastics)
+  "150101", // Paper and cardboard packaging
+  "150102", // Plastic packaging
+  "170201", // Wood
+  "170203", // Plastic
+  "200101", // Paper and cardboard (municipal)
+  "160601", // Electronic waste
+  "020107", // Organic waste
+];
+
+const PRODUCER_TYPES = ["industrial", "commercial", "municipal"];
+const CONTRACT_STATUSES = ["active", "expired", "suspended"];
+const DETECTION_METHODS = ["camera", "manual", "sensor"];
+
 
 export const generateFacilities = (amount: number) => {
   const facilities: IFacility[] = [];
@@ -102,4 +118,95 @@ export const generateInspections = (amount: number, shipments: IShipment[], faci
     });
   }
   return inspections;
+}
+
+// Generate waste producers
+export const generateWasteProducers = (amount: number) => {
+  const producers = [];
+  for (let i = 0; i < amount; i++) {
+    producers.push({
+      id: `producer-${i + 1}`,
+      name: faker.company.name(),
+      type: randomChoice(PRODUCER_TYPES),
+      location: randomChoice(GERMAN_CITIES),
+      contact_email: faker.internet.email(),
+      contact_phone: faker.phone.number(),
+      license_number: `LIC-${faker.string.alphanumeric(8).toUpperCase()}`,
+      active_contracts: randomInt(0, 5),
+    });
+  }
+  return producers;
+}
+
+// Generate contracts
+export const generateContracts = (amount: number, producers: any[], facilities: any[]) => {
+  const contracts = [];
+  for (let i = 0; i < amount; i++) {
+    const producer = randomChoice(producers);
+    const facility = randomChoice(facilities);
+    const startDate = generateDate(randomInt(0, 180)); // Start within last 6 months
+    const endDate = generateDate(randomInt(180, 365)); // End within next 6 months
+    
+    contracts.push({
+      id: `contract-${i + 1}`,
+      producer_id: producer.id,
+      facility_id: facility.id,
+      waste_types_declared: [
+        randomChoice(EUROPEAN_WASTE_CODES),
+        randomChoice(EUROPEAN_WASTE_CODES)
+      ].filter((code, index, arr) => arr.indexOf(code) === index), // Remove duplicates
+      start_date: startDate,
+      end_date: endDate,
+      max_weight_kg: randomInt(5000, 50000),
+      status: randomChoice(CONTRACT_STATUSES),
+      terms: faker.lorem.paragraph(),
+    });
+  }
+  return contracts;
+}
+
+// Generate shipment compositions
+export const generateShipmentCompositions = (amount: number, shipments: any[]) => {
+  const compositions = [];
+  for (let i = 0; i < amount; i++) {
+    const shipment = randomChoice(shipments);
+    const wasteCode = randomChoice(EUROPEAN_WASTE_CODES);
+    
+    compositions.push({
+      id: `composition-${i + 1}`,
+      shipment_id: shipment.id,
+      waste_code: wasteCode,
+      waste_description: faker.lorem.words(3),
+      percentage: randomFloat(5, 95),
+      weight_kg: randomInt(100, 2000),
+      detected_by: randomChoice(DETECTION_METHODS),
+      confidence: randomFloat(0.7, 1.0),
+    });
+  }
+  return compositions;
+}
+
+// Generate shipment loads
+export const generateShipmentLoads = (amount: number, shipments: any[]) => {
+  const loads = [];
+  for (let i = 0; i < amount; i++) {
+    const shipment = randomChoice(shipments);
+    const wasteCodes = [
+      randomChoice(EUROPEAN_WASTE_CODES),
+      randomChoice(EUROPEAN_WASTE_CODES)
+    ].filter((code, index, arr) => arr.indexOf(code) === index); // Remove duplicates
+    
+    loads.push({
+      id: `load-${i + 1}`,
+      shipment_id: shipment.id,
+      detected_at: generateDate(randomInt(0, 90)),
+      camera_id: `CAM-${faker.string.alphanumeric(6).toUpperCase()}`,
+      waste_codes_detected: wasteCodes,
+      total_weight_kg: randomInt(1000, 8000),
+      image_url: faker.image.url(),
+      analysis_confidence: randomFloat(0.8, 1.0),
+      matches_contract: faker.datatype.boolean(),
+    });
+  }
+  return loads;
 }

@@ -6,7 +6,6 @@
  */
 
 import { GraphQLAgentServer } from './server.js';
-import { OrchestratorAgent } from '../agents/orchestrator.js';
 import { PlannerAgent } from '../agents/planner.js';
 import { ExecutorAgent } from '../agents/executor.js';
 import { AnalyzerAgent } from '../agents/analyzer.js';
@@ -117,20 +116,6 @@ async function main() {
     const executor = new ExecutorAgent(toolRegistry);
     const analyzer = new AnalyzerAgent(llm);
     const summarizer = new SummarizerAgent(llm);
-    
-    const orchestrator = new OrchestratorAgent(
-      planner,
-      executor,
-      analyzer,
-      summarizer,
-      memory,
-      {
-        enableMemory: true,
-        maxRetries: 3,
-        timeout: 60000,
-        enableContextLoading: true,
-      }
-    );
     console.log('✓ Agent Pipeline ready\n');
 
     // 6. Initialize Storage Services
@@ -144,7 +129,10 @@ async function main() {
     const port = parseInt(process.env.PORT || '4001');
     const server = new GraphQLAgentServer({
       port,
-      orchestrator,
+      planner,
+      executor,
+      analyzer,
+      summarizer,
       memory,
       planStorage,
       executionStorage,

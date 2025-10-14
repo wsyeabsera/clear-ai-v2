@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Comprehensive Multi-Agent Test Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metric { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #007bff; }
+        .metric-value { font-size: 2em; font-weight: bold; color: #007bff; }
+        .metric-label { color: #666; margin-top: 5px; }
+        .chart-container { margin: 30px 0; }
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .results-table th, .results-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .results-table th { background-color: #f8f9fa; font-weight: bold; }
+        .success { color: #28a745; }
+        .failure { color: #dc3545; }
+        .category-header { background: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Comprehensive Multi-Agent Test Results</h1>
+            <p>Generated: 10/14/2025, 4:18:37 PM</p>
+        </div>
+
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value">46</div>
+                <div class="metric-label">Total Tests</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">46</div>
+                <div class="metric-label">Passed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">0</div>
+                <div class="metric-label">Failed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">100.0%</div>
+                <div class="metric-label">Success Rate</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">5545ms</div>
+                <div class="metric-label">Avg Execution Time</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="categoryChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="performanceChart" width="400" height="200"></canvas>
+        </div>
+
+        <h2>📊 Category Breakdown</h2>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Total</th>
+                    <th>Passed</th>
+                    <th>Failed</th>
+                    <th>Success Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                    <tr>
+                        <td class="category-header">CRUD</td>
+                        <td>16</td>
+                        <td class="success">16</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">Analytics</td>
+                        <td>10</td>
+                        <td class="success">10</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">Relationship</td>
+                        <td>3</td>
+                        <td class="success">3</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">Multi-Step</td>
+                        <td>5</td>
+                        <td class="success">5</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">Intent</td>
+                        <td>6</td>
+                        <td class="success">6</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">Parameters</td>
+                        <td>3</td>
+                        <td class="success">3</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="category-header">EdgeCase</td>
+                        <td>3</td>
+                        <td class="success">3</td>
+                        <td class="failure">0</td>
+                        <td>100.0%</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+
+        <h2>❌ Top Failures</h2>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Subcategory</th>
+                    <th>Error</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+
+        <h2>📋 Detailed Results</h2>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Query</th>
+                    <th>Status</th>
+                    <th>Time (ms)</th>
+                    <th>Tools Correct</th>
+                    <th>Parameters Correct</th>
+                    <th>Steps Correct</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                    <tr>
+                        <td>crud-001</td>
+                        <td>CRUD</td>
+                        <td>List all facilities...</td>
+                        <td class="success">✅</td>
+                        <td>2046</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-002</td>
+                        <td>CRUD</td>
+                        <td>List all sorting facilities...</td>
+                        <td class="success">✅</td>
+                        <td>4723</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-003</td>
+                        <td>CRUD</td>
+                        <td>Get facility-1 details...</td>
+                        <td class="success">✅</td>
+                        <td>4282</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-004</td>
+                        <td>CRUD</td>
+                        <td>Create a new sorting facility in Berlin with 5000 ...</td>
+                        <td class="success">✅</td>
+                        <td>4865</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-005</td>
+                        <td>CRUD</td>
+                        <td>Update facility-2 capacity to 8000 tons...</td>
+                        <td class="success">✅</td>
+                        <td>4176</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-006</td>
+                        <td>CRUD</td>
+                        <td>Delete facility-3...</td>
+                        <td class="success">✅</td>
+                        <td>2924</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-007</td>
+                        <td>CRUD</td>
+                        <td>List facilities in Berlin...</td>
+                        <td class="success">✅</td>
+                        <td>5737</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-008</td>
+                        <td>CRUD</td>
+                        <td>Get facility-invalid-id...</td>
+                        <td class="success">✅</td>
+                        <td>1942</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-009</td>
+                        <td>CRUD</td>
+                        <td>List all shipments...</td>
+                        <td class="success">✅</td>
+                        <td>1741</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-010</td>
+                        <td>CRUD</td>
+                        <td>Get shipment-1 details...</td>
+                        <td class="success">✅</td>
+                        <td>2562</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-011</td>
+                        <td>CRUD</td>
+                        <td>Create a new shipment for facility-1 with 2000kg p...</td>
+                        <td class="success">✅</td>
+                        <td>7078</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-012</td>
+                        <td>CRUD</td>
+                        <td>Update shipment-2 status to delivered...</td>
+                        <td class="success">✅</td>
+                        <td>1632</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-013</td>
+                        <td>CRUD</td>
+                        <td>Delete shipment-3...</td>
+                        <td class="success">✅</td>
+                        <td>4295</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-014</td>
+                        <td>CRUD</td>
+                        <td>List all delivered shipments...</td>
+                        <td class="success">✅</td>
+                        <td>6102</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-015</td>
+                        <td>CRUD</td>
+                        <td>List shipments for facility-1...</td>
+                        <td class="success">✅</td>
+                        <td>4349</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>crud-016</td>
+                        <td>CRUD</td>
+                        <td>List shipments from last week...</td>
+                        <td class="success">✅</td>
+                        <td>3769</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-041</td>
+                        <td>Analytics</td>
+                        <td>Show overall contamination rate...</td>
+                        <td class="success">✅</td>
+                        <td>6343</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-042</td>
+                        <td>Analytics</td>
+                        <td>Show contamination rate for high-risk contaminants...</td>
+                        <td class="success">✅</td>
+                        <td>6403</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-043</td>
+                        <td>Analytics</td>
+                        <td>Show contamination rate for last month...</td>
+                        <td class="success">✅</td>
+                        <td>5714</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-044</td>
+                        <td>Analytics</td>
+                        <td>Show contamination rate for facility-1...</td>
+                        <td class="success">✅</td>
+                        <td>5322</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-045</td>
+                        <td>Analytics</td>
+                        <td>Show contamination rate for high-risk contaminants...</td>
+                        <td class="success">✅</td>
+                        <td>6641</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-046</td>
+                        <td>Analytics</td>
+                        <td>Analyze facility performance for all facilities...</td>
+                        <td class="success">✅</td>
+                        <td>5538</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-047</td>
+                        <td>Analytics</td>
+                        <td>Analyze performance for facility-1...</td>
+                        <td class="success">✅</td>
+                        <td>8201</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-048</td>
+                        <td>Analytics</td>
+                        <td>Analyze performance for all sorting facilities...</td>
+                        <td class="success">✅</td>
+                        <td>6941</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-049</td>
+                        <td>Analytics</td>
+                        <td>Analyze facility performance trends over last 3 mo...</td>
+                        <td class="success">✅</td>
+                        <td>4002</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>anal-050</td>
+                        <td>Analytics</td>
+                        <td>Analyze performance for processing facilities in B...</td>
+                        <td class="success">✅</td>
+                        <td>5210</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>rela-061</td>
+                        <td>Relationship</td>
+                        <td>Get facility-1 with its recent activity...</td>
+                        <td class="success">✅</td>
+                        <td>4461</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>rela-062</td>
+                        <td>Relationship</td>
+                        <td>Get shipment-2 and its contaminants...</td>
+                        <td class="success">✅</td>
+                        <td>4318</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>rela-063</td>
+                        <td>Relationship</td>
+                        <td>Get detailed information for facility-3...</td>
+                        <td class="success">✅</td>
+                        <td>1370</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>mult-076</td>
+                        <td>Multi-Step</td>
+                        <td>Get contaminants detected in Berlin facilities...</td>
+                        <td class="success">✅</td>
+                        <td>3617</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>mult-077</td>
+                        <td>Multi-Step</td>
+                        <td>Get high-risk shipments and their inspection detai...</td>
+                        <td class="success">✅</td>
+                        <td>4959</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>mult-078</td>
+                        <td>Multi-Step</td>
+                        <td>Show contamination trends for last week...</td>
+                        <td class="success">✅</td>
+                        <td>3960</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>mult-079</td>
+                        <td>Multi-Step</td>
+                        <td>Find facilities that have rejected shipments...</td>
+                        <td class="success">✅</td>
+                        <td>11363</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>mult-080</td>
+                        <td>Multi-Step</td>
+                        <td>Calculate total capacity of all processing facilit...</td>
+                        <td class="success">✅</td>
+                        <td>6398</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-096</td>
+                        <td>Intent</td>
+                        <td>Create a new disposal facility in Munich...</td>
+                        <td class="success">✅</td>
+                        <td>4709</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-097</td>
+                        <td>Intent</td>
+                        <td>Add a new shipment for facility-1...</td>
+                        <td class="success">✅</td>
+                        <td>6852</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-098</td>
+                        <td>Intent</td>
+                        <td>Record a new contaminant detection...</td>
+                        <td class="success">✅</td>
+                        <td>4158</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-099</td>
+                        <td>Intent</td>
+                        <td>Modify facility-2 capacity to 10000 tons...</td>
+                        <td class="success">✅</td>
+                        <td>7978</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-100</td>
+                        <td>Intent</td>
+                        <td>Change shipment-3 status to in_transit...</td>
+                        <td class="success">✅</td>
+                        <td>7635</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>inte-101</td>
+                        <td>Intent</td>
+                        <td>Set contaminant-1 risk level to high...</td>
+                        <td class="success">✅</td>
+                        <td>8343</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                
+                    <tr>
+                        <td>para-111</td>
+                        <td>Parameters</td>
+                        <td>Show shipments from January 1st to March 31st...</td>
+                        <td class="success">✅</td>
+                        <td>4563</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>para-112</td>
+                        <td>Parameters</td>
+                        <td>Get details for facility-5...</td>
+                        <td class="success">✅</td>
+                        <td>4498</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>para-113</td>
+                        <td>Parameters</td>
+                        <td>List all high-risk contaminants...</td>
+                        <td class="success">✅</td>
+                        <td>10030</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>edge-121</td>
+                        <td>EdgeCase</td>
+                        <td>Create a new facility...</td>
+                        <td class="success">✅</td>
+                        <td>24906</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>edge-122</td>
+                        <td>EdgeCase</td>
+                        <td>Get facility-nonexistent...</td>
+                        <td class="success">✅</td>
+                        <td>3564</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+                    <tr>
+                        <td>edge-123</td>
+                        <td>EdgeCase</td>
+                        <td>Show shipments from 1900 to 1950...</td>
+                        <td class="success">✅</td>
+                        <td>4863</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Category breakdown chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryData = [{"category":"CRUD","successRate":100},{"category":"Analytics","successRate":100},{"category":"Relationship","successRate":100},{"category":"Multi-Step","successRate":100},{"category":"Intent","successRate":100},{"category":"Parameters","successRate":100},{"category":"EdgeCase","successRate":100}];
+        
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryData.map(d => d.category),
+                datasets: [{
+                    label: 'Success Rate (%)',
+                    data: categoryData.map(d => d.successRate),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Performance chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Plan Generation', 'Tool Execution', 'Analysis'],
+                datasets: [{
+                    label: 'Average Time (ms)',
+                    data: [
+                        3405,
+                        23,
+                        2117
+                    ],
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+id: analytics-002
+name: "Producer performance analytics"
+category: analytics
+description: |
+  Test analyzing producer performance metrics and rankings.
+  Tests performance analytics and comparative analysis.
+
+tags:
+  - analytics
+  - producers
+  - performance
+  - ranking
+
+priority: medium
+
+query: "Analyze producer performance metrics including compliance rates, shipment volumes, and contract adherence"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - performance
+    - producer
+    - metrics
+    - ranking
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "performance"
+      - "producer"

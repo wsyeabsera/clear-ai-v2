@@ -1,0 +1,37 @@
+id: edge-cases-003
+name: "Ambiguous producer queries"
+category: edge-cases
+description: |
+  Test handling of ambiguous queries about producers.
+  Tests query disambiguation and clarification.
+
+tags:
+  - edge-cases
+  - ambiguous
+  - producers
+  - disambiguation
+
+priority: low
+
+query: "Show me information about the producer"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+  minResults: 0
+  maxLatencyMs: 10000
+  responseContains:
+    - producer
+    - ambiguous
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 10000
+  - type: response_content
+    shouldContain:
+      - "producer"

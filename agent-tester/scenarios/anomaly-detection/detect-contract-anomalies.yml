@@ -1,0 +1,43 @@
+id: anomaly-detection-003
+name: "Detect contract anomalies"
+category: anomaly-detection
+description: |
+  Test detecting anomalies in contract terms and performance.
+  Tests contract-specific anomaly detection.
+
+tags:
+  - anomaly
+  - contracts
+  - detection
+  - performance
+
+priority: medium
+
+query: "Find contracts with unusual terms or performance patterns"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 0
+  maxLatencyMs: 20000
+  responseContains:
+    - anomaly
+    - contract
+    - unusual
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "anomaly"
+      - "contract"

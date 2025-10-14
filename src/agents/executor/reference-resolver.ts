@@ -19,13 +19,18 @@ export class StepReferenceResolver {
    */
   resolveReferences(params: any, cache: StepResultCache): ResolveResult {
     try {
+      // Handle null/undefined params
+      if (params === null || params === undefined) {
+        return { resolved: {}, success: true };
+      }
+      
       const resolved = this.resolveValue(params, cache);
-      return { resolved, success: true };
+      return { resolved: resolved || {}, success: true };
     } catch (error: any) {
-      return { 
-        resolved: params, 
-        success: false, 
-        error: error.message 
+      return {
+        resolved: params || {},
+        success: false,
+        error: error.message
       };
     }
   }

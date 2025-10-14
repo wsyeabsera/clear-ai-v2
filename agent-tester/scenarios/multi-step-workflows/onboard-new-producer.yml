@@ -1,0 +1,43 @@
+id: multi-step-workflows-001
+name: "Onboard new producer workflow"
+category: multi-step-workflows
+description: |
+  Test onboarding a new producer with contract creation and initial shipment setup.
+  Tests complex multi-step workflow execution.
+
+tags:
+  - workflow
+  - producer
+  - onboarding
+  - multi-step
+
+priority: high
+
+query: "Onboard a new producer 'ABC Industries', create a contract for plastic waste (150102), and set up their first shipment"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_create
+    - contracts_create
+    - shipments_create
+  minResults: 1
+  maxLatencyMs: 30000
+  responseContains:
+    - producer
+    - contract
+    - shipment
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_create
+      - contracts_create
+      - shipments_create
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "producer"
+      - "contract"

@@ -1,0 +1,43 @@
+id: compliance-checking-005
+name: "Compliance trend analysis"
+category: compliance-checking
+description: |
+  Test analyzing compliance trends over time.
+  Tests temporal analysis and trend detection.
+
+tags:
+  - compliance
+  - trends
+  - temporal
+  - analysis
+
+priority: medium
+
+query: "Analyze compliance trends over the last 6 months and identify any patterns"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_list
+    - shipment_loads_list
+    - contracts_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - trend
+    - compliance
+    - pattern
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_list
+      - shipment_loads_list
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "trend"
+      - "compliance"

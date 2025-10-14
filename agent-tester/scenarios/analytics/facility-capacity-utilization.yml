@@ -1,0 +1,44 @@
+id: analytics-005
+name: "Facility capacity utilization analysis"
+category: analytics
+description: |
+  Test analyzing facility capacity utilization and efficiency metrics.
+  Tests facility performance analytics.
+
+tags:
+  - analytics
+  - facilities
+  - capacity
+  - utilization
+
+priority: medium
+
+query: "Analyze facility capacity utilization rates and identify over/under-utilized facilities"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+    - contracts_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - capacity
+    - utilization
+    - facility
+    - analysis
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+      - shipments_list
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "capacity"
+      - "utilization"

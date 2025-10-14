@@ -1,0 +1,46 @@
+id: relationship-management-004
+name: "Producer contract performance tracking"
+category: relationship-management
+description: |
+  Test tracking producer performance across multiple contracts.
+  Tests multi-contract performance analysis.
+
+tags:
+  - relationships
+  - producers
+  - contracts
+  - performance
+
+priority: medium
+
+query: "Track producer PR-001 performance across all their contracts and identify the best performing contract"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_get
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - producer
+    - contract
+    - performance
+    - tracking
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_get
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "producer"
+      - "performance"

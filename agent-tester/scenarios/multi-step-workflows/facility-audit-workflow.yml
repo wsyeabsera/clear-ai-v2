@@ -1,0 +1,45 @@
+id: multi-step-workflows-004
+name: "Facility audit workflow"
+category: multi-step-workflows
+description: |
+  Test conducting a comprehensive facility audit with compliance checking.
+  Tests audit workflow with multiple data sources and analysis.
+
+tags:
+  - workflow
+  - facility
+  - audit
+  - compliance
+
+priority: medium
+
+query: "Conduct a comprehensive audit of facility F-001: check contracts, shipments, and compliance"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_get
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 30000
+  responseContains:
+    - facility
+    - audit
+    - compliance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_get
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 30000
+  - type: response_content
+    mustContain:
+      - "facility"
+      - "audit"

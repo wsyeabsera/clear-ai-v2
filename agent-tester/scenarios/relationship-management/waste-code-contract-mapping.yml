@@ -1,0 +1,44 @@
+id: relationship-management-003
+name: "Waste code to contract mapping"
+category: relationship-management
+description: |
+  Test mapping waste codes detected in shipments to contract declarations.
+  Tests waste code compliance mapping.
+
+tags:
+  - relationships
+  - waste-codes
+  - contracts
+  - mapping
+
+priority: high
+
+query: "Map detected waste codes in recent shipments to their contract declarations and identify mismatches"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - contracts_list
+    - shipments_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - mapping
+    - waste
+    - code
+    - contract
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - contracts_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "mapping"
+      - "waste"

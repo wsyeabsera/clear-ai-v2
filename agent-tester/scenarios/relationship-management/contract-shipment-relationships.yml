@@ -1,0 +1,46 @@
+id: relationship-management-002
+name: "Contract-shipment relationship tracking"
+category: relationship-management
+description: |
+  Test tracking relationships between contracts and shipments.
+  Tests contract fulfillment tracking.
+
+tags:
+  - relationships
+  - contracts
+  - shipments
+  - tracking
+
+priority: medium
+
+query: "Track the fulfillment of contract CT-001 by analyzing associated shipments and compliance"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_get
+    - shipments_list
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 1
+  maxLatencyMs: 20000
+  responseContains:
+    - contract
+    - shipment
+    - fulfillment
+    - compliance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_get
+      - shipments_list
+      - shipment_loads_list
+      - shipment_compositions_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 20000
+  - type: response_content
+    mustContain:
+      - "contract"
+      - "fulfillment"

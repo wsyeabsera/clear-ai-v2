@@ -1,0 +1,6 @@
+# GraphQL Endpoint
+VITE_GRAPHQL_ENDPOINT=https://clear-ai-v2-production.up.railway.app/graphql
+
+# For local development, use:
+# VITE_GRAPHQL_ENDPOINT=http://localhost:4001/graphql
+

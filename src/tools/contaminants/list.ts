@@ -38,6 +38,13 @@ export class ContaminantsListTool extends BaseTool {
         description: "Risk level (low, medium, high, critical)",
         required: false,
       },
+      limit: {
+        type: "number",
+        description: "Maximum number of results (default: 50, max: 500)",
+        required: false,
+        min: 1,
+        max: 500,
+      },
     },
     returns: {
       type: "array",
@@ -49,6 +56,11 @@ export class ContaminantsListTool extends BaseTool {
     const startTime = Date.now();
 
     try {
+      // Check cache first
+      const cachedResult = this.getCachedResult(params);
+      if (cachedResult) {
+        return this.success(cachedResult, Date.now() - startTime);
+      }
       if (params.risk_level) {
         const riskValidation = this.validateEnum(
           params.risk_level,
@@ -60,6 +72,12 @@ export class ContaminantsListTool extends BaseTool {
         }
       }
 
+      // Apply default limit
+      const limit = params.limit || parseInt(process.env.DEFAULT_LIST_LIMIT || '50');
+      if (limit > 500) {
+        throw new Error('Limit cannot exceed 500');
+      }
+
       const queryParams: Record<string, string> = {};
       if (params.shipment_ids) queryParams.shipment_ids = params.shipment_ids;
       if (params.facility_id) queryParams.facility_id = params.facility_id;
@@ -67,12 +85,16 @@ export class ContaminantsListTool extends BaseTool {
       if (params.date_to) queryParams.date_to = params.date_to;
       if (params.type) queryParams.type = params.type;
       if (params.risk_level) queryParams.risk_level = params.risk_level;
+      queryParams.limit = limit.toString();
 
       const response = await this.get("/contaminants-detected", queryParams);
 
       // Unwrap API response to get just the data array
       const apiData = response.data as any;
       const contaminants = apiData.success ? apiData.data : apiData;
+
+      // Cache the result
+      this.cacheResult(params, contaminants);
 
       return this.success(contaminants, Date.now() - startTime);
     } catch (error: any) {

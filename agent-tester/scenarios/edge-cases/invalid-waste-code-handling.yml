@@ -1,0 +1,41 @@
+id: edge-cases-001
+name: "Invalid waste code handling"
+category: edge-cases
+description: |
+  Test handling of invalid or non-existent waste codes in queries.
+  Tests error handling and graceful degradation.
+
+tags:
+  - edge-cases
+  - error-handling
+  - waste-codes
+  - validation
+
+priority: medium
+
+query: "Find shipments with waste code 'INVALID-CODE-999999' and analyze their composition"
+
+expectedBehavior:
+  toolsUsed:
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 0
+  maxLatencyMs: 15000
+  responseContains:
+    - error
+    - invalid
+    - waste
+  analysisRequired: false
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipment_loads_list
+      - shipment_compositions_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 15000
+  - type: response_content
+    shouldContain:
+      - "error"
+      - "invalid"

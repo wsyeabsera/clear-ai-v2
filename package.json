@@ -20,7 +20,7 @@
     "api:dev": "tsc && node dist/api/server.js",
     "api:start": "node dist/api/server.js",
     "graphql:dev": "tsc && node dist/graphql/start-graphql-server.js",
-    "graphql:start": "node dist/graphql/start-graphql-server.js",
+    "graphql:start": "PORT=4001 node dist/graphql/start-graphql-server.js",
     "seed": "tsc && node dist/api/db/seed.js",
     "test": "jest --testPathIgnorePatterns=integration --testPathIgnorePatterns=agent-tester",
     "test:watch": "jest --watch --testPathIgnorePatterns=integration --testPathIgnorePatterns=agent-tester",

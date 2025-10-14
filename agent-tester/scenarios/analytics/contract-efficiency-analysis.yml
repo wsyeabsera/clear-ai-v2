@@ -1,0 +1,46 @@
+id: analytics-003
+name: "Contract efficiency analysis"
+category: analytics
+description: |
+  Test analyzing contract efficiency and utilization rates.
+  Tests contract performance analytics.
+
+tags:
+  - analytics
+  - contracts
+  - efficiency
+  - utilization
+
+priority: medium
+
+query: "Analyze contract efficiency by comparing declared vs actual waste types and utilization rates"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+    - shipment_compositions_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - efficiency
+    - contract
+    - utilization
+    - analysis
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+      - shipment_compositions_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "efficiency"
+      - "contract"

@@ -1,0 +1,45 @@
+id: multi-step-workflows-002
+name: "Contract renewal workflow"
+category: multi-step-workflows
+description: |
+  Test renewing an expiring contract with performance analysis.
+  Tests contract lifecycle management workflow.
+
+tags:
+  - workflow
+  - contract
+  - renewal
+  - lifecycle
+
+priority: medium
+
+query: "Find expiring contracts, analyze their performance, and renew the best performing ones"
+
+expectedBehavior:
+  toolsUsed:
+    - contracts_list
+    - shipments_list
+    - shipment_loads_list
+    - contracts_update
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - contract
+    - renewal
+    - performance
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - contracts_list
+      - shipments_list
+      - shipment_loads_list
+      - contracts_update
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "contract"
+      - "renewal"

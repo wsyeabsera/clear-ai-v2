@@ -20,6 +20,8 @@ export interface ToolSchema {
   requiredParameters: string[];
   returns: string;
   examples?: ToolExample[];
+  complexity?: number;
+  isBasicCrud?: boolean;
 }
 
 export interface ToolExample {

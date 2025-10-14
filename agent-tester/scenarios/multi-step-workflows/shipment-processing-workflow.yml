@@ -1,0 +1,46 @@
+id: multi-step-workflows-003
+name: "Shipment processing workflow"
+category: multi-step-workflows
+description: |
+  Test processing a shipment through the full lifecycle with composition analysis.
+  Tests complex multi-step workflow with data creation and validation.
+
+tags:
+  - workflow
+  - shipment
+  - processing
+  - lifecycle
+
+priority: high
+
+query: "Process shipment SH-001: create composition analysis, detect loads, and validate against contract"
+
+expectedBehavior:
+  toolsUsed:
+    - shipments_get
+    - shipment_compositions_create
+    - shipment_loads_create
+    - contracts_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - shipment
+    - composition
+    - load
+    - contract
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - shipments_get
+      - shipment_compositions_create
+      - shipment_loads_create
+      - contracts_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "shipment"
+      - "composition"

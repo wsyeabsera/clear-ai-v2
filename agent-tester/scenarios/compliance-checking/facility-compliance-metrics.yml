@@ -1,0 +1,45 @@
+id: compliance-checking-002
+name: "Facility compliance metrics"
+category: compliance-checking
+description: |
+  Test analyzing facility compliance metrics by checking shipments received.
+  Tests facility-level compliance analysis.
+
+tags:
+  - compliance
+  - facilities
+  - metrics
+  - analysis
+
+priority: medium
+
+query: "Calculate compliance metrics for all facilities based on received shipments"
+
+expectedBehavior:
+  toolsUsed:
+    - facilities_list
+    - shipments_list
+    - contracts_list
+    - shipment_loads_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - facility
+    - compliance
+    - metric
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - facilities_list
+      - shipments_list
+      - contracts_list
+      - shipment_loads_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "facility"
+      - "compliance"

@@ -2,6 +2,7 @@
 import axios, { AxiosResponse } from "axios";
 import { MCPTool, ToolResult } from "../shared/types/tool.js";
 import { ToolSchema as RegistryToolSchema } from "../shared/types/tool-registry.js";
+import { QueryCache, getGlobalCache } from "../shared/cache/query-cache.js";
 
 export abstract class BaseTool implements MCPTool {
   abstract name: string;
@@ -9,6 +10,66 @@ export abstract class BaseTool implements MCPTool {
   abstract schema: MCPTool["schema"];
 
   constructor(protected apiBaseUrl?: string) {}
+
+  /**
+   * Check if this tool requires an API URL
+   */
+  requiresApiUrl(): boolean {
+    return true; // Most tools require API URL
+  }
+
+  /**
+   * Validate that API URL is configured
+   */
+  protected validateApiUrl(): void {
+    if (this.requiresApiUrl() && !this.apiBaseUrl) {
+      throw new Error(`API base URL not configured for ${this.name}`);
+    }
+  }
+
+  /**
+   * Get cache instance
+   */
+  protected getCache(): QueryCache {
+    return getGlobalCache();
+  }
+
+  /**
+   * Check if this tool should use caching
+   */
+  protected shouldUseCache(): boolean {
+    return QueryCache.shouldCache(this.name) && process.env.ENABLE_QUERY_CACHE === 'true';
+  }
+
+  /**
+   * Get cached result if available
+   */
+  protected getCachedResult(params: Record<string, any>): any | null {
+    if (!this.shouldUseCache()) return null;
+
+    const cacheKey = QueryCache.generateKey(this.name, params);
+    return this.getCache().get(cacheKey);
+  }
+
+  /**
+   * Cache result for future use
+   */
+  protected cacheResult(params: Record<string, any>, data: any): void {
+    if (!this.shouldUseCache()) return;
+
+    const cacheKey = QueryCache.generateKey(this.name, params);
+    this.getCache().set(cacheKey, data);
+  }
+
+  /**
+   * Invalidate cache for this tool
+   */
+  protected invalidateCache(): void {
+    if (!this.shouldUseCache()) return;
+
+    const pattern = `${this.name}:.*`;
+    this.getCache().invalidate(pattern);
+  }
 
   abstract execute(params: Record<string, any>): Promise<ToolResult>;
 
@@ -44,9 +105,7 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     params?: Record<string, any>
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     const queryParams = params ? new URLSearchParams(params).toString() : "";
     const url = `${this.apiBaseUrl}${endpoint}${queryParams ? `?${queryParams}` : ""}`;
     return axios.get<T>(url);
@@ -56,9 +115,7 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     data: any
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.post<T>(`${this.apiBaseUrl}${endpoint}`, data);
   }
 
@@ -66,18 +123,14 @@ export abstract class BaseTool implements MCPTool {
     endpoint: string,
     data: any
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.put<T>(`${this.apiBaseUrl}${endpoint}`, data);
   }
 
   protected async delete<T = any>(
     endpoint: string
   ): Promise<AxiosResponse<T>> {
-    if (!this.apiBaseUrl) {
-      throw new Error('API base URL not configured for this tool');
-    }
+    this.validateApiUrl();
     return axios.delete<T>(`${this.apiBaseUrl}${endpoint}`);
   }
 

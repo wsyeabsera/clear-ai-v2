@@ -9,6 +9,7 @@ import { PlanSchema } from '../shared/validation/schemas.js';
 import { ToolRegistry } from '../shared/tool-registry.js';
 import { IntentRecognizer } from './planner/intent-recognizer.js';
 import { PlanValidator } from './planner/plan-validator.js';
+import { ToolRelationshipManager } from './planner/tool-relationships.js';
 
 export interface PlannerConfig {
   temperature: number;
@@ -21,6 +22,7 @@ export class PlannerAgent {
   private availableTools: Map<string, any>;
   private intentRecognizer: IntentRecognizer;
   private planValidator: PlanValidator;
+  private toolRelationshipManager: ToolRelationshipManager;
   private enableEnhancedPlanner: boolean;
 
   constructor(
@@ -38,12 +40,13 @@ export class PlannerAgent {
     // Initialize enhanced planner components
     this.intentRecognizer = new IntentRecognizer();
     this.planValidator = new PlanValidator(this.toolRegistry);
+    this.toolRelationshipManager = new ToolRelationshipManager();
     this.enableEnhancedPlanner = process.env.ENABLE_ENHANCED_PLANNER === 'true';
 
     // Cache available tools from registry
     this.availableTools = new Map();
     this.loadAvailableTools();
-    
+
     if (this.enableEnhancedPlanner) {
       console.log('[PlannerAgent] Enhanced planner intelligence enabled');
     }
@@ -53,7 +56,7 @@ export class PlannerAgent {
     // Load tools from the centralized registry
     // This ensures consistency between planning and validation
     const schemas = this.toolRegistry.getAllToolSchemas();
-    
+
     for (const schema of schemas) {
       this.availableTools.set(schema.name, {
         description: schema.description,
@@ -70,60 +73,63 @@ export class PlannerAgent {
     console.log('[PlannerAgent] Planning for query:', query);
 
     let intent: Intent | undefined;
-    
+
     // Enhanced planning with intent recognition and validation
     if (this.enableEnhancedPlanner) {
       try {
         // Step 1: Recognize intent
         intent = await this.intentRecognizer.recognizeIntent(query);
         console.log('[PlannerAgent] Recognized intent:', intent);
-        
+
         // Step 2: Generate plan using enhanced approach
         const plan = await this.generateEnhancedPlan(query, intent, context);
-        
+
         // Step 3: Validate plan
         const validation = this.planValidator.validatePlan(plan, intent);
         if (!validation.valid) {
           console.warn('[PlannerAgent] Plan validation warnings:', validation.errors);
           // Continue with warnings for now, but could implement plan fixing
         }
-        
+
         // Step 4: Get suggestions for improvement
         const suggestions = this.planValidator.getPlanSuggestions(plan, intent);
         if (suggestions.length > 0) {
           console.log('[PlannerAgent] Plan suggestions:', suggestions);
         }
-        
-        return plan;
-        
+
+        // Step 5: Simplify plan by preferring basic tools over complex ones
+        const simplifiedPlan = this.simplifyPlan(plan);
+
+        return simplifiedPlan;
+
       } catch (error: any) {
         console.error('[PlannerAgent] Enhanced planning failed, falling back to legacy:', error.message);
         // Fall through to legacy planning
       }
     }
-    
+
     // Legacy planning approach
     return this.generateLegacyPlan(query, context);
   }
-  
+
   private async generateEnhancedPlan(query: string, intent: Intent, context?: any): Promise<Plan> {
     // Build enhanced system prompt with intent context
     const systemPrompt = this.buildEnhancedSystemPrompt(intent);
-    
+
     // Add intent context to user prompt
     let userPrompt = `Query: ${query}`;
     userPrompt += `\n\nIntent: ${intent.type}`;
     userPrompt += `\nEntities: ${intent.entities.join(', ')}`;
     userPrompt += `\nOperations: ${intent.operations.join(', ')}`;
     userPrompt += `\nConfidence: ${intent.confidence}`;
-    
+
     if (context && Object.keys(context).length > 0) {
       userPrompt += `\n\nContext: ${JSON.stringify(context, null, 2)}`;
     }
-    
+
     // Call LLM with enhanced prompt
     let attempts = 0;
-    
+
     while (attempts < this.config.maxRetries) {
       try {
         const response = await this.llm.generate({
@@ -164,7 +170,7 @@ export class PlannerAgent {
 
     throw new Error('Failed to generate enhanced plan');
   }
-  
+
   private async generateLegacyPlan(query: string, context?: any): Promise<Plan> {
     // Build system prompt with tool descriptions
     const systemPrompt = this.buildSystemPrompt();
@@ -226,10 +232,13 @@ export class PlannerAgent {
 
   private buildEnhancedSystemPrompt(intent: Intent): string {
     const basePrompt = this.buildSystemPrompt();
-    
+
     // Add intent-specific guidance
     const intentGuidance = this.getIntentGuidance(intent);
-    
+
+    // Add tool relationship guidance
+    const relationshipGuidance = this.getToolRelationshipGuidance(intent);
+
     return `${basePrompt}
 
 ENHANCED PLANNING MODE:
@@ -242,11 +251,14 @@ CONFIDENCE: ${intent.confidence}
 
 ${intentGuidance}
 
+${relationshipGuidance}
+
 Generate a plan that fully addresses the intent with high confidence.
 Use the most appropriate tools for the entities and operations identified.
-Ensure all required parameters are included and step dependencies are correctly set.`;
+Ensure all required parameters are included and step dependencies are correctly set.
+Consider complementary tools that work well together for comprehensive results.`;
   }
-  
+
   private getIntentGuidance(intent: Intent): string {
     switch (intent.type) {
       case 'CREATE':
@@ -255,26 +267,26 @@ Ensure all required parameters are included and step dependencies are correctly 
 - For facility creation: Use facilities_create with all required parameters
 - Ensure all required parameters are provided with appropriate values
 - Set proper step dependencies for data retrieval before creation`;
-        
+
       case 'READ':
         return `READ INTENT GUIDANCE:
 - Use appropriate list tools (shipments_list, facilities_list, contaminants_list, inspections_list)
 - Apply filters based on entities and operations mentioned
 - For multi-entity queries, create separate steps for each entity
 - Use step references to connect related data (e.g., facility_id from facilities to shipments)`;
-        
+
       case 'UPDATE':
         return `UPDATE INTENT GUIDANCE:
 - First retrieve current data with appropriate list tools
 - Use update tools with proper parameters
 - Ensure step dependencies are set correctly`;
-        
+
       case 'DELETE':
         return `DELETE INTENT GUIDANCE:
 - First identify items to delete with list tools
 - Use delete tools with proper identifiers
 - Set step dependencies for identification before deletion`;
-        
+
       case 'ANALYZE':
         return `ANALYZE INTENT GUIDANCE:
 - Start with data retrieval using list tools
@@ -282,45 +294,186 @@ Ensure all required parameters are included and step dependencies are correctly 
 - For contamination analysis: Use contaminants_list with appropriate filters
 - For performance analysis: Use facilities_list and related tools
 - Ensure comprehensive data collection for meaningful analysis`;
-        
+
       case 'MONITOR':
         return `MONITOR INTENT GUIDANCE:
 - Use list tools to gather current status
 - Apply appropriate filters for monitoring scope
 - Consider adding date ranges for temporal monitoring
 - Use analytics tools for trend analysis if needed`;
-        
+
       default:
         return `Use appropriate tools based on the identified entities and operations.`;
     }
   }
-  
+
   private validateEnhancedPlan(plan: Plan, intent: Intent): void {
     // Use the plan validator for comprehensive validation
     const validation = this.planValidator.validatePlan(plan, intent);
     if (!validation.valid) {
       console.warn('[PlannerAgent] Enhanced plan validation issues:', validation.errors);
     }
-    
+
     // Additional enhanced validations
     this.validateIntentAlignment(plan, intent);
     this.validateOperationSupport(plan, intent);
   }
-  
+
+  private getToolRelationshipGuidance(intent: Intent): string {
+    const intentTools = this.toolRelationshipManager.getToolsForIntent(intent.type);
+    const categoryGuidance = this.getCategoryGuidance(intent);
+
+    return `TOOL RELATIONSHIP GUIDANCE:
+${intentTools.length > 0 ? `Recommended tools for ${intent.type} intent: ${intentTools.slice(0, 5).join(', ')}` : ''}
+
+${categoryGuidance}
+
+SMART TOOL SELECTION GUIDELINES:
+1. PREFER basic CRUD operations (list, get, create, update, delete) over complex relationship tools
+2. COMPOSE multiple simple steps instead of using complex relationship tools
+3. ONLY use relationship tools (_with_, _detailed) when:
+   - Time is critical and performance matters
+   - The relationship tool provides unique functionality
+   - The basic approach would require 5+ steps
+
+EXAMPLES:
+❌ BAD: Use facilities_get_with_activity (complex, single step)
+✅ GOOD:
+  Step 1: facilities_get (get facility)
+  Step 2: shipments_list (get recent shipments for facility)
+  Step 3: inspections_list (get recent inspections for facility)
+
+❌ BAD: Use shipments_get_with_contaminants (complex, single step)
+✅ GOOD:
+  Step 1: shipments_get (get shipment)
+  Step 2: contaminants_list (get contaminants for shipment)
+
+ANALYTICS TOOLS REQUIREMENT:
+Analytics tools MUST be paired with supporting data tools:
+
+1. analytics_contamination_rate:
+   - REQUIRED: contaminants_list (to get contamination data)
+   - OPTIONAL: shipments_list (for shipment context)
+
+2. analytics_facility_performance:
+   - REQUIRED: facilities_list, shipments_list, inspections_list
+   - ALL THREE are needed for complete performance analysis
+
+3. analytics_waste_distribution:
+   - REQUIRED: shipments_list, shipment_compositions_list
+   - Both needed to analyze waste distribution patterns
+
+4. analytics_risk_trends:
+   - REQUIRED: contaminants_list (to get risk data over time)
+   - OPTIONAL: facilities_list (for facility context)
+
+EXAMPLE:
+❌ BAD: "Show contamination rate" → [analytics_contamination_rate]
+✅ GOOD: "Show contamination rate" → [contaminants_list, analytics_contamination_rate]
+
+ENTITY-SPECIFIC TOOL SELECTION:
+1. When query mentions a SPECIFIC entity (e.g., "facility-1", "shipment-2"):
+   → Use GET tool (facilities_get, shipments_get)
+   
+2. When query mentions MULTIPLE or ALL entities (e.g., "all facilities", "facilities"):
+   → Use LIST tool (facilities_list, shipments_list)
+
+EXAMPLES:
+✅ "Get facility-1" → facilities_get (specific entity)
+✅ "List all facilities" → facilities_list (multiple entities)
+✅ "Analyze facility-1 trends" → facilities_get (specific entity in analysis)
+❌ "Analyze facility-1 trends" → facilities_list (WRONG - use GET not LIST)
+
+INTENT RECOGNITION PATTERNS:
+- UPDATE: "update X", "modify X", "change X", "edit X", "alter X"
+  → Use X_update tool, NOT X_get
+- READ: "get X", "show X", "list X", "find X", "retrieve X"
+  → Use X_get or X_list tool
+
+IMPORTANT: When selecting tools, consider their relationships:
+- Contract validation: contracts_list + shipment_loads_list + waste_producers_list
+- Compliance analysis: producers_get_compliance_report + contracts_list + shipments_list
+- Analytics: analytics tools + supporting data tools (shipments_list, facilities_list)
+- Multi-entity queries: Use separate steps for each entity with proper dependencies
+
+Always include complementary tools that provide context and supporting data.`;
+  }
+
+  private getCategoryGuidance(intent: Intent): string {
+    const entities = intent.entities.map(e => e.toLowerCase());
+    let guidance = '';
+
+    if (entities.includes('contract') || entities.includes('validation')) {
+      guidance += 'CONTRACT VALIDATION: Use contracts_list, shipment_loads_list, and waste_producers_list together.\n';
+    }
+
+    if (entities.includes('compliance') || entities.includes('producer')) {
+      guidance += 'COMPLIANCE: Use producers_get_compliance_report with contracts_list and shipments_list.\n';
+    }
+
+    if (entities.includes('analytics') || entities.includes('analysis')) {
+      guidance += 'ANALYTICS: Use analytics tools with supporting data tools (shipments_list, facilities_list).\n';
+    }
+
+    if (entities.includes('shipment') && entities.includes('contaminant')) {
+      guidance += 'SHIPMENT-CONTAMINANT: Use shipments_list with contaminants_list and facilities_list.\n';
+    }
+
+    return guidance;
+  }
+
+
   private validateIntentAlignment(plan: Plan, intent: Intent): void {
     const tools = plan.steps.map(step => step.tool);
-    
-    // Check if plan tools align with intent using simple pattern matching
+
+    // Check tool combination completeness using relationship manager
+    const completeness = this.toolRelationshipManager.isToolCombinationComplete(
+      tools,
+      intent.type,
+      this.getIntentCategory(intent)
+    );
+
+    if (!completeness.isComplete) {
+      console.warn(`[PlannerAgent] Missing tools: ${completeness.missingTools.join(', ')}`);
+    }
+
+    if (completeness.suggestions.length > 0) {
+      console.warn(`[PlannerAgent] Consider adding these complementary tools: ${completeness.suggestions.slice(0, 3).join(', ')}`);
+    }
+
+    // Also check using simple pattern matching for backward compatibility
     const allTools = this.toolRegistry.getAllToolSchemas();
     const recommendedTools = allTools
       .filter(tool => this.isToolSuitableForIntent(tool.name, intent.type, intent.entities))
       .map(tool => tool.name);
-    
+
     const missingTools = recommendedTools.filter(tool => !tools.includes(tool));
-    
+
     if (missingTools.length > 0) {
       console.warn(`[PlannerAgent] Consider adding these tools for better intent fulfillment: ${missingTools.join(', ')}`);
     }
+  }
+
+  private getIntentCategory(intent: Intent): string | undefined {
+    const entities = intent.entities.map(e => e.toLowerCase());
+
+    if (entities.includes('contract') || entities.includes('validation')) {
+      return 'contract-validation';
+    }
+
+    if (entities.includes('compliance') || entities.includes('producer')) {
+      return 'compliance';
+    }
+
+    if (entities.includes('analytics') || entities.includes('analysis')) {
+      return 'analytics';
+    }
+
+    if (entities.includes('shipment')) {
+      return 'shipment-management';
+    }
+
+    return undefined;
   }
 
   private isToolSuitableForIntent(toolName: string, intentType: string, entities: string[]): boolean {
@@ -338,20 +491,20 @@ Ensure all required parameters are included and step dependencies are correctly 
 
     return false;
   }
-  
+
   private validateOperationSupport(plan: Plan, intent: Intent): void {
     const tools = plan.steps.map(step => step.tool);
-    
+
     // Check if plan supports required operations
     for (const operation of intent.operations) {
       if (operation === 'filter_high_risk' && !tools.some(t => t.includes('contaminants'))) {
         console.warn('[PlannerAgent] High-risk filtering requires contaminant tools');
       }
-      
+
       if (operation === 'check_capacity' && !tools.some(t => t.includes('facilities'))) {
         console.warn('[PlannerAgent] Capacity checking requires facility tools');
       }
-      
+
       if (operation === 'analyze_contamination' && !tools.some(t => t.includes('contaminants'))) {
         console.warn('[PlannerAgent] Contamination analysis requires contaminant tools');
       }
@@ -377,6 +530,33 @@ AVAILABLE TOOLS:
 ${toolDescriptions}
 
 IMPORTANT: Tool names use underscores like shipments_list, facilities_list, contaminants_list, inspections_list
+
+TOOL RELATIONSHIP GUIDANCE:
+When selecting tools, consider their relationships for comprehensive results:
+
+CONTRACT VALIDATION SCENARIOS:
+- contracts_list + shipment_loads_list + waste_producers_list
+- shipments_validate_against_contract + contracts_get + shipment_loads_list
+- contracts_get_with_producer + waste_producers_list + contracts_list
+
+COMPLIANCE ANALYSIS SCENARIOS:
+- producers_get_compliance_report + contracts_list + shipments_list
+- analytics_facility_performance + facilities_list + shipments_list + inspections_list
+
+ANALYTICS SCENARIOS:
+- analytics_contamination_rate + contaminants_list + shipments_list
+- analytics_waste_distribution + shipments_list + shipment_compositions_list
+- analytics_facility_performance + facilities_list + shipments_list + inspections_list
+
+SHIPMENT ANALYSIS SCENARIOS:
+- shipments_list + facilities_list + contaminants_list
+- shipments_get_with_contaminants + contaminants_list + facilities_list
+- shipment_compositions_list + shipment_loads_list + contracts_list
+
+MULTI-ENTITY QUERIES:
+- Use separate steps for each entity with proper dependencies
+- Include supporting tools that provide context and related data
+- Always consider complementary tools that work well together
 
 TEMPLATE SYNTAX RULES:
 ✓ CORRECT: "\${step[0].data.*.id}" - Maps all IDs from array
@@ -606,6 +786,140 @@ RESPONSE FORMAT (JSON only):
       if (paramsStr.includes('${step[') && (!step.depends_on || step.depends_on.length === 0)) {
         console.warn(`[Planner] Step ${step.tool} uses template but has no dependencies`);
       }
+    }
+  }
+
+
+  /**
+   * Check if tool is a complex relationship tool
+   */
+  private isRelationshipTool(toolName: string): boolean {
+    return toolName.includes('_with_') || toolName.includes('_detailed');
+  }
+
+  /**
+   * Simplify plan by decomposing complex relationship tools into basic CRUD operations
+   */
+  private simplifyPlan(plan: Plan): Plan {
+    const simplifiedSteps: any[] = [];
+
+    for (const step of plan.steps) {
+      // Check if this is a complex relationship tool
+      if (this.isRelationshipTool(step.tool)) {
+        // Try to decompose into basic operations
+        const basicSteps = this.decomposeRelationshipTool(step);
+        if (basicSteps.length > 0) {
+          console.log(`[PlannerAgent] Simplified ${step.tool} into ${basicSteps.length} basic operations`);
+          simplifiedSteps.push(...basicSteps);
+          continue;
+        }
+      }
+      simplifiedSteps.push(step);
+    }
+
+    return { ...plan, steps: simplifiedSteps };
+  }
+
+  /**
+   * Decompose relationship tools into basic CRUD operations
+   */
+  private decomposeRelationshipTool(step: any): any[] {
+    // Decompose relationship tools into basic CRUD operations
+    switch (step.tool) {
+      case 'facilities_get_with_activity':
+        return [
+          {
+            tool: 'facilities_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          },
+          {
+            tool: 'inspections_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: true
+          }
+        ];
+
+      case 'shipments_get_with_contaminants':
+        return [
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'contaminants_list',
+            params: { shipment_ids: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'facilities_get_detailed':
+        return [
+          {
+            tool: 'facilities_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_list',
+            params: { facility_id: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'inspections_get_detailed':
+        return [
+          {
+            tool: 'inspections_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.shipment_id || '${step[0].data.shipment_id}' },
+            dependsOn: [0],
+            parallel: false
+          }
+        ];
+
+      case 'shipments_get_detailed':
+        return [
+          {
+            tool: 'shipments_get',
+            params: { id: step.params.id },
+            dependsOn: [],
+            parallel: false
+          },
+          {
+            tool: 'contaminants_list',
+            params: { shipment_ids: step.params.id },
+            dependsOn: [0],
+            parallel: false
+          },
+          {
+            tool: 'inspections_list',
+            params: { shipment_id: step.params.id },
+            dependsOn: [0],
+            parallel: true
+          }
+        ];
+
+      default:
+        return []; // Can't decompose, keep original
     }
   }
 

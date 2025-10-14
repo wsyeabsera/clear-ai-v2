@@ -1,0 +1,46 @@
+id: relationship-management-001
+name: "Producer-facility relationship analysis"
+category: relationship-management
+description: |
+  Test analyzing relationships between producers and facilities.
+  Tests cross-resource relationship analysis.
+
+tags:
+  - relationships
+  - producers
+  - facilities
+  - analysis
+
+priority: medium
+
+query: "Analyze the relationships between producers and facilities, showing contract volumes and performance"
+
+expectedBehavior:
+  toolsUsed:
+    - waste_producers_list
+    - facilities_list
+    - contracts_list
+    - shipments_list
+  minResults: 1
+  maxLatencyMs: 25000
+  responseContains:
+    - relationship
+    - producer
+    - facility
+    - contract
+  analysisRequired: true
+
+validation:
+  - type: tool_selection
+    expected:
+      - waste_producers_list
+      - facilities_list
+      - contracts_list
+      - shipments_list
+    allowExtra: true
+  - type: performance
+    maxLatencyMs: 25000
+  - type: response_content
+    mustContain:
+      - "relationship"
+      - "producer"

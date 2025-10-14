@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Tester Report - 2025-10-14T07:07:51.007Z</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #34495e; margin-top: 30px; margin-bottom: 15px; font-size: 1.8em; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h3 { color: #7f8c8d; margin-top: 20px; margin-bottom: 10px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .summary-card.success { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+        .summary-card.failure { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+        .summary-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .summary-card h3 { color: white; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase; }
+        .summary-card .value { font-size: 2.5em; font-weight: bold; }
+        .summary-card .label { font-size: 0.85em; opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .passed { color: #27ae60; font-weight: bold; }
+        .failed { color: #e74c3c; font-weight: bold; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge.passed { background: #d4edda; color: #155724; }
+        .badge.failed { background: #f8d7da; color: #721c24; }
+        .badge.warning { background: #fff3cd; color: #856404; }
+        .tools { font-family: 'Courier New', monospace; font-size: 0.9em; color: #555; }
+        .timestamp { color: #7f8c8d; font-size: 0.9em; }
+        .chart { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .progress-bar { width: 100%; height: 30px; background: #ecf0f1; border-radius: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%); transition: width 0.3s; }
+        .error-details { background: #fff5f5; border-left: 4px solid #e74c3c; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .warning-details { background: #fffbf0; border-left: 4px solid #f39c12; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Agent Tester Report</h1>
+        <p class="timestamp">Generated: 2025-10-14T07:07:51.007Z</p>
+
+        <h2>📊 Summary</h2>
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Tests</h3>
+                <div class="value">90</div>
+                <div class="label">scenarios executed</div>
+            </div>
+            <div class="summary-card success">
+                <h3>Passed</h3>
+                <div class="value">45</div>
+                <div class="label">50% success</div>
+            </div>
+            <div class="summary-card failure">
+                <h3>Failed</h3>
+                <div class="value">45</div>
+                <div class="label">need attention</div>
+            </div>
+            <div class="summary-card warning">
+                <h3>Duration</h3>
+                <div class="value">17m 56s</div>
+                <div class="label">avg 11.95s/test</div>
+            </div>
+        </div>
+
+        <div class="chart">
+            <h3>Success Rate</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+            <p style="text-align: center; margin-top: 10px;">50% Pass Rate</p>
+        </div>
+
+        <h2>📋 Test Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Scenario ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Tools Used</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>analytics-003</code></td>
+                    <td>Contract efficiency analysis</td>
+                    <td><span class="badge">analytics</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>13031ms</td>
+                    <td class="tools">
+                        contracts_list, shipments_list, shipment_compositions_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>analytics-004</code></td>
+                    <td>Detection confidence analysis</td>
+                    <td><span class="badge">analytics</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>9805ms</td>
+                    <td class="tools">
+                        shipment_loads_list, shipment_loads_update, analytics_contamination_rate
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>analytics-005</code></td>
+                    <td>Facility capacity utilization analysis</td>
+                    <td><span class="badge">analytics</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>14052ms</td>
+                    <td class="tools">
+                        facilities_list, analytics_facility_performance
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>analytics-002</code></td>
+                    <td>Producer performance analytics</td>
+                    <td><span class="badge">analytics</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>10033ms</td>
+                    <td class="tools">
+                        waste_producers_list, contracts_list, shipments_list, shipments_list, shipments_list, shipments_list, shipments_list, contracts_get_with_producer, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>analytics-001</code></td>
+                    <td>Waste code distribution analysis</td>
+                    <td><span class="badge">analytics</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6823ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_compositions_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>anomaly-detection-003</code></td>
+                    <td>Detect contract anomalies</td>
+                    <td><span class="badge">anomaly-detection</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>8736ms</td>
+                    <td class="tools">
+                        contracts_list, analytics_facility_performance
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>anomaly-detection-005</code></td>
+                    <td>Detect detection confidence anomalies</td>
+                    <td><span class="badge">anomaly-detection</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7851ms</td>
+                    <td class="tools">
+                        shipment_loads_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>anomaly-detection-004</code></td>
+                    <td>Detect producer anomalies</td>
+                    <td><span class="badge">anomaly-detection</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7020ms</td>
+                    <td class="tools">
+                        shipments_list, waste_producers_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>anomaly-detection-001</code></td>
+                    <td>Detect unusual waste codes in shipments</td>
+                    <td><span class="badge">anomaly-detection</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>8745ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_loads_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>anomaly-detection-002</code></td>
+                    <td>Detect weight anomalies in shipments</td>
+                    <td><span class="badge">anomaly-detection</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>13303ms</td>
+                    <td class="tools">
+                        shipments_list, shipments_list, shipments_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-012</code></td>
+                    <td>Analyze carrier performance and contamination correlation</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>12265ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list, analyze_contamination
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-001</code></td>
+                    <td>Analyze contaminated shipments and their facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>10830ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-006</code></td>
+                    <td>Analyze contamination trends over time</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7949ms</td>
+                    <td class="tools">
+                        analytics_contamination_rate, analytics_risk_trends
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-017</code></td>
+                    <td>Cost-benefit analysis of inspection processes</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>11539ms</td>
+                    <td class="tools">
+                        facilities_list, inspections_list, contaminants_list, analytics_contamination_rate
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-005</code></td>
+                    <td>Compare contamination rates across facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>11845ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list, contaminants_list, contaminants_list, analytics_contamination_rate
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-002</code></td>
+                    <td>Check facility capacity and incoming shipments</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4091ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-014</code></td>
+                    <td>Optimize facility load distribution</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7295ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-016</code></td>
+                    <td>Geographic distribution analysis</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>12049ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-007</code></td>
+                    <td>Identify high-risk facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9204ms</td>
+                    <td class="tools">
+                        analytics_contamination_rate, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-009</code></td>
+                    <td>Evaluate inspection effectiveness</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>14081ms</td>
+                    <td class="tools">
+                        inspections_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-019</code></td>
+                    <td>Analyze inspector performance</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8980ms</td>
+                    <td class="tools">
+                        inspections_list, shipments_list, facilities_list, waste_producers_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-011</code></td>
+                    <td>Compare performance across multiple facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>12057ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list, facilities_list, analytics_facility_performance
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-013</code></td>
+                    <td>Analyze rejected shipments and root causes</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>11791ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list, analytics_contamination_rate
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-003</code></td>
+                    <td>Comprehensive contamination risk assessment</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8498ms</td>
+                    <td class="tools">
+                        contaminants_list, analytics_contamination_rate
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-018</code></td>
+                    <td>Identify seasonal shipment patterns</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9714ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list, analytics_contamination_rate, analytics_waste_distribution
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-008</code></td>
+                    <td>Analyze shipment flow between facilities</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5819ms</td>
+                    <td class="tools">
+                        shipments_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-004</code></td>
+                    <td>Track shipment lifecycle with inspections</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4204ms</td>
+                    <td class="tools">
+                        shipments_get_detailed
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-015</code></td>
+                    <td>Detect temporal patterns in contamination</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7540ms</td>
+                    <td class="tools">
+                        analytics_risk_trends
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-020</code></td>
+                    <td>Correlate waste types with contamination</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6701ms</td>
+                    <td class="tools">
+                        analytics_contamination_rate
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>complex-010</code></td>
+                    <td>Analyze waste type distribution</td>
+                    <td><span class="badge">complex</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5747ms</td>
+                    <td class="tools">
+                        shipments_list, analytics_waste_distribution
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>compliance-checking-005</code></td>
+                    <td>Compliance trend analysis</td>
+                    <td><span class="badge">compliance-checking</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4539ms</td>
+                    <td class="tools">
+                        contracts_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>compliance-checking-002</code></td>
+                    <td>Facility compliance metrics</td>
+                    <td><span class="badge">compliance-checking</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7603ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list, shipments_validate_against_contract
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>compliance-checking-001</code></td>
+                    <td>Producer compliance analysis</td>
+                    <td><span class="badge">compliance-checking</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>10234ms</td>
+                    <td class="tools">
+                        waste_producers_list, contracts_list, shipments_list, shipment_compositions_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>compliance-checking-004</code></td>
+                    <td>Producer performance ranking</td>
+                    <td><span class="badge">compliance-checking</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7039ms</td>
+                    <td class="tools">
+                        waste_producers_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>compliance-checking-003</code></td>
+                    <td>Waste code compliance report</td>
+                    <td><span class="badge">compliance-checking</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7789ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_compositions_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>contract-validation-004</code></td>
+                    <td>Analyze active contracts and performance</td>
+                    <td><span class="badge">contract-validation</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>11040ms</td>
+                    <td class="tools">
+                        contracts_list, analytics_facility_performance
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>contract-validation-003</code></td>
+                    <td>Generate contract compliance report</td>
+                    <td><span class="badge">contract-validation</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6332ms</td>
+                    <td class="tools">
+                        waste_producers_get, contracts_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>contract-validation-005</code></td>
+                    <td>Validate waste codes against contract declarations</td>
+                    <td><span class="badge">contract-validation</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>8524ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_loads_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>contract-validation-002</code></td>
+                    <td>Find contract violations in shipments</td>
+                    <td><span class="badge">contract-validation</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>8082ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_compositions_list, contracts_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>contract-validation-001</code></td>
+                    <td>Validate shipment against contract terms</td>
+                    <td><span class="badge">contract-validation</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4572ms</td>
+                    <td class="tools">
+                        shipments_get, shipments_validate_against_contract
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-cases-003</code></td>
+                    <td>Ambiguous producer queries</td>
+                    <td><span class="badge">edge-cases</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4611ms</td>
+                    <td class="tools">
+                        waste_producers_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-002</code></td>
+                    <td>Handle ambiguous query</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7442ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list, contaminants_list, inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-009</code></td>
+                    <td>Handle mixed case in filters</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8370ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-cases-005</code></td>
+                    <td>Confidence threshold edge cases</td>
+                    <td><span class="badge">edge-cases</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>13341ms</td>
+                    <td class="tools">
+                        -
+                    </td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-cases-002</code></td>
+                    <td>Contract date edge cases</td>
+                    <td><span class="badge">edge-cases</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9692ms</td>
+                    <td class="tools">
+                        contracts_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-003</code></td>
+                    <td>Query returning no results</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6210ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-001</code></td>
+                    <td>Query with non-existent facility ID</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5743ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-cases-001</code></td>
+                    <td>Invalid waste code handling</td>
+                    <td><span class="badge">edge-cases</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7626ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_compositions_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-004</code></td>
+                    <td>Handle malformed date input</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6247ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-cases-004</code></td>
+                    <td>Missing data handling</td>
+                    <td><span class="badge">edge-cases</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6755ms</td>
+                    <td class="tools">
+                        waste_producers_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-010</code></td>
+                    <td>Handle missing/null values gracefully</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>12050ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-007</code></td>
+                    <td>Handle numeric overflow in filters</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5458ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-005</code></td>
+                    <td>Handle special characters in query</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6674ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-008</code></td>
+                    <td>Handle Unicode and emoji in queries</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7347ms</td>
+                    <td class="tools">
+                        facilities_list, facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>edge-006</code></td>
+                    <td>Handle very long query text</td>
+                    <td><span class="badge">edge-case</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8276ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-001</code></td>
+                    <td>Use context from previous query</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9153ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list, analytics_contamination_rate
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-002</code></td>
+                    <td>Reference entities from context</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6566ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-003</code></td>
+                    <td>Apply implicit filters from context</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6752ms</td>
+                    <td class="tools">
+                        shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-005</code></td>
+                    <td>Maintain context in long conversations</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>5664ms</td>
+                    <td class="tools">
+                        analytics_contamination_rate
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>memory-004</code></td>
+                    <td>Multi-turn conversation flow</td>
+                    <td><span class="badge">memory</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6375ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>multi-step-workflows-002</code></td>
+                    <td>Contract renewal workflow</td>
+                    <td><span class="badge">multi-step-workflows</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>7430ms</td>
+                    <td class="tools">
+                        contracts_list, analytics_facility_performance, contracts_update
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>multi-step-workflows-004</code></td>
+                    <td>Facility audit workflow</td>
+                    <td><span class="badge">multi-step-workflows</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6514ms</td>
+                    <td class="tools">
+                        facilities_list, contracts_list, shipments_list, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>multi-step-workflows-001</code></td>
+                    <td>Onboard new producer workflow</td>
+                    <td><span class="badge">multi-step-workflows</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>16349ms</td>
+                    <td class="tools">
+                        waste_producers_create, contracts_create, facilities_list, shipments_create
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>multi-step-workflows-005</code></td>
+                    <td>Producer compliance workflow</td>
+                    <td><span class="badge">multi-step-workflows</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>4860ms</td>
+                    <td class="tools">
+                        waste_producers_get, contracts_list, shipments_list, shipments_validate_against_contract
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>multi-step-workflows-003</code></td>
+                    <td>Shipment processing workflow</td>
+                    <td><span class="badge">multi-step-workflows</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6212ms</td>
+                    <td class="tools">
+                        shipments_get, shipment_compositions_create, shipment_loads_create, shipments_validate_against_contract
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-003</code></td>
+                    <td>Complex aggregation query</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9526ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-001</code></td>
+                    <td>10 concurrent simple queries</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>4758ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-002</code></td>
+                    <td>Query returning large dataset</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>5340ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-004</code></td>
+                    <td>Heavy multi-tool query</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>12772ms</td>
+                    <td class="tools">
+                        shipments_list, facilities_list, inspections_list, contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>perf-005</code></td>
+                    <td>Rapid succession queries</td>
+                    <td><span class="badge">performance</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>10210ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>relationship-management-002</code></td>
+                    <td>Contract-shipment relationship tracking</td>
+                    <td><span class="badge">relationship-management</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>6291ms</td>
+                    <td class="tools">
+                        contracts_get, shipments_list, shipments_validate_against_contract, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>relationship-management-005</code></td>
+                    <td>Facility-producer network analysis</td>
+                    <td><span class="badge">relationship-management</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>8465ms</td>
+                    <td class="tools">
+                        contracts_list, facilities_list, waste_producers_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>relationship-management-004</code></td>
+                    <td>Producer contract performance tracking</td>
+                    <td><span class="badge">relationship-management</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>56202ms</td>
+                    <td class="tools">
+                        contracts_list, contracts_get_with_producer, producers_get_compliance_report
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>relationship-management-001</code></td>
+                    <td>Producer-facility relationship analysis</td>
+                    <td><span class="badge">relationship-management</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>14362ms</td>
+                    <td class="tools">
+                        contracts_list, facilities_list, waste_producers_list
+                    </td>
+                    <td>67%</td>
+                </tr>
+                <tr>
+                    <td><code>relationship-management-003</code></td>
+                    <td>Waste code to contract mapping</td>
+                    <td><span class="badge">relationship-management</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>20925ms</td>
+                    <td class="tools">
+                        shipments_list, shipment_loads_list, contracts_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-analytics-001</code></td>
+                    <td>Get contamination rate analytics</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>18360ms</td>
+                    <td class="tools">
+                        analytics_contamination_rate
+                    </td>
+                    <td>75%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-analytics-002</code></td>
+                    <td>Get facility performance analytics</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>14423ms</td>
+                    <td class="tools">
+                        facilities_list, analytics_facility_performance
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-002</code></td>
+                    <td>List contaminants by risk level</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>17115ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-003</code></td>
+                    <td>List contaminants by shipment</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6144ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-contaminants-001</code></td>
+                    <td>List all contaminants</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8070ms</td>
+                    <td class="tools">
+                        contaminants_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-002</code></td>
+                    <td>List facilities by location</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7516ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-003</code></td>
+                    <td>List facilities by type</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>32563ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-facilities-001</code></td>
+                    <td>List all facilities</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>18832ms</td>
+                    <td class="tools">
+                        facilities_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-inspections-002</code></td>
+                    <td>List inspections by facility</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge failed">✗ FAILED</span>
+                    </td>
+                    <td>206858ms</td>
+                    <td class="tools">
+                        facilities_list, inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-inspections-001</code></td>
+                    <td>List all inspections</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>6708ms</td>
+                    <td class="tools">
+                        inspections_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-002</code></td>
+                    <td>List shipments by date range</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8711ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-004</code></td>
+                    <td>List shipments by facility</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>8420ms</td>
+                    <td class="tools">
+                        facilities_list, shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-003</code></td>
+                    <td>List shipments by status</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>9630ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-005</code></td>
+                    <td>List contaminated shipments</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7388ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td><code>simple-shipments-001</code></td>
+                    <td>List all shipments</td>
+                    <td><span class="badge">simple</span></td>
+                    <td>
+                        <span class="badge passed">✓ PASSED</span>
+                    </td>
+                    <td>7226ms</td>
+                    <td class="tools">
+                        shipments_list
+                    </td>
+                    <td>100%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>❌ Failed Scenarios</h2>
+        <div class="error-details">
+            <h3>analytics-003: Contract efficiency analysis</h3>
+            <p><strong>Category:</strong> analytics</p>
+            <p><strong>Query:</strong> Analyze contract efficiency by comparing declared vs actual waste types and utilization rates</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>analytics-004: Detection confidence analysis</h3>
+            <p><strong>Category:</strong> analytics</p>
+            <p><strong>Query:</strong> Analyze camera detection confidence levels and identify patterns in detection accuracy</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_compositions_list</li>
+                <li>Response missing expected content: accuracy</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>analytics-005: Facility capacity utilization analysis</h3>
+            <p><strong>Category:</strong> analytics</p>
+            <p><strong>Query:</strong> Analyze facility capacity utilization rates and identify over/under-utilized facilities</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, contracts_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>analytics-002: Producer performance analytics</h3>
+            <p><strong>Category:</strong> analytics</p>
+            <p><strong>Query:</strong> Analyze producer performance metrics including compliance rates, shipment volumes, and contract adherence</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+                <li>Response missing expected content: ranking</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>analytics-001: Waste code distribution analysis</h3>
+            <p><strong>Category:</strong> analytics</p>
+            <p><strong>Query:</strong> Analyze the distribution of European waste codes across all shipments and identify the most common codes</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+                <li>Response missing expected content: distribution</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>anomaly-detection-003: Detect contract anomalies</h3>
+            <p><strong>Category:</strong> anomaly-detection</p>
+            <p><strong>Query:</strong> Find contracts with unusual terms or performance patterns</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, shipment_loads_list</li>
+                <li>Response missing expected content: anomaly, unusual</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>anomaly-detection-005: Detect detection confidence anomalies</h3>
+            <p><strong>Category:</strong> anomaly-detection</p>
+            <p><strong>Query:</strong> Find shipments with unusually low camera detection confidence that might indicate detection issues</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Response missing expected content: anomaly</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>anomaly-detection-004: Detect producer anomalies</h3>
+            <p><strong>Category:</strong> anomaly-detection</p>
+            <p><strong>Query:</strong> Identify producers with anomalous shipment patterns or compliance issues</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list, contracts_list</li>
+                <li>Response missing expected content: anomaly</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>anomaly-detection-001: Detect unusual waste codes in shipments</h3>
+            <p><strong>Category:</strong> anomaly-detection</p>
+            <p><strong>Query:</strong> Find shipments with unusual waste codes that don&#x27;t match typical patterns</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_compositions_list</li>
+                <li>Response missing expected content: anomaly, unusual</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>anomaly-detection-002: Detect weight anomalies in shipments</h3>
+            <p><strong>Category:</strong> anomaly-detection</p>
+            <p><strong>Query:</strong> Find shipments with unusual weights that are significantly different from normal patterns</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+                <li>Response missing expected content: anomaly</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-001: Analyze contaminated shipments and their facilities</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Show me contaminated shipments from the last month and which facilities received them</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Response missing expected content: contaminant</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-006: Analyze contamination trends over time</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Analyze contamination trends over the last 30 days</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contaminants_list</li>
+                <li>Response missing expected content: contaminant</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-002: Check facility capacity and incoming shipments</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Which facilities are near capacity and how many shipments are they receiving?</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Response missing expected content: facility</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-004: Track shipment lifecycle with inspections</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Track shipment SHP-001 from origin to destination including all inspections</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-015: Detect temporal patterns in contamination</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Are there any time-based patterns in when contamination is detected?</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contaminants_list</li>
+                <li>Response missing expected content: contaminant</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>complex-020: Correlate waste types with contamination</h3>
+            <p><strong>Category:</strong> complex</p>
+            <p><strong>Query:</strong> Which types of waste are most likely to be contaminated?</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contaminants_list</li>
+                <li>Response missing expected content: contaminant</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>compliance-checking-005: Compliance trend analysis</h3>
+            <p><strong>Category:</strong> compliance-checking</p>
+            <p><strong>Query:</strong> Analyze compliance trends over the last 6 months and identify any patterns</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>compliance-checking-002: Facility compliance metrics</h3>
+            <p><strong>Category:</strong> compliance-checking</p>
+            <p><strong>Query:</strong> Calculate compliance metrics for all facilities based on received shipments</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_list, shipment_loads_list</li>
+                <li>Response missing expected content: compliance, metric</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>compliance-checking-001: Producer compliance analysis</h3>
+            <p><strong>Category:</strong> compliance-checking</p>
+            <p><strong>Query:</strong> Show me all producers who have shipped waste types not declared in their contracts in the last 30 days</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+                <li>Response missing expected content: violation</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>compliance-checking-004: Producer performance ranking</h3>
+            <p><strong>Category:</strong> compliance-checking</p>
+            <p><strong>Query:</strong> Rank all producers by their compliance performance and show the top 5 and bottom 5</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_list, shipments_list, shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>compliance-checking-003: Waste code compliance report</h3>
+            <p><strong>Category:</strong> compliance-checking</p>
+            <p><strong>Query:</strong> Generate a report showing compliance rates for each European waste code across all shipments</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list, contracts_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>contract-validation-004: Analyze active contracts and performance</h3>
+            <p><strong>Category:</strong> contract-validation</p>
+            <p><strong>Query:</strong> Show me all active contracts and their performance metrics including compliance rates</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>contract-validation-003: Generate contract compliance report</h3>
+            <p><strong>Category:</strong> contract-validation</p>
+            <p><strong>Query:</strong> Generate a compliance report for producer PR-001 showing all contract violations in the last 30 days</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>contract-validation-005: Validate waste codes against contract declarations</h3>
+            <p><strong>Category:</strong> contract-validation</p>
+            <p><strong>Query:</strong> Validate that all detected waste codes in recent shipments match their contract declarations</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_list, shipment_compositions_list</li>
+                <li>Response missing expected content: validation</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>contract-validation-002: Find contract violations in shipments</h3>
+            <p><strong>Category:</strong> contract-validation</p>
+            <p><strong>Query:</strong> Find all shipments where the detected waste composition differs from the contract by more than 20%</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+                <li>Response missing expected content: violation</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>contract-validation-001: Validate shipment against contract terms</h3>
+            <p><strong>Category:</strong> contract-validation</p>
+            <p><strong>Query:</strong> Check if shipment SH-001 matches the contract terms for producer PR-001</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_get, shipment_loads_list</li>
+                <li>Response missing expected content: validation, compliance</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>edge-cases-003: Ambiguous producer queries</h3>
+            <p><strong>Category:</strong> edge-cases</p>
+            <p><strong>Query:</strong> Show me information about the producer</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Response missing expected content: ambiguous</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>edge-cases-005: Confidence threshold edge cases</h3>
+            <p><strong>Category:</strong> edge-cases</p>
+            <p><strong>Query:</strong> Find shipments with detection confidence exactly 0.5 and analyze their accuracy</p>
+            <p><strong>Error:</strong> text.toLowerCase is not a function</p>
+        </div>
+        <div class="error-details">
+            <h3>edge-cases-001: Invalid waste code handling</h3>
+            <p><strong>Category:</strong> edge-cases</p>
+            <p><strong>Query:</strong> Find shipments with waste code &#x27;INVALID-CODE-999999&#x27; and analyze their composition</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>edge-cases-004: Missing data handling</h3>
+            <p><strong>Category:</strong> edge-cases</p>
+            <p><strong>Query:</strong> Analyze the contract compliance for a producer that has no contracts</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>memory-005: Maintain context in long conversations</h3>
+            <p><strong>Category:</strong> memory</p>
+            <p><strong>Query:</strong> What were the key findings from the contamination analysis?</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contaminants_list</li>
+                <li>Response missing expected content: contaminant</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>multi-step-workflows-002: Contract renewal workflow</h3>
+            <p><strong>Category:</strong> multi-step-workflows</p>
+            <p><strong>Query:</strong> Find expiring contracts, analyze their performance, and renew the best performing ones</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list, shipment_loads_list</li>
+                <li>Response missing expected content: renewal</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>multi-step-workflows-004: Facility audit workflow</h3>
+            <p><strong>Category:</strong> multi-step-workflows</p>
+            <p><strong>Query:</strong> Conduct a comprehensive audit of facility F-001: check contracts, shipments, and compliance</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: facilities_get, shipment_loads_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>multi-step-workflows-005: Producer compliance workflow</h3>
+            <p><strong>Category:</strong> multi-step-workflows</p>
+            <p><strong>Query:</strong> Review producer PR-001 compliance, identify violations, and recommend corrective actions</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list, contracts_update</li>
+                <li>Response missing expected content: action</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>multi-step-workflows-003: Shipment processing workflow</h3>
+            <p><strong>Category:</strong> multi-step-workflows</p>
+            <p><strong>Query:</strong> Process shipment SH-001: create composition analysis, detect loads, and validate against contract</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contracts_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>relationship-management-002: Contract-shipment relationship tracking</h3>
+            <p><strong>Category:</strong> relationship-management</p>
+            <p><strong>Query:</strong> Track the fulfillment of contract CT-001 by analyzing associated shipments and compliance</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipment_loads_list, shipment_compositions_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>relationship-management-005: Facility-producer network analysis</h3>
+            <p><strong>Category:</strong> relationship-management</p>
+            <p><strong>Query:</strong> Analyze the network of relationships between facilities and producers, showing connection patterns and volumes</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list</li>
+                <li>Response missing expected content: network</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>relationship-management-004: Producer contract performance tracking</h3>
+            <p><strong>Category:</strong> relationship-management</p>
+            <p><strong>Query:</strong> Track producer PR-001 performance across all their contracts and identify the best performing contract</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: waste_producers_get, shipments_list, shipment_loads_list</li>
+                <li>Latency 56202ms exceeds maximum 25000ms</li>
+                <li>Response missing expected content: tracking</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>relationship-management-001: Producer-facility relationship analysis</h3>
+            <p><strong>Category:</strong> relationship-management</p>
+            <p><strong>Query:</strong> Analyze the relationships between producers and facilities, showing contract volumes and performance</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: shipments_list</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>relationship-management-003: Waste code to contract mapping</h3>
+            <p><strong>Category:</strong> relationship-management</p>
+            <p><strong>Query:</strong> Map detected waste codes in recent shipments to their contract declarations and identify mismatches</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 20925ms exceeds maximum 20000ms</li>
+                <li>Response missing expected content: mapping</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>simple-analytics-001: Get contamination rate analytics</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Get the overall contamination statistics and rate</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Missing tools: contaminants_list</li>
+                <li>Latency 18360ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>simple-contaminants-002: List contaminants by risk level</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Show me all high risk contaminants</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 17115ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>simple-facilities-003: List facilities by type</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Show me all processing facilities</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 32563ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>simple-facilities-001: List all facilities</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Show me all facilities</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 18832ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+        <div class="error-details">
+            <h3>simple-inspections-002: List inspections by facility</h3>
+            <p><strong>Category:</strong> simple</p>
+            <p><strong>Query:</strong> Show me inspections for facility FAC-001</p>
+            <p><strong>Validation Errors:</strong></p>
+            <ul>
+                <li>Latency 206858ms exceeds maximum 15000ms</li>
+            </ul>
+        </div>
+
+        <h2>⚠️ Warnings</h2>
+        <div class="warning-details">
+            <h3>analytics-003: Contract efficiency analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>analytics-004: Detection confidence analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>analytics-005: Facility capacity utilization analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>analytics-002: Producer performance analytics</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>analytics-001: Waste code distribution analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>anomaly-detection-003: Detect contract anomalies</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>anomaly-detection-005: Detect detection confidence anomalies</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>anomaly-detection-004: Detect producer anomalies</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>anomaly-detection-001: Detect unusual waste codes in shipments</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>anomaly-detection-002: Detect weight anomalies in shipments</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-001: Analyze contaminated shipments and their facilities</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-006: Analyze contamination trends over time</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-005: Compare contamination rates across facilities</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-002: Check facility capacity and incoming shipments</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-007: Identify high-risk facilities</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-011: Compare performance across multiple facilities</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-013: Analyze rejected shipments and root causes</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-003: Comprehensive contamination risk assessment</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-015: Detect temporal patterns in contamination</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>complex-020: Correlate waste types with contamination</h3>
+            <ul>
+                <li>Unknown validation type: analysis_quality</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>compliance-checking-005: Compliance trend analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>compliance-checking-002: Facility compliance metrics</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>compliance-checking-001: Producer compliance analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>compliance-checking-004: Producer performance ranking</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>compliance-checking-003: Waste code compliance report</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>contract-validation-004: Analyze active contracts and performance</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>contract-validation-003: Generate contract compliance report</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>contract-validation-005: Validate waste codes against contract declarations</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>contract-validation-002: Find contract violations in shipments</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>contract-validation-001: Validate shipment against contract terms</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>edge-cases-003: Ambiguous producer queries</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>edge-cases-002: Contract date edge cases</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>edge-cases-001: Invalid waste code handling</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>edge-cases-004: Missing data handling</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>multi-step-workflows-002: Contract renewal workflow</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>multi-step-workflows-004: Facility audit workflow</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>multi-step-workflows-001: Onboard new producer workflow</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>multi-step-workflows-005: Producer compliance workflow</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>multi-step-workflows-003: Shipment processing workflow</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>relationship-management-002: Contract-shipment relationship tracking</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>relationship-management-005: Facility-producer network analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>relationship-management-004: Producer contract performance tracking</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>relationship-management-001: Producer-facility relationship analysis</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>relationship-management-003: Waste code to contract mapping</h3>
+            <ul>
+                <li>Unknown validation type: response_content</li>
+            </ul>
+        </div>
+        <div class="warning-details">
+            <h3>simple-analytics-002: Get facility performance analytics</h3>
+            <ul>
+                <li>Latency 14423ms approaching limit 15000ms</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Generated by Agent Tester v1.0.0 | Clear AI v2</p>
+            <p>Report generated at 2025-10-14T07:07:51.007Z</p>
+        </footer>
+    </div>
+</body>
+</html>
+
