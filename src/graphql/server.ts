@@ -129,7 +129,9 @@ export class GraphQLAgentServer {
         'http://localhost:3001', 
         'http://192.168.2.216:3000',
         'http://192.168.2.216:3001',
-        'https://studio.apollographql.com',  // Add Apollo Studio
+        'https://studio.apollographql.com',  // Apollo Studio
+        'https://clear-ai-frontend-2c0lo39oh-christopher-baggins-projects.vercel.app',  // Vercel frontend
+        /^https:\/\/.*\.vercel\.app$/,  // All Vercel preview deployments
       ],
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS'],
